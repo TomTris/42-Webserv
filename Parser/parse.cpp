@@ -1,13 +1,4 @@
 
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <unistd.h>
-
 
 struct location
 {
@@ -28,12 +19,8 @@ struct server
     std::string servername;
     std::map<int, std::string> errorpages;
     int client_max_body_size;
-    std::vector<std::string> indexes;
-    std::string root;
     std::vector<location> locations;
 };
-
-int seenRoot = 0;
 
 long long my_atoi(std::string numb)
 {
@@ -58,7 +45,7 @@ int get_ip_as_number(std::string add, int& err)
         std::string temp = add.substr(0, add.find("."));
         if (temp == "")
         {
-            err =1;
+            err = 1;
             return 0;
         }
         add = add.substr(add.find(".") + 1, add.size());
@@ -67,7 +54,7 @@ int get_ip_as_number(std::string add, int& err)
         if (numb > 255)
         {
             err = 1;
-            return 0;
+            return 0;   
         }
         out |= numb;
     }
@@ -320,28 +307,6 @@ void handleMaxBody(std::string& body, server& s, int& err)
     s.client_max_body_size = numb;
 }
 
-void handleRoot(std::string& root, server& s, int& err)
-{
-    std::cout << root << std::endl;
-    root.pop_back();
-    if (root.find(' ') != std::string::npos)
-    {
-        err = 1;
-        return ;
-    }
-    s.root = root;
-}
-
-void handleIndex(std::string& indexes, server& s)
-{
-    indexes.pop_back();
-    while (indexes.find(' ') != std::string::npos)
-    {
-        s.indexes.push_back(getFistWordAndDelete(indexes));
-    }
-    s.indexes.push_back(indexes);
-}
-
 void add_to_loc(std::string& temp, location& loc, int & err)
 {
     std::string possibles[4] = {"PUT", "GET", "DELETE", "POST"};
@@ -374,6 +339,15 @@ void handleIndex(std::string& indexes, location& loc)
     loc.indexes.push_back(indexes);
 }
 
+void handleRoot(std::string& root, location& loc, int& err)
+{
+    if (root.find(' ') != std::string::npos)
+    {
+        err = 1;
+        return ;
+    }
+    loc.root = root;
+}
 
 void handleAllowMethods(std::string& methods, location &loc, int& err)
 {
@@ -389,6 +363,11 @@ void handleAllowMethods(std::string& methods, location &loc, int& err)
 
 void handleAutoindex(std::string& str, location &loc, int &err)
 {
+    if (str.find(' ') != std::string::npos)
+    {
+        err = 1;
+        return ;
+    }
     if (str == "on" || str == "off")
     {
         loc.autoindex = (str == "on");
@@ -398,7 +377,7 @@ void handleAutoindex(std::string& str, location &loc, int &err)
 }
 
 void handleCgiPath(std::string& path, location& loc, int &err)
-{   
+{
     std::string temp; 
     while (path.find(' ') != std::string::npos)
     {
@@ -409,7 +388,8 @@ void handleCgiPath(std::string& path, location& loc, int &err)
             err = 1;
             return ;
         }
-        loc.cgi_path.push_back(temp);
+        if (find(loc.cgi_path.begin(), loc.cgi_path.end(), temp) == loc.cgi_path.end())
+            loc.cgi_path.push_back(temp);
     }
     temp = path;
     if (temp[0] != '/' || access(temp.c_str(), F_OK) != 0)
@@ -417,12 +397,43 @@ void handleCgiPath(std::string& path, location& loc, int &err)
         err = 1;
         return ;
     }
-    loc.cgi_path.push_back(temp);
+    if (find(loc.cgi_path.begin(), loc.cgi_path.end(), temp) == loc.cgi_path.end())
+        loc.cgi_path.push_back(temp);
 }
 
 void handleCgiEx(std::string& exec, location& loc, int &err)
 {
+    std::string temp; 
+    while (exec.find(' ') != std::string::npos)
+    {
+        temp = exec.substr(0, exec.find(' '));
+        exec = exec.substr(exec.find(' ') + 1, exec.size());
+        if (temp[0] != '.')
+        {
+            err = 1;
+            return ;
+        }
+        if (find(loc.cgi_ex.begin(), loc.cgi_ex.end(), temp) == loc.cgi_ex.end())
+            loc.cgi_ex.push_back(temp);
+    }
+    temp = exec;
+    if (temp[0] != '.')
+    {
+        err = 1;
+        return ; 
+    }
+    if (find(loc.cgi_ex.begin(), loc.cgi_ex.end(), temp) == loc.cgi_ex.end())
+        loc.cgi_ex.push_back(temp);
+}
 
+void handleReturn(std::string& curLoc, location& loc, int &err)
+{
+    if (curLoc.find(' ') != std::string::npos)
+    {
+        err = 1;
+        return ;
+    }
+    loc.returning = curLoc;
 }
 
 void handleParamLocation(std::string& curLoc, location& loc, int &err)
@@ -446,6 +457,7 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     }
     std::string category = param.substr(0, param.find(' '));
     param = param.substr(param.find(' ') + 1);
+    std::cout << category << ">" << std::endl;
     if (category == "allowed_methods")
     {
         handleAllowMethods(param, loc, err);
@@ -453,6 +465,10 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     else if (category == "index")
     {
         handleIndex(param, loc);
+    }
+    else if (category == "root")
+    {
+        handleRoot(param, loc, err);
     }
     else if (category == "autoindex")
     {
@@ -517,11 +533,12 @@ void handleLocation(std::string& Location, server& s, int& err)
         i++;
         
     }
-    if (loc.returning != "" && i != 1)
+    if ((loc.returning != "" && i != 1) || loc.root == "" || loc.cgi_ex.size() != loc.cgi_path.size())
     {
         err = 1;
         return ;
     }
+
     s.locations.push_back(loc);
 }
 
@@ -558,15 +575,6 @@ void handleNotLocation(std::string& serv, server& s, int &err)
     {
         handleMaxBody(temp, s, err);
     }
-    else if (category == "root")
-    {
-        handleRoot(temp, s, err);
-        seenRoot = 1;
-    }
-    else if (category == "index")
-    {
-        handleIndex(temp, s);
-    }
     else
     {
         err = 1;
@@ -592,6 +600,7 @@ server createServer(std::string& serv, int& err)
         {
             handleNotLocation(serv, s, err);
         }
+        
         if (err)
             return s;
     }
@@ -623,11 +632,11 @@ int parse(std::string path)
     int err = 0;
     for (int i = 0; i < servers.size(); i++)
     {
-        seenRoot = 0;
+        std::cout << "asd" << std::endl;
         if (servers[i].substr(0, 7) != "server{")
             return 1;
         s.push_back(createServer(servers[i], err));
-        if (err || !seenRoot)
+        if (err)
             return 1;
         std::cout << s[s.size() - 1].client_max_body_size << std::endl;
     }

@@ -8,14 +8,14 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <string>
 #include <unistd.h>
+#include <cstring>
+#include <sys/event.h>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <algorithm>
 
-
-int my_atoi(std::string numb);
-int get_ip_as_number(std::string add);
-void set_bytes_to_zero(void *start, int len);
-void createIPv4address(sockaddr_in* address, std::string ip, int port);
-int createSocket();
+#include "Server/Server.hpp"
 
 #endif

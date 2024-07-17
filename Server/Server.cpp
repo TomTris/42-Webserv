@@ -1,9 +1,5 @@
 #include "Socket.hpp"
-#include <unistd.h>
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <sys/event.h>
+
 
 Socket::Socket(int domain, int service, int protocol, unsigned long interface, int port, int backlog)
 {
