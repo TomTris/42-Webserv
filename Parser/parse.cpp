@@ -5,12 +5,20 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <unistd.h>
 
 
-
-struct locations
+struct location
 {
-
+    std::string url;
+    std::vector<std::string> allowed;
+    std::string root;
+    bool autoindex;
+    std::vector<std::string> indexes;
+    std::vector<std::string> cgi_path;
+    std::vector<std::string> cgi_ex;
+    std::string returning;
 };
 
 struct server
@@ -22,7 +30,7 @@ struct server
     int client_max_body_size;
     std::vector<std::string> indexes;
     std::string root;
-    std::map<std::string, std::vector<int> > locations; 
+    std::vector<location> locations;
 };
 
 int seenRoot = 0;
@@ -314,53 +322,250 @@ void handleMaxBody(std::string& body, server& s, int& err)
 
 void handleRoot(std::string& root, server& s, int& err)
 {
+    std::cout << root << std::endl;
     root.pop_back();
     if (root.find(' ') != std::string::npos)
     {
         err = 1;
         return ;
     }
+    s.root = root;
+}
+
+void handleIndex(std::string& indexes, server& s)
+{
+    indexes.pop_back();
+    while (indexes.find(' ') != std::string::npos)
+    {
+        s.indexes.push_back(getFistWordAndDelete(indexes));
+    }
+    s.indexes.push_back(indexes);
+}
+
+void add_to_loc(std::string& temp, location& loc, int & err)
+{
+    std::string possibles[4] = {"PUT", "GET", "DELETE", "POST"};
+
+    int i = 0;
+    for (; i < 4; i++)
+    {
+        if (possibles[i] == temp)
+        {
+            break;
+        }
+    }
+    if (i == 4)
+    {
+        err = 1;
+        return ;
+    }
+    if (std::find(loc.allowed.begin(), loc.allowed.end(), possibles[i]) == loc.allowed.end())
+    {
+        loc.allowed.push_back(possibles[i]);
+    }
+}
+
+void handleIndex(std::string& indexes, location& loc)
+{
+    while (indexes.find(' ') != std::string::npos)
+    {
+        loc.indexes.push_back(getFistWordAndDelete(indexes));
+    }
+    loc.indexes.push_back(indexes);
+}
+
+
+void handleAllowMethods(std::string& methods, location &loc, int& err)
+{
+    std::string temp;
+    while (methods.find(' ') != std::string::npos)
+    {
+        temp = methods.substr(0, methods.find(' '));
+        methods = methods.substr(methods.find(' ') + 1, methods.size());
+        add_to_loc(temp, loc, err);
+    }
+    add_to_loc(methods, loc, err);
+}
+
+void handleAutoindex(std::string& str, location &loc, int &err)
+{
+    if (str == "on" || str == "off")
+    {
+        loc.autoindex = (str == "on");
+    }
+    else
+        err = 1;
+}
+
+void handleCgiPath(std::string& path, location& loc, int &err)
+{   
+    std::string temp; 
+    while (path.find(' ') != std::string::npos)
+    {
+        temp = path.substr(0, path.find(' '));
+        path = path.substr(path.find(' ') + 1, path.size());
+        if (temp[0] != '/' || access(temp.c_str(), F_OK) != 0)
+        {
+            err = 1;
+            return ;
+        }
+        loc.cgi_path.push_back(temp);
+    }
+    temp = path;
+    if (temp[0] != '/' || access(temp.c_str(), F_OK) != 0)
+    {
+        err = 1;
+        return ;
+    }
+    loc.cgi_path.push_back(temp);
+}
+
+void handleCgiEx(std::string& exec, location& loc, int &err)
+{
 
 }
 
-void handleLocation(std::string& serv, server& s, int& err)
+void handleParamLocation(std::string& curLoc, location& loc, int &err)
 {
-    std::string temp = serv.substr(0, serv.find('}') + 1);
-    serv = serv.substr(serv.find('}') + 1, serv.size());
+    if (curLoc[0] == ' ')
+    {
+        curLoc = curLoc.substr(1, curLoc.size());
+    }
+    if (curLoc.find(';') == std::string::npos)
+    {
+        err  = 1;
+        return ;
+    }
+    loc.autoindex = true;
+    std::string param = curLoc.substr(0, curLoc.find(';'));
+    curLoc = curLoc.substr(curLoc.find(';') + 1, curLoc.size());
+    if (param.find(' ') == std::string::npos)
+    {
+        err = 1;
+        return ;
+    }
+    std::string category = param.substr(0, param.find(' '));
+    param = param.substr(param.find(' ') + 1);
+    if (category == "allowed_methods")
+    {
+        handleAllowMethods(param, loc, err);
+    }
+    else if (category == "index")
+    {
+        handleIndex(param, loc);
+    }
+    else if (category == "autoindex")
+    {
+        handleAutoindex(param, loc, err);
+    }
+    else if (category == "cgi_path")
+    {
+        handleCgiPath(param, loc, err);
+    }
+    else if (category == "cgi_ex")
+    {
+        handleCgiEx(param, loc, err);
+    }
+    else if (category == "return")
+    {
+        handleReturn(param, loc, err);
+    }
+    else
+    {
+        err = 1;
+        return ;
+    }
+}
+
+void handleLocation(std::string& Location, server& s, int& err)
+{
+    if (Location[0] == ' ')
+    {
+        Location = Location.substr(1, Location.size());
+    }
+    std::string currentLoc = Location.substr(0, Location.find('}') + 1);
+    Location = Location.substr(Location.find('}') + 1, Location.size());
+    if (currentLoc.find(' ') == std::string::npos)
+    {
+        err = 1;
+        return;
+    }
+    std::string check = currentLoc.substr(0, currentLoc.find(' '));
+    if (check != "location")
+    {
+        err = 1;
+        return ;
+    }
+    currentLoc = currentLoc.substr(currentLoc.find(' ') + 1, currentLoc.size());
+    check = currentLoc.substr(0, currentLoc.find('{'));
+    if (check.size() == 0)
+    {
+        err = 1;
+        return ;
+    }
+    currentLoc = currentLoc.substr(currentLoc.find('{') + 1, currentLoc.size());
+    int i = 0;
+    location loc;
+    loc.root = "";
+    loc.url = "";
+    loc.returning = "";
+    while (currentLoc != "}" && currentLoc != " }")
+    {
+        handleParamLocation(currentLoc, loc, err);
+        if (err)
+            return ;
+        i++;
+        
+    }
+    if (loc.returning != "" && i != 1)
+    {
+        err = 1;
+        return ;
+    }
+    s.locations.push_back(loc);
 }
 
 void handleNotLocation(std::string& serv, server& s, int &err)
 {
+    if (serv[0] == ' ')
+    {
+        serv = serv.substr(1, serv.size());
+    }
     std::string temp = serv.substr(0, serv.find(';') + 1);
     
     serv = serv.substr(serv.find(';') + 1, serv.size());
 
-    std::string categorie = getFistWordAndDelete(temp);
-    std::cout << categorie << std::endl;
-    if (categorie == "host")
+    std::string category = getFistWordAndDelete(temp);
+    
+    std::cout << category << std::endl;
+    if (category == "host")
     {
         handleHost(temp, s, err);
     }
-    else if (categorie == "port")
+    else if (category == "port")
     {
         handlePort(temp, s, err);
     }
-    else if (categorie == "server_name")
+    else if (category == "server_name")
     {
         handleServerName(temp, s, err);
     }
-    else if (categorie == "error_page")
+    else if (category == "error_page")
     {
         handleErrorPage(temp, s, err);
     }
-    else if (categorie == "client_max_body_size")
+    else if (category == "client_max_body_size")
     {
         handleMaxBody(temp, s, err);
     }
-    else if (categorie == "root")
+    else if (category == "root")
     {
         handleRoot(temp, s, err);
         seenRoot = 1;
+    }
+    else if (category == "index")
+    {
+        handleIndex(temp, s);
     }
     else
     {
@@ -407,8 +612,10 @@ int parse(std::string path)
     while (std::getline(inputFile, line))
     {
         line = update_spaces(line);
-        output += line;
+        output += line + " ";
     }
+    output = update_spaces(output);
+    // std::cout << output;
     if (!areParanthesesOk(output))
         return 1;
     std::vector<std::string> servers = getServers(output);
