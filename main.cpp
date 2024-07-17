@@ -1,20 +1,18 @@
 
 
-#include "Socket/Socket.hpp"
+#include "webserv.hpp"
 
-#include <unistd.h>
-#include <stdio.h>
+
 
 int main()
 {
-    // Socket sock(AF_INET, SOCK_STREAM, 0, INADDR_ANY, 80, 10);
-    // if (sock.err)
-    //     return 1;
-    // sock.launch();
-
-    printf("%")
-    if (0.1 + 0.2 == 0.3)
-        write(1, "good", 4);
-    else
-        write(1, "bad", 3);
+    std::vector<server_t> s;
+    if (parse("/Users/obrittne/Desktop/webSerc/Configs/default.conf", s))
+        return 1;
+    std::vector<Server> servers;
+    for (int i = 0; i < s.size(); i++)
+    {
+        servers.push_back(Server(s[i]));
+    }
+    servers[1].launch();
 }

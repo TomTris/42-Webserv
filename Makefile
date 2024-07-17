@@ -1,6 +1,6 @@
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRCS = main.cpp
+SRCS = main.cpp Parser/parse.cpp Server/Server.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 

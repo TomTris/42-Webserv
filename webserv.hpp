@@ -18,4 +18,31 @@
 
 #include "Server/Server.hpp"
 
+
+struct location
+{
+    std::string url;
+    std::vector<std::string> allowed;
+    std::string root;
+    bool autoindex;
+    std::vector<std::string> indexes;
+    std::vector<std::string> cgi_path;
+    std::vector<std::string> cgi_ex;
+    std::string returning;
+};
+
+struct server_t
+{
+    int host;
+    int port;
+    std::string servername;
+    std::map<int, std::string> errorpages;
+    int client_max_body_size;
+    std::vector<location> locations;
+};
+
+void set_bytes_to_zero(void *start, int len);
+long long my_atoi(std::string numb);
+int parse(std::string path, std::vector<server_t>& s);
+
 #endif

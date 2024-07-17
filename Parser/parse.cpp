@@ -1,26 +1,13 @@
 
+#include "../webserv.hpp"
 
-struct location
+void set_bytes_to_zero(void *start, int len)
 {
-    std::string url;
-    std::vector<std::string> allowed;
-    std::string root;
-    bool autoindex;
-    std::vector<std::string> indexes;
-    std::vector<std::string> cgi_path;
-    std::vector<std::string> cgi_ex;
-    std::string returning;
-};
+    char *transformed = reinterpret_cast<char *>(start);
 
-struct server
-{
-    int host;
-    int port;
-    std::string servername;
-    std::map<int, std::string> errorpages;
-    int client_max_body_size;
-    std::vector<location> locations;
-};
+    for (int i = 0; i < len; i++)
+        transformed[i] = 0;
+}
 
 long long my_atoi(std::string numb)
 {
@@ -166,7 +153,7 @@ bool areParanthesesOk(std::string& output)
     return true;
 }
 
-std::vector<std::string> getServers(std::string& output)
+std::vector<std::string> getserver_ts(std::string& output)
 {
     std::vector<std::string> returnValue;
     int count = 0;
@@ -184,7 +171,6 @@ std::vector<std::string> getServers(std::string& output)
             if (count == 0)
             {
                 returnValue.push_back(output.substr(prev, current - prev + 1));
-                // std::cout << output.substr(prev, current - prev + 1)<< std::endl;
                 prev = current + 1;
             }
         }
@@ -205,7 +191,7 @@ bool isLocation(std::string& serv)
     return true;
 }
 
-void handleHost(std::string &ip, server& s, int& err)
+void handleHost(std::string &ip, server_t& s, int& err)
 {
     ip.pop_back();
     if (!(ip.size() >= 7 && ip.size() <= 15))
@@ -232,7 +218,7 @@ void handleHost(std::string &ip, server& s, int& err)
     s.host = get_ip_as_number(ip, err);
 }
 
-void handlePort(std::string &port, server& s, int& err)
+void handlePort(std::string &port, server_t& s, int& err)
 {
     port.pop_back();
     if (port.size() == 0 || port.size() > 5 || !isNumber(port))
@@ -249,20 +235,20 @@ void handlePort(std::string &port, server& s, int& err)
     s.port = temp;
 }
 
-void handleServerName(std::string& serverName, server& s, int& err)
+void handleserverName(std::string& servername, server_t& s, int& err)
 {
-    serverName.pop_back();
-    if (serverName == "_")
+    servername.pop_back();
+    if (servername == "_")
         return ;
-    if (serverName.find(' ') != std::string::npos)
+    if (servername.find(' ') != std::string::npos)
     {
         err = 1;
         return ;
     }
-    s.servername = serverName; 
+    s.servername = servername; 
 }
 
-void handleErrorPage(std::string& errorPage, server& s, int& err)
+void handleErrorPage(std::string& errorPage, server_t& s, int& err)
 {
     errorPage.pop_back();
     if (errorPage.find(' ') == std::string::npos)
@@ -285,7 +271,7 @@ void handleErrorPage(std::string& errorPage, server& s, int& err)
     s.errorpages[error] = errorPage;
 }
 
-void handleMaxBody(std::string& body, server& s, int& err)
+void handleMaxBody(std::string& body, server_t& s, int& err)
 {
     body.pop_back();
     if (body.find(' ') != std::string::npos)
@@ -457,7 +443,6 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     }
     std::string category = param.substr(0, param.find(' '));
     param = param.substr(param.find(' ') + 1);
-    std::cout << category << ">" << std::endl;
     if (category == "allowed_methods")
     {
         handleAllowMethods(param, loc, err);
@@ -493,7 +478,7 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     }
 }
 
-void handleLocation(std::string& Location, server& s, int& err)
+void handleLocation(std::string& Location, server_t& s, int& err)
 {
     if (Location[0] == ' ')
     {
@@ -542,7 +527,7 @@ void handleLocation(std::string& Location, server& s, int& err)
     s.locations.push_back(loc);
 }
 
-void handleNotLocation(std::string& serv, server& s, int &err)
+void handleNotLocation(std::string& serv, server_t& s, int &err)
 {
     if (serv[0] == ' ')
     {
@@ -553,8 +538,6 @@ void handleNotLocation(std::string& serv, server& s, int &err)
     serv = serv.substr(serv.find(';') + 1, serv.size());
 
     std::string category = getFistWordAndDelete(temp);
-    
-    std::cout << category << std::endl;
     if (category == "host")
     {
         handleHost(temp, s, err);
@@ -565,7 +548,7 @@ void handleNotLocation(std::string& serv, server& s, int &err)
     }
     else if (category == "server_name")
     {
-        handleServerName(temp, s, err);
+        handleserverName(temp, s, err);
     }
     else if (category == "error_page")
     {
@@ -582,9 +565,9 @@ void handleNotLocation(std::string& serv, server& s, int &err)
     }
 }
 
-server createServer(std::string& serv, int& err)
+server_t createserver_t(std::string& serv, int& err)
 {
-    server s;
+    server_t s;
     serv = serv.substr(7, serv.size());
     s.host = get_ip_as_number("127.0.0.1", err);
     s.port = 8080;
@@ -607,7 +590,7 @@ server createServer(std::string& serv, int& err)
     return s;
 }
 
-int parse(std::string path)
+int parse(std::string path, std::vector<server_t>& s)
 {
     std::ifstream inputFile(path);
     if (!inputFile)
@@ -624,30 +607,18 @@ int parse(std::string path)
         output += line + " ";
     }
     output = update_spaces(output);
-    // std::cout << output;
     if (!areParanthesesOk(output))
         return 1;
-    std::vector<std::string> servers = getServers(output);
-    std::vector<server> s;
+    std::vector<std::string> server_ts = getserver_ts(output);
+    
     int err = 0;
-    for (int i = 0; i < servers.size(); i++)
+    for (int i = 0; i < server_ts.size(); i++)
     {
-        std::cout << "asd" << std::endl;
-        if (servers[i].substr(0, 7) != "server{")
+        if (server_ts[i].substr(0, 7) != "server{")
             return 1;
-        s.push_back(createServer(servers[i], err));
+        s.push_back(createserver_t(server_ts[i], err));
         if (err)
             return 1;
-        std::cout << s[s.size() - 1].client_max_body_size << std::endl;
     }
     return 0;
-}
-
-int main()
-{
-    if (parse("/Users/obrittne/Desktop/webSerc/Configs/default.conf"))
-    {
-        std::cout << "error" << std::endl;
-        return (1);
-    }
 }

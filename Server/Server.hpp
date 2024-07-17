@@ -2,23 +2,25 @@
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
 
+#include "../webserv.hpp"
 
+#define LISTEN 10
 
-class Socket
+struct location;
+struct server_t;
+
+class Server
 {
-    public:
-        int domain;
-        int service;
-        int protocol;
-        unsigned long interface;
-        int port;
-        int backlog;
+    private:
         struct sockaddr_in address;
-        int socketFd;
-        int err;
 
-        Socket(int domain, int service, int protocol, unsigned long interface, int port, int backlog);
-        void launch(void);
+    public:
+        std::vector<location> locations;
+        int err;
+        int serverFd;
+        Server(server_t& s);
+        void launch();
+        void handleClient(int clientSocket);
 };
 
 #endif
