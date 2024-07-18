@@ -4,7 +4,7 @@ void	load_config(int ac, char **av, t_server_config &config)
 {
 	(void) ac;
 	(void) av;
-	config.port = 8080;
+	config.port = PORT;
 	config.root = "./";
 	config.listen_max = 3;
 }
@@ -19,8 +19,8 @@ int	socket_create(t_server_config &config, struct sockaddr_in &server_addr)
 	server_addr.sin_port = htons(config.port);
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 	//need to learn more about htis
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) 
-		throw	std::runtime_error("setsockopt Failed");
+	// if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) 
+	// 	throw	std::runtime_error("setsockopt Failed");
 	if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
 		throw	std::runtime_error("bind Failed");
 	if (listen (server_fd, config.listen_max) == -1)

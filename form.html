@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Data</title>
+</head>
+<body>
+    <h2>Submit Data</h2>
+    <form id="dataForm">
+        <label for="data">Data:</label>
+        <input type="text" id="data" name="data">
+        <button type="button" onclick="submitData()">Submit</button>
+    </form>
+
+    <script>
+        function submitData() {
+            const data = document.getElementById("data").value;
+
+            fetch('http://localhost:8081', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'data=' + encodeURIComponent(data)
+            })
+            .then(response => response.text())
+            .then(responseText => {
+                alert(responseText);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
