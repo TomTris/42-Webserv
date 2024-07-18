@@ -1,55 +1,5 @@
 #include "Tomweb.hpp"
 
-#define BUFFER_SIZE 1024
-
-void	load_config(int ac, char **av, t_server_config &config)
-{
-	(void) ac;
-	(void) av;
-	config.port = 8080;
-	config.root = "./";
-	config.listen_max = 3;
-}
-
-int	socket_create(t_server_config &config, struct sockaddr_in &server_addr)
-{
-	int	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	int	opt = 1;
-	if (server_fd == -1)
-		return (perror("socket"), -1);
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(config.port);
-	server_addr.sin_addr.s_addr = INADDR_ANY;
-	//need to learn more about htis
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) 
-		return (perror("setsockopt failed"), close(server_fd), -1);
-
-	if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
-		return (perror("bind"), close(server_fd), -1);
-	if (listen (server_fd, config.listen_max) == -1)
-		return (perror("listen"), close(server_fd), -1);
-	return (server_fd);
-}
-
-std::string read_socket(int fd)
-{
-	std::string	ret;
-	ssize_t	bytes_read;
-	char	buffer[BUFFER_SIZE + 1];
-
-	while (1)
-	{
-		bytes_read = recv(fd, buffer, BUFFER_SIZE, 0);
-		if (bytes_read == -1)
-			return (perror("recv"), "");
-		if (bytes_read == 0)
-			return (ret);
-		buffer[bytes_read] = 0;
-		ret += std::string(buffer);
-	}
-	return ("");
-}
-
 std::string read_file(int fd)
 {
 	std::string	ret;
@@ -60,47 +10,87 @@ std::string read_file(int fd)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read == -1)
-			return (perror("read"), "");
+			throw	std::runtime_error("read Failed");
 		if (bytes_read == 0)
 			return (ret);
 		buffer[bytes_read] = 0;
 		ret += std::string(buffer);
 	}
-	return ("");
+	return (ret);
 }
 
-std::string	method_find(int	new_socket, t_server_data server_data)
+void	handle_post_request(int	&new_socket, std::string &path)
 {
-	std::string 
+	std::cout << "handle_post_request called" << std::endl;
+	(void) new_socket;
+	(void) path;
+}
+
+void	handle_unknown_request(int &new_socket)
+{
+	(void) new_socket;
+	std::cout << "handle_unkown_request called" << std::endl;
+}
+
+void	handle_delete_request(int &new_socket, std::string &path)
+{
+	(void)new_socket;
+	(void)path;
+}
+
+void	handle_get_request(int &new_socket, std::string &path)
+{
+	std::cout << "handle_get_request called" << std::endl;
+	std::ifstream 	file(path);
+	char			buffer[BUFFER_SIZE + 1];
+	std::string		infile;
+	std::string http_header_200 = "HTTP/1.1 200 OK\r\n"
+									"Content-Type: text/html\r\n"
+									"\r\n";
+
+	if (!file)
+		handle_unkown_request(new_socket);
+	else
+	{
+		infile = read_file(new_socket);
+		if (send(new_socket, http_header_200.c_str(), http_header_200.length(), 0) < 0
+			|| send(new_socket, infile.c_str(), infile.length(), 0) < 0)
+			throw std::runtime_error("send Failed");
+	}
 }
 
 int	main(int ac, char **av)
 {
-	t_server_data	server_data;
+	t_server_data		server_data;
 	int					new_socket;
 	size_t				addrlen = sizeof(server_data.server_addr);
 	std::string			method;
+	std::string			path;
+	std::string			request_content;
 
-	load_config(ac, av, server_data.config);
-	server_data.server_fd = socket_create(server_data.config, server_data.server_addr);
-	if (server_data.server_fd == -1)
-		return (1);
-	while (1)
-	{
-		if ((new_socket = accept(server_data.server_fd,
-			(struct sockaddr *)&server_data.server_addr, (socklen_t*)&addrlen)) < 0)
-            return (perror("accept failed"), close(server_data.server_fd), 1);
-
-		method = method_find(new_socket, server_data);
-		if (method == "POST")
-			handle_post_request(new_socket, server_data);
-		else if (method == "GET")
-			handle_get_request(new_socket, server_data);
-		else if (method == "DELETE")
-			handle_delete_request(new_socket, server_data);
-		else
-			handle_unknown_request(new_socket, server_data);
-		close(new_socket);
+	try {
+		load_config(ac, av, server_data.config);
+		server_data.server_fd = socket_create(server_data.config, server_data.server_addr);
+		while (1)
+		{
+			if ((new_socket = accept(server_data.server_fd,
+				(struct sockaddr *)&server_data.server_addr, (socklen_t*)&addrlen)) < 0)
+				return (perror("accept failed"), close(server_data.server_fd), 1);
+			method_find(new_socket, method, path, request_content);
+			if (method == "POST")
+				handle_post_request(new_socket, path);
+			else if (method == "GET")
+				handle_get_request(new_socket, path);
+			else if (method == "DELETE")
+				handle_delete_request(new_socket, path);
+			else
+				handle_unknown_request(new_socket);
+			close(new_socket);
+		}
+	}
+	catch (const std::runtime_error&e) {
+		close(server_data.server_fd);
+		std::cerr << e.what() << std::endl;
 	}
 	return (1);
 }
