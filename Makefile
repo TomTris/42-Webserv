@@ -1,11 +1,13 @@
 NAME = Webserve
 FLAGS = -Wall -Werror -Wextra
-SRC = method_find.cpp socket_create.cpp Webserve.cpp
+SRC = method_find.cpp socket_create.cpp Webserver.cpp
 OBJS = $(SRC:.cpp=.o)
 
 $(NAME) : all
 
-all: $(OBJS)
+all: 
+	rm socket_create.o;make all2;
+all2: $(OBJS)
 	c++ $(FLAGS) $(OBJS)
 
 clean:

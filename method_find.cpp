@@ -1,33 +1,43 @@
 #include "Tomweb.hpp"
 
-std::string read_socket(int fd)
+void read_socket(int &new_socket, std::string &request_content)
 {
-	std::string	ret;
-	ssize_t	bytes_read;
-	char	buffer[BUFFER_SIZE + 1];
+	ssize_t	bytes_read = 4096;
+	char	buffer[4096 + 1];
 
 	while (1)
 	{
-		bytes_read = recv(fd, buffer, BUFFER_SIZE, 0);
+		if (bytes_read < 4096)
+			return ;
+		bytes_read = read(new_socket, buffer, 4096);
 		if (bytes_read == -1)
-			throw	std::runtime_error("recv Failed");
-		if (bytes_read == 0)
-			return (ret);
+			throw	std::runtime_error("read Failed");
 		buffer[bytes_read] = 0;
-		ret += std::string(buffer);
+		request_content += std::string(buffer);
 	}
-	throw std::runtime_error("empty request?");
 }
 
-void	method_find(int	new_socket, std::string &method, std::string &path, std::string &request_content)
+void	method_find(int	&new_socket, std::string &method, std::string &path, std::string &request_content)
 {
 	std::string HTTP_version;
-	std::string request_content = read_socket(new_socket);
+
+	method = "";
+	path = "" ;
+	request_content = "";
+	
+	read_socket(new_socket, request_content);
 	std::stringstream socket_stream(request_content);
 
 	if (!(socket_stream >> method >> path >> HTTP_version))
 	{
-		std::cerr << request_content << std::endl;
+		std::cerr << "request_content == {" << request_content << "}" << std::endl;
 		throw std::runtime_error("weird request!");
+	}
+	
+	std::string::iterator ite = path.begin();
+	while (*ite == '/')
+	{
+		path.erase(path.begin());
+		ite = path.begin();
 	}
 }
