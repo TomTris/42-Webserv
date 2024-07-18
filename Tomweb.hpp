@@ -28,12 +28,12 @@ typedef struct s_server_config {
     int         listen_max;
 } t_server_config;
 
-typedef struct s_server_data_saver {
+typedef struct s_server_data {
     s_server_config     config;
     int                 listen_max;
     struct sockaddr_in  server_addr;
     int                 server_fd;
-}   t_server_data_saver;
+}   t_server_data;
 
 
 #endif

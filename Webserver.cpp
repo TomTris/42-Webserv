@@ -1,5 +1,7 @@
 #include "Tomweb.hpp"
 
+#define BUFFER_SIZE 1024
+
 void	load_config(int ac, char **av, t_server_config &config)
 {
 	(void) ac;
@@ -12,11 +14,15 @@ void	load_config(int ac, char **av, t_server_config &config)
 int	socket_create(t_server_config &config, struct sockaddr_in &server_addr)
 {
 	int	server_fd = socket(AF_INET, SOCK_STREAM, 0);
+	int	opt = 1;
 	if (server_fd == -1)
 		return (perror("socket"), -1);
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(config.port);
 	server_addr.sin_addr.s_addr = INADDR_ANY;
+	//need to learn more about htis
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) 
+		return (perror("setsockopt failed"), close(server_fd), -1);
 
 	if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
 		return (perror("bind"), close(server_fd), -1);
@@ -25,9 +31,52 @@ int	socket_create(t_server_config &config, struct sockaddr_in &server_addr)
 	return (server_fd);
 }
 
+std::string read_socket(int fd)
+{
+	std::string	ret;
+	ssize_t	bytes_read;
+	char	buffer[BUFFER_SIZE + 1];
+
+	while (1)
+	{
+		bytes_read = recv(fd, buffer, BUFFER_SIZE, 0);
+		if (bytes_read == -1)
+			return (perror("recv"), "");
+		if (bytes_read == 0)
+			return (ret);
+		buffer[bytes_read] = 0;
+		ret += std::string(buffer);
+	}
+	return ("");
+}
+
+std::string read_file(int fd)
+{
+	std::string	ret;
+	ssize_t	bytes_read;
+	char	buffer[BUFFER_SIZE + 1];
+
+	while (1)
+	{
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read == -1)
+			return (perror("read"), "");
+		if (bytes_read == 0)
+			return (ret);
+		buffer[bytes_read] = 0;
+		ret += std::string(buffer);
+	}
+	return ("");
+}
+
+std::string	method_find(int	new_socket, t_server_data server_data)
+{
+	std::string 
+}
+
 int	main(int ac, char **av)
 {
-	s_server_data_saver	server_data;
+	t_server_data	server_data;
 	int					new_socket;
 	size_t				addrlen = sizeof(server_data.server_addr);
 	std::string			method;
@@ -53,4 +102,5 @@ int	main(int ac, char **av)
 			handle_unknown_request(new_socket, server_data);
 		close(new_socket);
 	}
+	return (1);
 }
