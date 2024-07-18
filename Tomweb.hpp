@@ -1,6 +1,8 @@
 #ifndef TOMWEB_HPP
 # define TOMWEB_HPP
 
+#define BUFFER_SIZE 1024
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -30,10 +32,14 @@ typedef struct s_server_config {
 
 typedef struct s_server_data {
     s_server_config     config;
-    int                 listen_max;
     struct sockaddr_in  server_addr;
     int                 server_fd;
 }   t_server_data;
 
+std::string read_socket(int fd);
+void	    method_find(int	new_socket, std::string &method, std::string &path, std::string &request_content);
+void    	load_config(int ac, char **av, t_server_config &config);
+int	        socket_create(t_server_config &config, struct sockaddr_in &server_addr);
+std::string read_file(int fd);
 
 #endif
