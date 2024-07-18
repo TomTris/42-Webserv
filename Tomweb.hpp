@@ -40,6 +40,12 @@ std::string read_socket(int &fd);
 void	    method_find(int	&new_socket, std::string &method, std::string &path, std::string &request_content);
 void    	load_config(int ac, char **av, t_server_config &config);
 int	        socket_create(t_server_config &config, struct sockaddr_in &server_addr);
-std::string read_file(int fd);
+std::string read_file(int &fd);
+
+
+void	handle_unknown_request(int &new_socket, std::string &path);
+void	handle_post_request(int	&new_socket, std::string &request_content, std::string &path);
+void	handle_delete_request(int &new_socket, std::string &path);
+void	handle_get_request(int &new_socket, std::string &path);
 
 #endif
