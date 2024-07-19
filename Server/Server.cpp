@@ -1,7 +1,7 @@
 
 #include "Server.hpp"
 
-Server::Server(server_t& s):err(0)
+Server::Server(server_t& s):err(0), opt(1)
 {
     this->serverFd = socket(AF_INET, SOCK_STREAM, 0);
     if (this->serverFd < 0)
@@ -14,6 +14,12 @@ Server::Server(server_t& s):err(0)
     this->address.sin_port = htons(s.port);
     this->address.sin_addr.s_addr = htonl(s.host);
     this->locations = s.locations;
+    if (setsockopt(this->serverFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) 
+    {
+        close(this->serverFd);
+        this->err = 1;
+        return ;
+    }
     if (bind(this->serverFd, (sockaddr *)&this->address, sizeof(this->address)) < 0)
     {
         close(this->serverFd);

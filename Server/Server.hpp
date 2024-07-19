@@ -13,6 +13,7 @@ class Server
 {
     private:
         struct sockaddr_in address;
+        int                opt;
 
     public:
         std::vector<location> locations;
