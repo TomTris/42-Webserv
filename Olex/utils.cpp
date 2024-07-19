@@ -46,5 +46,5 @@ void createIPv4address(sockaddr_in* address, std::string ip, int port)
 
 int createSocket()
 {
-    return (socket(AF_INET, SOCK_STREAM, 0));
+     return (socket(AF_INET, SOCK_STREAM, 0));
 }
