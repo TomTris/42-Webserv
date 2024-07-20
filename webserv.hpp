@@ -37,7 +37,7 @@ struct location
     std::vector<std::string> indexes;
     std::vector<std::string> cgi_path;
     std::vector<std::string> cgi_ex;
-    std::string temp;
+    int doesntExist;
     std::string returning;
 };
 
@@ -51,19 +51,25 @@ struct server_t
     std::vector<location> locations;
 };
 
-std::string get_path_to_file(Server& s, std::string& path);
+
 void set_bytes_to_zero(void *start, int len);
 long long my_atoi(std::string numb);
 int parse(std::string path, std::vector<server_t>& s);
 std::string read_socket(int &fd);
 int 	    method_find(int	&new_socket, std::string &method, std::string &path, std::string &request_content);
 std::string read_file(int &fd);
+
+std::vector<std::string> get_allowed(location& loc);
 location get_location(std::vector<location>& locations, std::string& path);
+std::string get_error_page(Server& serv, int errorNumb);
+std::string get_path_of_standart_error(int errorNumb);
+std::string get_path_to_file(location& loc, std::string path);
+bool isDirectory(const char *path);
 
 
 void	handle_unknown_request(int &new_socket, std::string &path);
 void	handle_post_request(int	&new_socket, std::string &request_content, std::string &path);
 void	handle_delete_request(int &new_socket, std::string &path);
-void	handle_get_request(Server& s, int &new_socket, std::string &path);
+void	handle_get_request(int &new_socket, std::string &path);
 
 #endif

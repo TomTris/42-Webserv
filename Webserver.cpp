@@ -41,6 +41,98 @@ int	main(int ac, char **av)
 				// else
 				// 	handle_unknown_request(new_socket, path);
 				location loc = get_location(serv.locations, path);
+				if (loc.doesntExist)
+				{
+					path = get_error_page(serv, 404);
+					handle_get_request(new_socket, path);
+				}
+				else
+				{
+					std::vector<std::string> allowedMethods = get_allowed(loc);
+					if (method == "POST")
+					{
+						if (std::find(allowedMethods.begin(), allowedMethods.end(), method) != allowedMethods.end())
+						{
+							path = get_path_to_file(loc, path);
+							if (isDirectory(path.c_str()))
+							{
+								//toDo ls similar stuff if needed otherwice error
+							}
+							else
+							{
+								if (access(path.c_str(), F_OK) == 0)
+									handle_post_request(new_socket, request_content, path);
+								else
+								{
+									path = get_error_page(serv, 404);
+									handle_get_request(new_socket, path);
+								}
+							}
+						}
+						else
+						{
+							path = get_error_page(serv, 405);
+							handle_get_request(new_socket, path);
+						}
+					}
+					else if (method == "GET")
+					{
+						if (std::find(allowedMethods.begin(), allowedMethods.end(), method) != allowedMethods.end())
+						{
+							path = get_path_to_file(loc, path);
+							if (isDirectory(path.c_str()))
+							{
+								//toDo ls similar stuff if needed otherwice error
+							}
+							else
+							{
+								if (access(path.c_str(), F_OK) == 0)
+									handle_get_request(new_socket, path);
+								else
+								{
+									path = get_error_page(serv, 404);
+									handle_get_request(new_socket, path);
+								}
+							}
+						}
+						else
+						{
+							path = get_error_page(serv, 405);
+							handle_get_request(new_socket, path);
+						}
+					}
+					else if (method == "DELETE")
+					{
+						if (std::find(allowedMethods.begin(), allowedMethods.end(), method) != allowedMethods.end())
+						{
+							path = get_path_to_file(loc, path);
+							if (isDirectory(path.c_str()))
+							{
+								//toDo ls similar stuff if needed otherwice error
+							}
+							else
+							{
+								if (access(path.c_str(), F_OK) == 0)
+									handle_delete_request(new_socket, path);
+								else
+								{
+									path = get_error_page(serv, 404);
+									handle_get_request(new_socket, path);
+								}
+							}
+						}
+						else
+						{
+							path = get_error_page(serv, 405);
+							handle_get_request(new_socket, path);
+						}
+					}
+					else
+					{
+						path = get_error_page(serv, 405);
+						handle_get_request(new_socket, path);
+					}
+				}
 			}
 			close(new_socket);
 		}

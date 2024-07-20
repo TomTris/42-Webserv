@@ -1,7 +1,7 @@
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 SRCS =  Parser/parse.cpp Server/Server.cpp handle_delete_request.cpp handle_get_request.cpp handle_path.cpp handle_post_request.cpp \
-handle_unknown_request.cpp method_find.cpp read_file.cpp Webserver.cpp
+handle_unknown_request.cpp method_find.cpp read_file.cpp Webserver.cpp get_from_paring.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
