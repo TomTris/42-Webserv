@@ -17,7 +17,8 @@ class Server
 
     public:
         std::vector<location> locations;
-         struct sockaddr_in address;
+        struct sockaddr_in address;
+        std::map<int, std::string> errorPages;
         int err;
         int serverFd;
         Server(server_t& s);

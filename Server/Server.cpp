@@ -3,6 +3,7 @@
 
 Server::Server(server_t& s):err(0), opt(1)
 {
+    this->errorPages = s.errorpages;
     this->serverFd = socket(AF_INET, SOCK_STREAM, 0);
     if (this->serverFd < 0)
     {
