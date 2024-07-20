@@ -473,6 +473,7 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     }
     else
     {
+       
         err = 1;
         return ;
     }
@@ -499,16 +500,17 @@ void handleLocation(std::string& Location, server_t& s, int& err)
     }
     currentLoc = currentLoc.substr(currentLoc.find(' ') + 1, currentLoc.size());
     check = currentLoc.substr(0, currentLoc.find('{'));
-    if (check.size() == 0)
+    if (check.size() == 0 || check[0] != '/')
     {
         err = 1;
         return ;
     }
+
     currentLoc = currentLoc.substr(currentLoc.find('{') + 1, currentLoc.size());
     int i = 0;
     location loc;
     loc.root = "";
-    loc.url = "";
+    loc.url = check;
     loc.returning = "";
     while (currentLoc != "}" && currentLoc != " }")
     {
@@ -523,7 +525,6 @@ void handleLocation(std::string& Location, server_t& s, int& err)
         err = 1;
         return ;
     }
-
     s.locations.push_back(loc);
 }
 

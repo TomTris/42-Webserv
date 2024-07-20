@@ -1,6 +1,8 @@
-#include "Tomweb.hpp"
+#include "webserv.hpp"
 
-void	handle_get_request(int &new_socket, std::string &path)
+
+
+void	handle_get_request(Server& s, int &new_socket, std::string &path)
 {
 	std::cout << "handle_get_request called" << std::endl;
 	struct stat 	info;
@@ -9,9 +11,11 @@ void	handle_get_request(int &new_socket, std::string &path)
 	std::string		http_header = "HTTP/1.1 200 OK\r\n"
                                         "Content-Type: text/html\r\n"
                                         "\r\n";
-
-	std::cout << "path = " << path.c_str() << std::endl;
+	std::cout << path << std::endl;
+	path = get_path_to_file(s, path);
+	
 	infile_fd = open(path.c_str(), O_RDONLY);
+	std::cout << "path = " << path.c_str() << std::endl;
 	if (stat(path.c_str(), &info) != 0)
 	{
 		perror("stat: ");

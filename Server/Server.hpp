@@ -12,11 +12,12 @@ struct server_t;
 class Server
 {
     private:
-        struct sockaddr_in address;
+       
         int                opt;
 
     public:
         std::vector<location> locations;
+         struct sockaddr_in address;
         int err;
         int serverFd;
         Server(server_t& s);

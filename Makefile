@@ -1,20 +1,16 @@
-NAME = Webserve
-FLAGS = -Wall -Werror -Wextra
-SRC = method_find.cpp socket_create.cpp Webserver.cpp\
-	read_file.cpp\
-	handle_get_request.cpp\
-	handle_post_request.cpp\
-	handle_delete_request.cpp\
-	handle_unknown_request.cpp
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 
-OBJS = $(SRC:.cpp=.o)
+SRCS =  Parser/parse.cpp Server/Server.cpp handle_delete_request.cpp handle_get_request.cpp handle_path.cpp handle_post_request.cpp \
+handle_unknown_request.cpp method_find.cpp read_file.cpp Webserver.cpp
 
-$(NAME) : all
+OBJS = $(SRCS:.cpp=.o)
 
-all: 
-	rm socket_create.o;make all2;
-all2: $(OBJS)
-	c++ $(FLAGS) $(OBJS)
+NAME = webserv
+
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	c++ $(CFLAGS) $(OBJS) -o $(NAME)
 
 clean:
 	rm -f $(OBJS)
@@ -23,3 +19,5 @@ fclean: clean
 	rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: all clean fclean re
