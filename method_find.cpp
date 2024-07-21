@@ -36,35 +36,10 @@ int method_find(int &new_socket, std::string &method, std::string &path, std::st
         std::cerr << "Invalid request line: " << request_line << std::endl;
         return 0;
     }
-    std::cout << "method = " << methodgit << std::endl;
-    std::cout << "path = " << path << std::endl;
-    std::cout << "HTTP_version = " << HTTP_version << std::endl;
 
     path.erase(0, path.find_first_not_of('/'));
     if (path == "favicon.io")
         return (0);
-
-    // Optional: Remove headers from request content
-    // std::string request_content2 = request_content;
-    std::cout << request_content << std::endl;
-    // size_t headers_end = request_content2.find("\r\n\r\n");
-    // if (headers_end != std::string::npos) {
-    //     // std::cout << "header = {" << request_content2.substr(0, headers_end) << "}" << std::endl;
-    //     request_content2 = request_content2.substr(headers_end + 4);
-    //     headers_end = request_content2.find("\r\n\r\n");
-    //     if (headers_end != std::string::npos) {
-    //         // std::cout << "header2 = {" << request_content2.substr(0, headers_end) << "}" << std::endl;
-    //         request_content2 = request_content2.substr(headers_end + 4);
-    //         headers_end = request_content2.find("----");
-    //         request_content2 = request_content2.substr(0, headers_end);
-    //         std::cout << request_content2 << std::endl;
-    //         // request_content2 = request_content2.substr(request_content2.find("----"));
-    //         // std::cout << "{" << request_content2 << "}" << std::endl;
-            
-    //         // request_content2 = request_content2.substr(request_content2.find("\r\n"));
-    //         // std::cout << "000{" << request_content2 << "}00" << std::endl;
-            
-    //     }
-    // }
+    
     return 1;
 }
