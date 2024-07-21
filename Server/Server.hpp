@@ -24,6 +24,7 @@ class Server
         Server(server_t& s);
         void launch();
         void handleClient(int clientSocket);
+        int set_non_blocking(int fd);
 };
 
 #endif
