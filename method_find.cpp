@@ -22,6 +22,7 @@ int	method_find(int	&new_socket, std::string &method, std::string &path, std::st
 	std::string HTTP_version;
 
 	read_socket(new_socket, request_content);
+	std::cout << request_content << std::endl;
 	std::stringstream socket_stream(request_content);
 
 	if (!(socket_stream >> method >> path >> HTTP_version))

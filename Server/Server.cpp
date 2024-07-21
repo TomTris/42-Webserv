@@ -1,6 +1,20 @@
 
 #include "Server.hpp"
 
+int Server::set_non_blocking(int fd)
+{
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (flags == -1) {
+        perror("fcntl(F_GETFL)");
+        return -1;
+    }
+    if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+        perror("fcntl(F_SETFL)");
+        return -1;
+    }
+    return 0;
+}
+
 Server::Server(server_t& s):err(0), opt(1)
 {
     this->errorPages = s.errorpages;
@@ -24,6 +38,11 @@ Server::Server(server_t& s):err(0), opt(1)
     if (listen(this->serverFd, LISTEN) < 0)
     {
         close(this->serverFd);
+        this->err = 1;
+        return ;
+    }
+        if (set_non_blocking(this->serverFd) != 0)
+    {
         this->err = 1;
         return ;
     }
