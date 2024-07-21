@@ -8,14 +8,24 @@
     <form id="dataForm">
         <label for="data">Data:</label>
         <input type="text" id="data" name="data">
-        <button type="button" onclick="submitData()">Submit</button>
+        <button type="submit">Submit</button>
     </form>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('dataForm');
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the default form submission
+                console.log('Form submitted');
+                submitData();
+            });
+        });
+
         function submitData() {
             const data = document.getElementById("data").value;
+            console.log('Submitting data:', data);
 
-            fetch('http://localhost:8081', {
+            fetch('http://localhost:8081/text_form', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
@@ -24,6 +34,7 @@
             })
             .then(response => response.text())
             .then(responseText => {
+                console.log('Response received:', responseText);
                 alert(responseText);
             })
             .catch(error => {
