@@ -11,9 +11,16 @@ void	handle_404(int &new_socket)
 		throw std::runtime_error("write Failed");
 }
 
+void	handle_200(int &new_socket, std::string str)
+{
+	std::string http = "HTTP/1.1 404 KO\r\nContent-Type: text/html\r\n\r\n<html><body>" + str + "</body></html>";
+	if (write(new_socket, http.c_str(), http.length()) < 0)
+		throw std::runtime_error("write Failed");
+}
+
 void	handle_unknown_request(int &new_socket, std::string &path)
 {
 	(void) path;
-	// std::cout << "handle_unkown_request called" << std::endl;
-	// handle_404(new_socket);
+	std::cerr << "handle_unkown_request called" << std::endl;
+	handle_404(new_socket);
 }

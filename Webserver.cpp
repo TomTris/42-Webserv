@@ -29,9 +29,10 @@ void	handle_event(std::vector <int> &client_socket, fd_set &read_fds, t_server_d
 			{
 				if (method_find(*it, method, path, request_content) == 1)
 				{
+					std::cerr << "method = " << method << std::endl;
 					if (method == "POST")
 						handle_post_request(*it, request_content, path);
-					if (method == "GET")
+					else if (method == "GET")
 						handle_get_request(*it, path);
 					else if (method == "DELETE")
 						handle_delete_request(*it, path);
