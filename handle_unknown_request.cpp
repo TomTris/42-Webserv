@@ -14,6 +14,6 @@ void	handle_404(int &new_socket)
 void	handle_unknown_request(int &new_socket, std::string &path)
 {
 	(void) path;
-	std::cout << "handle_unkown_request called" << std::endl;
-	handle_404(new_socket);
+	// std::cout << "handle_unkown_request called" << std::endl;
+	// handle_404(new_socket);
 }

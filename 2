@@ -1,0 +1,34 @@
+method = POST
+path = /upload
+HTTP_version = HTTP/1.1
+POST /upload HTTP/1.1
+Host: localhost:8081
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:127.0) Gecko/20100101 Firefox/127.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br, zstd
+Referer: http://localhost:8081/upload_form.html
+Content-Type: multipart/form-data; boundary=---------------------------161880601221231372863667189299
+Content-Length: 302
+Origin: http://localhost:8081
+Connection: keep-alive
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=1
+
+-----------------------------161880601221231372863667189299
+Content-Disposition: form-data; name="file"; filename="data.txt"
+Content-Type: text/plain
+
+data=1234
+data=1234
+data=693
+data=11212
+data=11212
+data=11212
+data=11212
+data=111
+
+-----------------------------161880601221231372863667189299--
+

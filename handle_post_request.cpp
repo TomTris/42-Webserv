@@ -1,14 +1,12 @@
 #include "Tomweb.hpp"
 
+void	boundary_find()
+
 void	handle_post_request(int	&new_socket, std::string &request_content, std::string &path)
 {
-	std::cout << "handle_post_request called" << std::endl;
-	std::cout << request_content << std::endl;
 	(void) new_socket;
-
 	if (path == "upload")
 	{
-		std::cout << "request upload called" << std::endl;
 		int	a = open("123", O_RDWR);
 		ssize_t header_skip = request_content.find("\r\n\r\n");
 		std::string body = request_content.substr(header_skip + 4);
@@ -17,7 +15,7 @@ void	handle_post_request(int	&new_socket, std::string &request_content, std::str
 	}
 	else if (path == "text_form")
 	{
-		std::cout << "request text_form called" << std::endl;
+		std::cerr << "request text_form called" << std::endl;
 		ssize_t pos = request_content.find("data=");
 		if (pos == std::string::npos)
 			handle_unknown_request(new_socket, path);
@@ -30,5 +28,5 @@ void	handle_post_request(int	&new_socket, std::string &request_content, std::str
 		}	
 	}
 	else
-		std::cout << "non post is called" << std::endl;
+		std::cerr << "non post is called" << std::endl;
 }
