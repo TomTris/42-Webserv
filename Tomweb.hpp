@@ -23,6 +23,8 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <arpa/inet.h>
+#include <algorithm>
+#include <vector>
 
 typedef struct s_server_config {
     int         port;
@@ -41,6 +43,8 @@ int 	    method_find(int	&new_socket, std::string &method, std::string &path, st
 void    	load_config(int ac, char **av, t_server_config &config);
 int	        socket_create(t_server_config &config, struct sockaddr_in &server_addr);
 std::string read_file(int &fd);
+
+void	set_init(fd_set &read_fds, t_server_data &server_data, int &max_fd, std::vector<int> &client_socket);
 
 
 void	handle_unknown_request(int &new_socket, std::string &path);
