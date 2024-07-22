@@ -12,8 +12,6 @@ struct server_t;
 class Server
 {
     private:
-       
-        int                opt;
 
     public:
         std::vector<location> locations;

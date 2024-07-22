@@ -1,4 +1,4 @@
-#include "Tomweb.hpp"
+#include "../Tomweb.hpp"
 
 void read_socket(int &new_socket, std::string &request_content) {
     ssize_t bytes_read;
@@ -24,6 +24,11 @@ int method_find(int &new_socket, std::string &method, std::string &path, std::st
 
 	read_socket(new_socket, request_content);
 
+    if (request_content.length() == 0)
+    {
+        std::cout << 23 << std::endl;
+        return (0);
+    }
     size_t request_line_end = request_content.find("\r\n");
     if (request_line_end == std::string::npos) {
         std::cerr << "Invalid request: no end of request line" << std::endl;
@@ -38,8 +43,5 @@ int method_find(int &new_socket, std::string &method, std::string &path, std::st
     }
 
     path.erase(0, path.find_first_not_of('/'));
-    if (path == "favicon.io")
-        return (0);
-    
     return 1;
 }
