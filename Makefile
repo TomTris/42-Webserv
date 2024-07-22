@@ -1,7 +1,7 @@
 NAME = Webserve
 FLAGS = -Wall -Werror -Wextra
 SRC = method_find.cpp socket_create.cpp Webserver.cpp\
-	read_file.cpp set_init.cpp\
+	read_file.cpp\
 	handle_get_request.cpp\
 	handle_post_request.cpp\
 	handle_delete_request.cpp\

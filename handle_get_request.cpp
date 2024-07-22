@@ -1,5 +1,7 @@
 #include "Tomweb.hpp"
 
+
+
 void	handle_get_request(int &new_socket, std::string &path)
 {
 	std::cout << "handle_get_request called" << std::endl;
@@ -25,6 +27,7 @@ void	handle_get_request(int &new_socket, std::string &path)
 		
 	// }
 	infile_fd = open(path.c_str(), O_RDONLY);
+	std::cout << "path = " << path.c_str() << std::endl;
 	if (stat(path.c_str(), &info) != 0)
 	{
 		perror("stat");

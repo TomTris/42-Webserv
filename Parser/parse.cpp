@@ -473,6 +473,7 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     }
     else
     {
+       
         err = 1;
         return ;
     }
@@ -499,16 +500,17 @@ void handleLocation(std::string& Location, server_t& s, int& err)
     }
     currentLoc = currentLoc.substr(currentLoc.find(' ') + 1, currentLoc.size());
     check = currentLoc.substr(0, currentLoc.find('{'));
-    if (check.size() == 0)
+    if (check.size() == 0 || check[0] != '/')
     {
         err = 1;
         return ;
     }
+
     currentLoc = currentLoc.substr(currentLoc.find('{') + 1, currentLoc.size());
     int i = 0;
     location loc;
     loc.root = "";
-    loc.url = "";
+    loc.url = check;
     loc.returning = "";
     while (currentLoc != "}" && currentLoc != " }")
     {
@@ -518,12 +520,11 @@ void handleLocation(std::string& Location, server_t& s, int& err)
         i++;
         
     }
-    if ((loc.returning != "" && i != 1) || loc.root == "" || loc.cgi_ex.size() != loc.cgi_path.size())
+    if ( loc.cgi_ex.size() != loc.cgi_path.size()) // toDo
     {
         err = 1;
         return ;
     }
-
     s.locations.push_back(loc);
 }
 
@@ -560,6 +561,7 @@ void handleNotLocation(std::string& serv, server_t& s, int &err)
     }
     else
     {
+        std::cerr << "Token not found " << category << std::endl;
         err = 1;
         return;
     }
@@ -608,14 +610,20 @@ int parse(std::string path, std::vector<server_t>& s)
     }
     output = update_spaces(output);
     if (!areParanthesesOk(output))
+    {
+        std::cerr << "Parantheses are not OK" << std::endl;
         return 1;
+    }
     std::vector<std::string> server_ts = getserver_ts(output);
     
     int err = 0;
     for (int i = 0; i < server_ts.size(); i++)
     {
         if (server_ts[i].substr(0, 7) != "server{")
+        {
+            std::cerr << "Not found syntax must start with server" << std::endl; 
             return 1;
+        }
         s.push_back(createserver_t(server_ts[i], err));
         if (err)
             return 1;
