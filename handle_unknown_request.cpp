@@ -10,6 +10,19 @@ std::string	header_200(void)
 	return (ret);
 }
 
+void handle_200(int &new_socket, std::string &str)
+{
+	std::string ret;
+	
+	ret = "HTTP/1.1 200 OK\r\n"
+				"Content-Type: text/html\r\n"
+				"\r\n<html><body>";
+	ret += str;
+	ret += "</body></html>";
+	if (write(new_socket, ret.c_str(), ret.length()) < 0)
+		throw std::runtime_error("write Failed");
+}
+
 //Request proccessed successfull
 void	handle_204(int &new_socket)
 {
