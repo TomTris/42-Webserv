@@ -38,6 +38,15 @@ typedef struct s_server_data {
     int                 server_fd;
 }   t_server_data;
 
+class Server {
+    
+    private:
+        std::vector<int> fd;
+
+    public:
+
+};
+
 std::string read_socket(int &fd);
 int 	    method_find(int	&new_socket, std::string &method, std::string &path, std::string &request_content);
 void    	load_config(int ac, char **av, t_server_config &config);
