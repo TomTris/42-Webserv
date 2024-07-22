@@ -72,7 +72,8 @@ void	file_handling(int	&new_socket, std::string &request_content)
 			}
 			else
 			{
-				handle_200(new_socket, "Success!");
+				std::string str = "Success!";
+				handle_200(new_socket, str);
 			}
 		}
 	}

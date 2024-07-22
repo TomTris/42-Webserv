@@ -45,14 +45,14 @@ int	        socket_create(t_server_config &config, struct sockaddr_in &server_ad
 std::string read_file(int &fd);
 
 void    	set_init(fd_set &read_fds, t_server_data &server_data, int &max_fd, std::vector<int> &client_socket);
-void    	handle_200(int &new_socket, std::string str);
+std::string header_200(void);
 
 void    	handle_unknown_request(int &new_socket, std::string &path);
 void    	handle_post_request(int	&new_socket, std::string &request_content, std::string &path);
 void    	handle_delete_request(int &new_socket, std::string &path);
 void    	handle_get_request(int &new_socket, std::string &path);
 
-std::string	header_200(void);
+void    	handle_200(int &new_socket, std::string &str);
 void    	handle_204(int &new_socket);
 void    	handle_400(int &new_socket, std::string const &str);
 void    	handle_401(int &new_socket);
