@@ -508,6 +508,22 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     }
 }
 
+void handle_url(std::string& url)
+{
+    int ptr = 0;
+    while (url.substr(ptr).find('/') != std::string::npos)
+    {
+        ptr += url.substr(ptr).find('/');
+        ptr += 1;
+        int len = 0;
+        while (url.size() > ptr + len && url[ptr + len] == '/')
+            len++;
+        url.erase(ptr, len);
+    }
+	if (url[0] != '/')
+		url = "/" + url;
+}
+
 void handleLocation(std::string& Location, server_t& s, int& err)
 {
     if (Location[0] == ' ')
@@ -543,6 +559,7 @@ void handleLocation(std::string& Location, server_t& s, int& err)
     location loc;
     loc.root = "";
     loc.url = check;
+    handle_url(loc.url);
     loc.returning = "";
     while (currentLoc != "}" && currentLoc != " }")
     {
