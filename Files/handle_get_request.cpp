@@ -1,5 +1,4 @@
-#include "Tomweb.hpp"
-
+#include "../Tomweb.hpp"
 
 
 void	handle_get_request(int &new_socket, std::string &path)
@@ -51,4 +50,5 @@ void	handle_get_request(int &new_socket, std::string &path)
 		if (write(new_socket, http_header.c_str(), http_header.length()) < 1)
 			throw std::runtime_error("write Failed");
 	}
+	close(infile_fd);
 }

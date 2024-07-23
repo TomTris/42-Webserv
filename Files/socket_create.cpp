@@ -1,4 +1,4 @@
-#include "Tomweb.hpp"
+#include "../Tomweb.hpp"
 
 void	load_config(int ac, char **av, t_server_config &config)
 {
