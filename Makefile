@@ -1,14 +1,14 @@
 NAME = Webserve
 FLAGS = -Wall -Werror -Wextra
 SRC = \
-	Files/method_find.cpp\
-	Files/socket_create.cpp\
+	Files/Parser/parse.cpp\
+	Files/Parser/Class_Server.cpp\
+	\
+	Files/Class_Connection.cpp\
+	Files/Class_Request.cpp\
+	\
 	Files/Webserver.cpp\
-	Files/read_file.cpp\
-	Files/handle_get_request.cpp\
-	Files/handle_post_request.cpp\
-	Files/handle_delete_request.cpp\
-	Files/handle_unknown_request.cpp
+	Files/socket_create.cpp
 
 OBJS = $(SRC:.cpp=.o)
 

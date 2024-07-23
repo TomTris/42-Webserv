@@ -19,7 +19,10 @@ class Server
         std::map<int, std::string> errorPages;
         int err;
         int serverFd;
+        int body_size_max;
         Server(server_t& s);
+        
+        ///
         void launch();
         void handleClient(int clientSocket);
         int set_non_blocking(int fd);

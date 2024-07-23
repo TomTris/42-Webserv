@@ -25,51 +25,99 @@
 #include <arpa/inet.h>
 #include <algorithm>
 #include <vector>
+#include <map>
 
-typedef struct s_server_config {
-    int         port;
+struct location
+{
+    std::string url;
+    std::vector<std::string> allowed;
     std::string root;
-    int         listen_max;
-} t_server_config;
-
-typedef struct s_server_data {
-    s_server_config     config;
-    struct sockaddr_in  server_addr;
-    int                 server_fd;
-}   t_server_data;
-
-class Server {
-    
-    private:
-        std::vector<int> fd;
-
-    public:
-
+    bool autoindex;
+    std::vector<std::string> indexes;
+    std::vector<std::string> cgi_path;
+    std::vector<std::string> cgi_ex;
+    int doesntExist;
+    std::string returning;
 };
 
-std::string read_socket(int &fd);
-int 	    method_find(int	&new_socket, std::string &method, std::string &path, std::string &request_content);
-void    	load_config(int ac, char **av, t_server_config &config);
-int	        socket_create(t_server_config &config, struct sockaddr_in &server_addr);
-std::string read_file(int &fd);
+struct server_t
+{
+    int host;
+    int port;
+    std::string servername;
+    std::map<int, std::string> errorpages;
+    int client_max_body_size;
+    std::vector<location> locations;
+};
 
-void    	set_init(fd_set &read_fds, t_server_data &server_data, int &max_fd, std::vector<int> &client_socket);
-std::string header_200(void);
+class   Request {
+    private:
 
-void    	handle_unknown_request(int &new_socket, std::string &path);
-void    	handle_post_request(int	&new_socket, std::string &request_content, std::string &path);
-void    	handle_delete_request(int &new_socket, std::string &path);
-void    	handle_get_request(int &new_socket, std::string &path);
+/* any error -> set any_error = true;
+open error with infile.
+empty have read, read it into have_read, when it gets write_fds, it will write into inside
+after read -> call to del.
+1. Method, path, http version
+2.1 GET: - path -> return.
+2.2 POST - path content-length-left = ? 
+open(PATH);
+read -> have_read
+write_fds -> write
+If not enough -> infile = iopen (bad request) -> delete file.
+2.3 DELETE - path -> done -> ret
+*/
+//GET request: should not have content-length or must = 0;
+//POST request: must contain content-length
+    public:
+        Request(int *isError);
+        int                 *isError;
+        int                 isFinished;
 
-void    	handle_200(int &new_socket, std::string &str);
-void    	handle_204(int &new_socket);
-void    	handle_400(int &new_socket, std::string const &str);
-void    	handle_401(int &new_socket);
-void    	handle_403(int &new_socket);
-void    	handle_404(int &new_socket);
-void    	handle_408(int &new_socket);
-void    	handle_409(int &new_socket);
-void    	handle_411(int &new_socket);
-void	    handle_none(int &new_socket, int nbr, std::string const &str);
+        std::string         method;
+        std::string         URL;
+        std::string         HTTP_version;
+        //after 10 second not finished -> cancel
+        int                 any_error;//err to return
+        int                 circle_read;// = 100 -> close
+        int                 circle_write;// = 100 -> close
+        int                 content_length_left;
+        int                 infile;
+        std::string         have_read;
+        bool                response_done;
+};
+
+class Connection {
+    private:
+
+    public:
+        Connection(int socket_fd_o);
+        ~Connection();
+        int                        isError;
+        int                 socket_fd;
+        std::vector<Request>    requests;
+        //after 10 second no request -> close
+        struct timeval      tv;
+};
+
+class Server
+{
+    private:
+
+    public:
+        ~Server();
+        Server(server_t& s);
+        std::vector<Connection>       connections;
+        std::vector<int>              to_add_fds;
+
+        std::vector<location>         locations;
+        struct sockaddr_in            address;
+        std::map<int, std::string>    errorPages;
+        int                           err;
+        int                           serverFd;
+        int                           body_size_max;
+};
+
+int parse(std::string path, std::vector<server_t>& s);
+void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers);
 
 #endif
