@@ -1,3 +1,1 @@
 1. Get Method - no content length => read until u get \r\n\r\n
-
-
