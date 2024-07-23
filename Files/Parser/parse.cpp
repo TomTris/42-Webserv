@@ -65,6 +65,22 @@ int get_ip_as_number(std::string add, int& err)
     return out;
 }
 
+void handle_url(std::string& url)
+{
+    int ptr = 0;
+    while (url.substr(ptr).find('/') != std::string::npos)
+    {
+        ptr += url.substr(ptr).find('/');
+        ptr += 1;
+        int len = 0;
+        while (url.size() > ptr + len && url[ptr + len] == '/')
+            len++;
+        url.erase(ptr, len);
+    }
+	if (url[0] != '/')
+		url = "/" + url;
+}
+
 bool isWhiteSpace(char c)
 {
     if (c <= 9 && c >= 13)
@@ -351,6 +367,7 @@ void handleRoot(std::string& root, location& loc, int& err)
         return ;
     }
     loc.root = root;
+    handle_url(loc.root);
 }
 
 void handleAllowMethods(std::string& methods, location &loc, int& err)
@@ -506,22 +523,6 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
         err = 1;
         return ;
     }
-}
-
-void handle_url(std::string& url)
-{
-    int ptr = 0;
-    while (url.substr(ptr).find('/') != std::string::npos)
-    {
-        ptr += url.substr(ptr).find('/');
-        ptr += 1;
-        int len = 0;
-        while (url.size() > ptr + len && url[ptr + len] == '/')
-            len++;
-        url.erase(ptr, len);
-    }
-	if (url[0] != '/')
-		url = "/" + url;
 }
 
 void handleLocation(std::string& Location, server_t& s, int& err)
