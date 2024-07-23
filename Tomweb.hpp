@@ -56,23 +56,28 @@ class Connection {
     public:
         Connection(int socket_fd_o);
         ~Connection();
-        int                        isError;
+        int                        isResponseClose;
         int                        socket_fd;
-        int                        isWaiting;
-        int                        isReading;
-        int                        isWriting;
+        int                        isReadingHeader;
+        int                        isReadingBody;
+        int                        isReadingRequest;
+        int                        isWriting; //write back to socket.
+        int                        closeRequest;
+        int                        isConnectionClosed;
+
         //after 10 second no request -> close
         std::string         method;
         std::string         URL;
         std::string         HTTP_version;
+
         //after 10 second not finished -> cancel
         int                 any_error;//err to return
-        int                 circle_read;// = 100 -> close
+        int                 circle_total;//50: to handle a request. After finish 1 request-> = -1;
+        int                 circle_read;// 20: waiting for new information too long -> time out
         int                 circle_write;// = 100 -> close
         int                 content_length_left;
         int                 infile;
         std::string         have_read;
-        bool                response_done;
 };
 
 class Server
