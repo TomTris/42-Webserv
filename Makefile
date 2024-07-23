@@ -4,6 +4,9 @@ SRC = \
 	Files/Parser/parse.cpp\
 	Files/Parser/Class_Server.cpp\
 	\
+	Files/get_from_paring.cpp\
+	Files/handle_path.cpp\
+	\
 	Files/Class_Connection.cpp\
 	Files/Class_Request.cpp\
 	\

@@ -50,29 +50,18 @@ struct server_t
     std::vector<location> locations;
 };
 
-class   Request {
+class Connection {
     private:
 
-/* any error -> set any_error = true;
-open error with infile.
-empty have read, read it into have_read, when it gets write_fds, it will write into inside
-after read -> call to del.
-1. Method, path, http version
-2.1 GET: - path -> return.
-2.2 POST - path content-length-left = ? 
-open(PATH);
-read -> have_read
-write_fds -> write
-If not enough -> infile = iopen (bad request) -> delete file.
-2.3 DELETE - path -> done -> ret
-*/
-//GET request: should not have content-length or must = 0;
-//POST request: must contain content-length
     public:
-        Request(int *isError);
-        int                 *isError;
-        int                 isFinished;
-
+        Connection(int socket_fd_o);
+        ~Connection();
+        int                        isError;
+        int                        socket_fd;
+        int                        isWaiting;
+        int                        isReading;
+        int                        isWriting;
+        //after 10 second no request -> close
         std::string         method;
         std::string         URL;
         std::string         HTTP_version;
@@ -84,19 +73,6 @@ If not enough -> infile = iopen (bad request) -> delete file.
         int                 infile;
         std::string         have_read;
         bool                response_done;
-};
-
-class Connection {
-    private:
-
-    public:
-        Connection(int socket_fd_o);
-        ~Connection();
-        int                        isError;
-        int                 socket_fd;
-        std::vector<Request>    requests;
-        //after 10 second no request -> close
-        struct timeval      tv;
 };
 
 class Server
@@ -119,5 +95,14 @@ class Server
 
 int parse(std::string path, std::vector<server_t>& s);
 void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers);
+
+bool checkIfFileExistsAndNotDirectory(std::string& path);
+location get_location(std::vector<location>& locations, std::string& path);
+std::vector<std::string> get_allowed(location& loc);
+bool isAllowed(location& loc, std::string& method);
+std::string get_path_of_standart_error(int errorNumb);
+std::string get_error_page(Server& serv, int errorNumb);
+std::string get_path_to_file(location& loc, std::string path);
+bool isDirectory(const char *path);
 
 #endif

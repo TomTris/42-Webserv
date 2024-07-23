@@ -67,13 +67,22 @@ std::vector<std::string> get_allowed(location& loc)
         vec[0] = "POST";
         vec[1] = "DELETE";
         vec[2] = "GET";
-        vec[3] = "PUT";
+        vec[3] = "GET";
         return vec;
     }
     return loc.allowed;
 }
 
+bool isAllowed(location& loc, std::string& method)
+{
+    std::vector<std::string> allowed = get_allowed(loc);
+    if (find(allowed.begin(), allowed.end(), method) != allowed.end())
+        return true;
+    return false;
+}
+
 //should be valid errorNumb if defind new please add it to function
+
 std::string get_path_of_standart_error(int errorNumb)
 {
     std::map<int, std::string> mp;

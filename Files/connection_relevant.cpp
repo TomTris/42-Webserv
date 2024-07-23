@@ -51,30 +51,77 @@ void connections_add(std::vector<Server> &servers)
 	}
 }
 
-void	connection_exception(Connection &current_connection)
+void	connection_exception(Connection &current_connection, std::vector<int> &to_del)
 {
 	current_connection.isError = 1;
+	std::cout << "Connection with fd = {" << current_connection.socket_fd << "} has exception" << std::endl;
+	to_del.push_back(current_connection.socket_fd);
 }
 
-void	header_get(Connection &current_connection)
+void	set_any_error(Connection &current_connection, int nbr)
 {
-    char buffer[50] = {0};
-
-    if (read(new_socket, buffer, sizeof(buffer) - 1) > 0) {
-        current_connection = 
-        if (bytes_read < sizeof(buffer) - 1)
-			break;
-    }
-    
-    if (bytes_read == -1) {
-        throw std::runtime_error("read failed");
-    }    
+	current_connection.any_error = nbr;
+	current_connection.isWaiting = 0;
+	current_connection.isReading = 0;
+	current_connection.isWriting = 1;
 }
 
-void	connection_read(Connection &current_connection, std::vector<int> &to_del)
+void	header_get(Connection &current_connection, std::vector<int> &to_del)
 {
-	if (current_connection.requests.size() == 0)
+    char	buffer[50] = {0};
+
+    if (read(new_socket, buffer, sizeof(buffer) - 1) < 0)
 	{
-		header_get(current_connection, to_del);
+		perror("read Failed?");
+		to_del.push_back(current_connection.socket_fd);
+		return ;
+	}
+	
+	have_read += buffer;
+	if (have_read.length() == 0)
+	{
+		std::cerr << "Client closes the connection" << std::endl;
+		to_del.push_back(current_connection.socket_fd);
+		return ;
+	}
+}
+
+void	header_check(Server &server, Connection &current_connection, std::vector<int> &to_del)
+{
+	ssize_t request_line_endl;
+
+	if (have_read.length() > 40)
+		return (set_any_error(current_connection, 414));
+	
+	request_line_end = have_read.find("\r\n");
+	if (request_line_end == std::string::npos)
+		return (set_any_error(current_connection, 400));
+
+	std::string request_line = have_read.substr(0, request_line_end);
+	std::stringstream socket_stream(request_line);
+
+	if (!(socket_stream >> method >> URL >> HTTP_version) || HTTP_version != "HTTP/1.1" !! URL == "")
+		return (set_any_error(current_connection, 400));
+	location loc = get_location(server.locations, URL);
+	URL = get_path_to_file(loc, URL);
+	if (!isAllowed(loc, method))
+		return (set_any_error(current_connection, 400));
+}
+std::string get_path_to_file(location& loc, std::string path)
+
+
+void	connection_read(Server &server, Connection &current_connection, std::vector<int> &to_del)
+{
+	if (current_connections.size() == 0)
+	{
+		current_connection.push_back();
+	}
+
+	if (current_connection.isWaiting == 1)
+	{
+		current_connection.isWaiting = 0;
+		current_connection.isReading = 1;
+		header_get(server, current_connection, to_del);
+		header_check(server, current_connection, to_del);
 	}
 }
