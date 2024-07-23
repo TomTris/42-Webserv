@@ -1,29 +1,21 @@
 #include "../Tomweb.hpp"
 
-void	load_config(int ac, char **av, t_server_config &config)
+void	load_config(int ac, char **av, std::vector<server_t> &server_config)
 {
-	(void) ac;
-	(void) av;
-	config.port = PORT;
-	config.root = "./";
-	config.listen_max = 3;
+	if (ac != 1 && ac != 2)
+		throw std::runtime_error("Too many config files");
+	if (ac == 2)
+		parse(av[1], server_config);
+	else
+		parse("Configs/default.conf", server_config);
 }
 
-int	socket_create(t_server_config &config, struct sockaddr_in &server_addr)
+void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers)
 {
-	int	opt = 1;
-	int	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (server_fd == -1)
-		throw	std::runtime_error("socket Failed");
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(config.port);
-	server_addr.sin_addr.s_addr = INADDR_ANY;
-	//need to learn more about htis
-	// if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) 
-	// 	throw	std::runtime_error("setsockopt Failed");
-	if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1)
-		throw	std::runtime_error("bind Failed");
-	if (listen (server_fd, config.listen_max) == -1)
-		throw	std::runtime_error("listen Failed");
-	return (server_fd);
+	std::vector<server_t>	server_config;
+	load_config(ac, av, server_config);
+	for (int i = 0; i < server_config.size(); i++)
+	{
+		servers.push_back(Server(server_config[i]));
+	}
 }
