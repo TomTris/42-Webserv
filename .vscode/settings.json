@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "string": "cpp",
+        "ostream": "c",
+        "__bit_reference": "c",
+        "__hash_table": "c",
+        "__string": "c",
+        "__tree": "c",
+        "algorithm": "c",
+        "map": "c",
+        "string_view": "c",
+        "unordered_map": "c"
+    }
+}
