@@ -26,6 +26,7 @@ int get_ip_as_number(std::string add, int& err)
     {
         if (add.find('.') == 0)
         {
+            throw std::runtime_error("error wrong value host");
             err = 1;
             return 0;
         }
@@ -40,6 +41,7 @@ int get_ip_as_number(std::string add, int& err)
         numb = my_atoi(temp);
         if (numb > 255)
         {
+            throw std::runtime_error("error wrong value host");
             err = 1;
             return 0;   
         }
@@ -49,11 +51,13 @@ int get_ip_as_number(std::string add, int& err)
     numb = my_atoi(add);
     if (add == "")
     {
+        throw std::runtime_error("error wrong value host");
         err =1;
         return 0;
     }
     if (numb > 255)
     {
+        throw std::runtime_error("error wrong value host");
         err = 1;
         return 0;
     }
@@ -196,6 +200,7 @@ void handleHost(std::string &ip, server_t& s, int& err)
     ip.pop_back();
     if (!(ip.size() >= 7 && ip.size() <= 15))
     {
+        throw std::runtime_error("error wrong value host");
         err =1;
         return ;
     }
@@ -204,6 +209,7 @@ void handleHost(std::string &ip, server_t& s, int& err)
     {
         if (!(ip[i] == '.' || (ip[i] >= '0' && ip[i] <= '9')))
         {
+            throw std::runtime_error("error wrong value host");
             err = 1;
             return ;
         }
@@ -212,6 +218,7 @@ void handleHost(std::string &ip, server_t& s, int& err)
     }
     if (count != 3)
     {
+        throw std::runtime_error("error wrong value host");
         err = 1;
         return ;
     }
@@ -223,12 +230,14 @@ void handlePort(std::string &port, server_t& s, int& err)
     port.pop_back();
     if (port.size() == 0 || port.size() > 5 || !isNumber(port))
     {
+        throw std::runtime_error("error wrong value port");
         err = 1;
         return ;
     }
     int temp = my_atoi(port);
     if (temp > 0xFFFF)
     {
+        throw std::runtime_error("error wrong value port");
         err = 1;
         return ;
     }
@@ -242,6 +251,7 @@ void handleserverName(std::string& servername, server_t& s, int& err)
         return ;
     if (servername.find(' ') != std::string::npos)
     {
+        throw std::runtime_error("error server name wrong syntaxes");
         err = 1;
         return ;
     }
@@ -253,18 +263,21 @@ void handleErrorPage(std::string& errorPage, server_t& s, int& err)
     errorPage.pop_back();
     if (errorPage.find(' ') == std::string::npos)
     {
+        throw std::runtime_error("error page wrong syntaxes");
         err = 1;
         return ;
     }
     std::string errCode = getFistWordAndDelete(errorPage);
     if (errCode.size() > 9 || !isNumber(errCode))
     {
+        throw std::runtime_error("error page wrong value");
         err = 1;
         return;
     }
     long long error = my_atoi(errCode);
     if (error > 2147483647)
     {
+        throw std::runtime_error("error page wrong value");
         err = 1;
         return ;
     }
@@ -276,17 +289,20 @@ void handleMaxBody(std::string& body, server_t& s, int& err)
     body.pop_back();
     if (body.find(' ') != std::string::npos)
     {
+        throw std::runtime_error("body_limits wrong syntaxes");
         err = 1;
         return ;
     }
     if (body.size() > 9 || !isNumber(body))
     {
+        throw std::runtime_error("body_limits wrong value");
         err = 1;
         return;
     }
     long long numb = my_atoi(body);
     if (numb > 2147483647)
     {
+        throw std::runtime_error("body_limits wrong value");
         err = 1;
         return ;
     }
@@ -307,6 +323,7 @@ void add_to_loc(std::string& temp, location& loc, int & err)
     }
     if (i == 4)
     {
+        throw std::runtime_error("allowed method wrong value");
         err = 1;
         return ;
     }
@@ -329,6 +346,7 @@ void handleRoot(std::string& root, location& loc, int& err)
 {
     if (root.find(' ') != std::string::npos)
     {
+        throw std::runtime_error("root wrong syntaxes");
         err = 1;
         return ;
     }
@@ -351,6 +369,7 @@ void handleAutoindex(std::string& str, location &loc, int &err)
 {
     if (str.find(' ') != std::string::npos)
     {
+        throw std::runtime_error("autoindex wrong syntaxes");
         err = 1;
         return ;
     }
@@ -359,7 +378,10 @@ void handleAutoindex(std::string& str, location &loc, int &err)
         loc.autoindex = (str == "on");
     }
     else
+    {
+        throw std::runtime_error("autoindex wrong value");
         err = 1;
+    }
 }
 
 void handleCgiPath(std::string& path, location& loc, int &err)
@@ -371,6 +393,7 @@ void handleCgiPath(std::string& path, location& loc, int &err)
         path = path.substr(path.find(' ') + 1, path.size());
         if (temp[0] != '/' || access(temp.c_str(), F_OK) != 0)
         {
+            throw std::runtime_error("cgi_path wrong syntaxes");
             err = 1;
             return ;
         }
@@ -380,6 +403,7 @@ void handleCgiPath(std::string& path, location& loc, int &err)
     temp = path;
     if (temp[0] != '/' || access(temp.c_str(), F_OK) != 0)
     {
+        throw std::runtime_error("cgi_path wrong syntaxes");
         err = 1;
         return ;
     }
@@ -396,6 +420,7 @@ void handleCgiEx(std::string& exec, location& loc, int &err)
         exec = exec.substr(exec.find(' ') + 1, exec.size());
         if (temp[0] != '.')
         {
+            throw std::runtime_error("cgi_ex wrong syntaxes");
             err = 1;
             return ;
         }
@@ -405,6 +430,7 @@ void handleCgiEx(std::string& exec, location& loc, int &err)
     temp = exec;
     if (temp[0] != '.')
     {
+        throw std::runtime_error("cgi_ex wrong syntaxes");
         err = 1;
         return ; 
     }
@@ -416,6 +442,7 @@ void handleReturn(std::string& curLoc, location& loc, int &err)
 {
     if (curLoc.find(' ') != std::string::npos)
     {
+        throw std::runtime_error("return wrong syntaxes");
         err = 1;
         return ;
     }
@@ -430,6 +457,7 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     }
     if (curLoc.find(';') == std::string::npos)
     {
+        throw std::runtime_error("location wrong syntaxes");
         err  = 1;
         return ;
     }
@@ -438,6 +466,7 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     curLoc = curLoc.substr(curLoc.find(';') + 1, curLoc.size());
     if (param.find(' ') == std::string::npos)
     {
+        throw std::runtime_error("location wrong syntaxes");
         err = 1;
         return ;
     }
@@ -473,7 +502,7 @@ void handleParamLocation(std::string& curLoc, location& loc, int &err)
     }
     else
     {
-       
+        throw std::runtime_error("location wrong paramater");
         err = 1;
         return ;
     }
@@ -489,12 +518,14 @@ void handleLocation(std::string& Location, server_t& s, int& err)
     Location = Location.substr(Location.find('}') + 1, Location.size());
     if (currentLoc.find(' ') == std::string::npos)
     {
+        throw std::runtime_error("location wrong syntaxes");
         err = 1;
         return;
     }
     std::string check = currentLoc.substr(0, currentLoc.find(' '));
     if (check != "location")
     {
+        throw std::runtime_error("location wrong syntaxes");
         err = 1;
         return ;
     }
@@ -502,6 +533,7 @@ void handleLocation(std::string& Location, server_t& s, int& err)
     check = currentLoc.substr(0, currentLoc.find('{'));
     if (check.size() == 0 || check[0] != '/')
     {
+        throw std::runtime_error("location wrong syntaxes");
         err = 1;
         return ;
     }
@@ -522,6 +554,7 @@ void handleLocation(std::string& Location, server_t& s, int& err)
     }
     if ( loc.cgi_ex.size() != loc.cgi_path.size()) // toDo
     {
+        throw std::runtime_error("location wrong syntaxes");
         err = 1;
         return ;
     }
@@ -561,7 +594,7 @@ void handleNotLocation(std::string& serv, server_t& s, int &err)
     }
     else
     {
-        std::cerr << "Token not found " << category << std::endl;
+        throw std::runtime_error("server wrong paramater");
         err = 1;
         return;
     }
@@ -597,7 +630,7 @@ int parse(std::string path, std::vector<server_t>& s)
     std::ifstream inputFile(path);
     if (!inputFile)
     {
-        std::cerr << "Couldn't open " << path << std::endl;
+      throw std::runtime_error("Couldnt open the file");
         return (1);
     }
     std::string output = "";
@@ -611,7 +644,7 @@ int parse(std::string path, std::vector<server_t>& s)
     output = update_spaces(output);
     if (!areParanthesesOk(output))
     {
-        std::cerr << "Parantheses are not OK" << std::endl;
+       throw std::runtime_error("wrong syntaxes");
         return 1;
     }
     std::vector<std::string> server_ts = getserver_ts(output);
@@ -621,7 +654,7 @@ int parse(std::string path, std::vector<server_t>& s)
     {
         if (server_ts[i].substr(0, 7) != "server{")
         {
-            std::cerr << "Not found syntax must start with server" << std::endl; 
+            throw std::runtime_error("wrong syntaxes");
             return 1;
         }
         s.push_back(createserver_t(server_ts[i], err));
