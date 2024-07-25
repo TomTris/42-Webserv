@@ -1,23 +1,54 @@
 #include "../Tomweb.hpp"
 
-Connection::Connection(int socket_fd_o)
-{
-    this->socket_fd = socket_fd_o;
-    this->isFinished = 0;
-    this->method = "";
-    this->URL = "";
-    this->HTTP_version = "";
-    this->any_error = 0;
-    this->circle_read = -1;
-    this->circle_write = -1;
-    this->content_length_left = -1;
-    this->infile = -1;
-    this->isWaiting = 1;
-    this->isReading = 0;
-    this->isWriting = 0;
-}
 Connection::~Connection()
 {
-    if (close(this->socket_fd) == -1)
-        throw std::runtime_error("close failed in Connection");
 }
+
+Connection::Connection(int socket_fd)
+	: socket_fd(socket_fd)
+{
+	this->IsAfterResponseClose = 1;
+	this->isReadingHeader = 1;
+	this->isWriting = 0;
+	this->fdWritingTo = -1;
+	this->doesClientClosed = 0;
+	this->contentLength = 0;
+	this->host = "";
+	this->contentType = "";
+	this->contentDisposition = "";
+	this->boundary = "";
+	this->form_name = "";
+	this->file_name = "";
+	this->method = "";
+	this->URI = "";
+	this->HTTP_version = "";
+	this->errNbr = 0;
+	this->circleTotal = 0;
+	this->circleRead = 0;
+	this->circleWrite = 0;
+	this->have_read = "";
+}
+
+void Connection::reset()
+{
+	this->IsAfterResponseClose = 1;
+	this->isReadingHeader = 1;
+	this->isWriting = 0;
+	this->fdWritingTo = -1;
+	this->doesClientClosed = 0;
+	this->contentLength = 0;
+	this->host = "";
+	this->contentType = "";
+	this->contentDisposition = "";
+	this->boundary = "";
+	this->form_name = "";
+	this->file_name = "";
+	this->method = "";
+	this->URI = "";
+	this->HTTP_version = "";
+	this->errNbr = 0;
+	this->circleTotal = 0;
+	this->circleRead = 0;
+	this->circleWrite = 0;
+}
+

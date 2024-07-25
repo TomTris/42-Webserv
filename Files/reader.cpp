@@ -1,28 +1,12 @@
-#include "Tomweb.hpp"
+#include "../Tomweb.hpp"
 
-//added 431
-//413 Payload Too Large
-//415 Unsupported Media Type
-int	isExit(int nbr)
+int	set_errNbr(Connection &current_connection, int nbr, int isReadingHeader, int isReadingBody, int isWriting)
 {
-	if (nbr == 400 ||nbr == 401 ||nbr == 403 ||nbr == 404 ||nbr == 408
-		||nbr == 500 ||nbr == 502 ||nbr == 503 ||nbr == 504 || nbr == 431
-		|| nbr == 413 || nbr == 415)
-		return (1);
-	return (0);
-}
-
-int	set_any_error(Connection &current_connection, int nbr, int isReadingHeader, int isReadingBody, int isWriting)
-{
-	if (nbr == 400 ||nbr == 401 ||nbr == 403 ||nbr == 404 ||nbr == 408
-		||nbr == 500 ||nbr == 502 ||nbr == 503 ||nbr == 504 || nbr == 431
-		|| nbr == 413 || nbr == 415)
+	if (nbr > 400)
 	{
 		current_connection.IsAfterResponseClose = 1;
 	}
-	else
-		current_connection.needReadToTheEnd = 1;
-	current_connection.any_error = nbr;
+	current_connection.errNbr = nbr;
 	current_connection.isReadingHeader = isReadingHeader;
 	current_connection.isWriting = isWriting;
 
@@ -43,24 +27,18 @@ int	socket_read(Connection &current_connection, std::vector<int> &to_del)
 			current_connection.doesClientClosed = 1;
 		}
 		
-		return (set_any_error(current_connection, 0, 0, 0, current_connection.isWriting));
+		return (set_errNbr(current_connection, 0, 0, 0, current_connection.isWriting));
 	}
 	else if (check == -1)
-		return (set_any_error(current_connection, 500, 0, 0, 0));
+		return (set_errNbr(current_connection, 500, 0, 0, 0));
 	
 	check = read(current_connection.socket_fd, buffer, sizeof(buffer) - 1);
 	if (check == -1)
-		return (set_any_error(current_connection, 500, 0, 0, 0));
+		return (set_errNbr(current_connection, 500, 0, 0, 0));
 	buffer[check] = 0;
 	current_connection.have_read += buffer;
+	std::cout << buffer << std::endl;
 	
-	if (current_connection.needReadToTheEnd == 1)
-	{
-		if (check < 4999)
-			current_connection.needReadToTheEnd = 0;
-		current_connection.have_read = "";
-		return (-1);
-	}
 	return (1);
 }
 
@@ -74,20 +52,21 @@ int	connection_read(Server &server, Connection &current_connection, std::vector<
 	if (current_connection.isReadingHeader == 1)
 	{
 		current_connection.isReadingHeader = 0;
-		if (request_header(server, current_connection, to_del, check) == -1)
+		if (request_header(server, current_connection) == -1)
 			return (-1);
 		current_connection.isWriting = 1;
-		current_connection.isReadingBodyHeader = 1;
+		current_connection.isReadingHeader = 1;
 		return (1);
 	}
+	return (1);
 }
 
-// IsAfterResponseClose == 1 && any_error != 0 => return the file err, then close.
-// IsAfterResponseClose == 1 && any_error == 0 => do the rest, then close;. it's POST/DELETE method.
-// IsAfterResponseClose == 0 && any_error == 1 => return the file, then keep doing.
-// IsAfterResponseClose == 0 && any_error == 0 => normal.
+// IsAfterResponseClose == 1 && errNbr != 0 => return the file err, then close.
+// IsAfterResponseClose == 1 && errNbr == 0 => do the rest, then close;. it's POST/DELETE method.
+// IsAfterResponseClose == 0 && errNbr == 1 => return the file, then keep doing.
+// IsAfterResponseClose == 0 && errNbr == 0 => normal.
 
-//All: Read request_line first, decide keep doing or not, which method, which url.
+//All: Read request_line first, decide keep doing or not, which method, which URI.
 //Based on the error decided if close connection or not :
 //400 401 403  404 408  500 502 503 504. Close after the isWriting is done, then delete himself.
 //If the connection is closed

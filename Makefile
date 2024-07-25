@@ -4,14 +4,17 @@ SRC = \
 	Files/Parser/parse.cpp\
 	Files/Parser/Class_Server.cpp\
 	\
+	Files/body_handle_post.cpp\
+	Files/connection_relevant.cpp\
 	Files/get_from_paring.cpp\
 	Files/handle_path.cpp\
-	\
-	Files/Class_Connection.cpp\
-	Files/Class_Request.cpp\
-	\
+	Files/header_handle.cpp\
+	Files/reader.cpp\
+	Files/socket_create.cpp\
+	Files/statusCode.cpp\
 	Files/Webserver.cpp\
-	Files/socket_create.cpp
+	Files/writer.cpp\
+	Files/Class_Connection.cpp
 
 OBJS = $(SRC:.cpp=.o)
 

@@ -1,18 +1,18 @@
 import requests
 import logging
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from requests.packages.URIlib3.util.retry import Retry
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-url = 'http://localhost:8081'  # Replace with your server's URL
+URI = 'http://localhost:8081'  # Replace with your server's URI
 data = {
     'data': 'Thiuest'
 }
 
 # Function to send POST request
-def send_post_request(url, data):
+def send_post_request(URI, data):
     try:
         # Set up session with retries
         session = requests.Session()
@@ -21,8 +21,8 @@ def send_post_request(url, data):
         session.mount('http://', adapter)
         session.mount('https://', adapter)
 
-        logging.info('Sending POST request to %s with data: %s', url, data)
-        response = session.post(url, data=data)
+        logging.info('Sending POST request to %s with data: %s', URI, data)
+        response = session.post(URI, data=data)
 
         logging.info('Status Code: %d', response.status_code)
         logging.info('Response Text: %s', response.text)
@@ -33,7 +33,7 @@ def send_post_request(url, data):
         return None
 
 # Send the POST request
-response = send_post_request(url, data)
+response = send_post_request(URI, data)
 if response:
     print('Request sent successfully.')
 else:
