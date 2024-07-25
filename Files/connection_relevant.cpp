@@ -1,4 +1,4 @@
-#include "Tomweb.hpp"
+#include "../Tomweb.hpp"
 
 int	connection_delete(int &fd_to_del, std::vector<Server> &servers)
 {
@@ -24,6 +24,7 @@ int	connections_delete(std::vector<int> &to_del_fds, std::vector<Server> &server
 	{
 		connection_delete(to_del_fds[0], servers);
 	}
+	return (1);
 }
 
 void	connection_accept(Server &server)

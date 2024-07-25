@@ -1,4 +1,4 @@
-#include "Tomweb.hpp"
+#include "../Tomweb.hpp"
 
 int	open_file(Connection &current_connection)
 {
@@ -6,31 +6,31 @@ int	open_file(Connection &current_connection)
 	int	fd;
 	struct stat info;
 
-	if(current_connection.contentType = "data-form")
+	if (current_connection.contentType == "data-form")
 	{
 		file_name = "data";
 		fd = open(file_name.c_str(), O_CREAT | O_APPEND, 0644);
 		if (fd == -1)
 		{
 			perror("open");
-			return (set_any_error(current_connection, 409, 0, 1));
+			return (set_errNbr(current_connection, 409, 0, 0, 1));
 		}
-		current_connection = fd;
+		current_connection.fdWritingTo = fd;
 	}
 	else
 	{
 		if (stat(file_name.c_str(), &info) == 0)
 		{
-			set_any_error(current_connection, 409, 0, 1);
+			set_errNbr(current_connection, 409, 0, 0, 1);
 		}
 		file_name = "z_file/" + current_connection.file_name;
 		fd = open(file_name.c_str(), O_CREAT, 0644);
 		if (fd == -1)
 		{
 			perror("open");
-			return (set_any_error(current_connection, 500, 0, 1));
+			return (set_errNbr(current_connection, 500, 0, 0, 1));
 		}
-		current_connection = fd;
+		current_connection.fdWritingTo = fd;
 	}
 	return (fd);
 }
@@ -44,4 +44,6 @@ int	body_handle_post(Connection &current_connection)
 		if (open_file(current_connection) == -1)
 			return (-1);
 	}
+	// write()
+	return (1);
 }

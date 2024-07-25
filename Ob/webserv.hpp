@@ -30,7 +30,7 @@ class Server;
 
 struct location
 {
-    std::string url;
+    std::string URI;
     std::vector<std::string> allowed;
     std::string root;
     bool autoindex;

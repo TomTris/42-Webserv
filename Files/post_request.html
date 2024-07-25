@@ -8,7 +8,7 @@
 <body>
   <form id="upload-form">
     <input type="file" id="file-input" multiple="multiple" name="file(s)">
-    <input type="text" id="uri-input" name="uri" placeholder="Resource uri path">
+    <input type="text" id="URI-input" name="URI" placeholder="Resource URI path">
     <button type="button" onclick="uploadFile()">Upload</button><br>
     <a id="result"></a><br>
     <a id="location"></a>
@@ -26,13 +26,13 @@
         return;
       }
 
-      const apiUrl = document.getElementById('uri-input').value + '/' + selectedFile.name;
+      const apiURI = document.getElementById('URI-input').value + '/' + selectedFile.name;
       const requestOptions = {
         method: 'POST',
         body: selectedFile,
       };
 
-      fetch(apiUrl, requestOptions)
+      fetch(apiURI, requestOptions)
         .then(response => {
           if (response.ok) {
             document.getElementById('result').innerHTML = 'File uploaded. status: ' + response.status + " " + response.statusText;

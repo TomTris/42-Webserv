@@ -1,4 +1,4 @@
-#include "Tomweb.hpp"
+#include "../Tomweb.hpp"
 
 // int	extract_contentDisposition(Connection &current_connection, std::string &header_o)
 // {
@@ -64,6 +64,7 @@ int	extract_contentLength(Connection &current_connection, std::string &header_o)
 	current_connection.contentLength = value;
 	return (1);
 }
+
 int	extract_contentType(Connection &current_connection, std::string &header_o)
 {
 	std::string	header = header_o;
@@ -101,6 +102,7 @@ int	extract_host(Connection &current_connection, std::string &header_o)
 	current_connection.host = value;
 	return (1);
 }
+
 int	extract_boundary(Connection &current_connection, std::string &header_o)
 {
 	std::string	boundary_delim;
@@ -115,12 +117,13 @@ int	extract_boundary(Connection &current_connection, std::string &header_o)
 	if (pos2 == std::string::npos)
 		return (0);
 	boundary_delim = "--" + header.substr(pos1, pos2 - pos1);
-	current_connection = boundary;
+	current_connection.boundary = boundary_delim;
 	return (1);
 }
 
 // int extract_cookies();
 // int extract_authorization
+
 int	header_extract(Connection &current_connection, std::string &header_o)
 {
 	if (extract_IsAfterResponseClose(current_connection, header_o) == 0
@@ -132,29 +135,31 @@ int	header_extract(Connection &current_connection, std::string &header_o)
 	return (1);
 }
 
+
 int	request_line(Server &server, Connection &current_connection)
 {
 	ssize_t		request_line_end;
 	std::string &method = current_connection.method;
-	std::string &URL = current_connection.URL;
+	std::string &URI = current_connection.URI;
 	std::string &HTTP_version = current_connection.HTTP_version;
 	std::string &have_read = current_connection.have_read;
 
 	request_line_end = current_connection.have_read.find("\r\n");
 	if (request_line_end == std::string::npos)
-		return (set_any_error(current_connection, 400, 0, 0, 1));
+		return (set_errNbr(current_connection, 400, 0, 0, 1));
 
 	std::string request_line = have_read.substr(0, request_line_end);
 	
 	std::stringstream socket_stream(request_line);
-	if (!(socket_stream >> method >> URL >> HTTP_version) || HTTP_version != "HTTP/1.1" || URL == "")
-		return (set_any_error(current_connection, 400, 0, 0, 1));
-	location loc = get_location(server.locations, URL);
-	current_connection.URL = get_path_to_file(loc, URL);
+	if (!(socket_stream >> method >> URI >> HTTP_version) || HTTP_version != "HTTP/1.1" || URI == "")
+		return (set_errNbr(current_connection, 400, 0, 0, 1));
+	location loc = get_location(server.locations, URI);
+	current_connection.URI = get_path_to_file(loc, URI);
 	if (!isAllowed(loc, current_connection.method))
-		return (set_any_error(current_connection, 400, 0, 0, 1));
+		return (set_errNbr(current_connection, 400, 0, 0, 1));
 	return (1);
 }
+
 
 int	request_header(Server &server, Connection &current_connection)
 {
@@ -167,21 +172,21 @@ int	request_header(Server &server, Connection &current_connection)
 	if (header_end == std::string::npos)
 	{
 		if (current_connection.have_read.length() > 4000)
-			return (set_any_error(current_connection, 431, 0, 0, 1)); //Request field header too large
+			return (set_errNbr(current_connection, 431, 0, 0, 1)); //Request field header too large
 		return (-1);
 	}
 
 	header = current_connection.have_read.substr(0, header_end);
 	if (header_extract(current_connection, header) == -1)
 		return (-1);
-	if (current_connection.URL.length() > 30)
-		return (set_any_error(current_connection, 414, 0, 0, 1));
+	if (current_connection.URI.length() > 30)
+		return (set_errNbr(current_connection, 414, 0, 0, 1));
 	current_connection.have_read.erase(0, header_end + 4);
 	
 	if (current_connection.method == "GET" || current_connection.method == "DELETE")
 	{
 		if (current_connection.contentLength != 0)
-			return (set_any_error(current_connection, 400, 0, 0, 1));
+			return (set_errNbr(current_connection, 400, 0, 0, 1));
 		return (1);
 	}
 	if (current_connection.method == "POST")
@@ -189,10 +194,10 @@ int	request_header(Server &server, Connection &current_connection)
 		if (current_connection.contentType != "multipart/form-data"
 			|| (current_connection.form_name != "upload_form" 
 				&& current_connection.form_name != "data_form"))
-			return (set_any_error(current_connection, 400, 0, 0, 1));
+			return (set_errNbr(current_connection, 400, 0, 0, 1));
 		if (current_connection.contentLength == 0)
-			return (set_any_error(current_connection, 411, 0, 0, 1));
+			return (set_errNbr(current_connection, 411, 0, 0, 1));
 		return (1);
 	}
-	return (set_any_error(current_connection, 405, 0, 0, 1));
+	return (set_errNbr(current_connection, 405, 0, 0, 1));
 }
