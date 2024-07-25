@@ -56,14 +56,22 @@ class Connection {
     public:
         Connection(int socket_fd_o);
         ~Connection();
-        int                        isResponseClose;
+        int                        IsAfterResponseClose;
         int                        socket_fd;
         int                        isReadingHeader;
-        int                        isReadingBody;
-        int                        isReadingRequest;
         int                        isWriting; //write back to socket.
-        int                        closeRequest;
-        int                        isConnectionClosed;
+        int                        fdWritingTo;
+        int                        needReadToTheEnd; // skip current request
+        int                        doesClientClosed;
+        int                        contentLength;
+
+        std::string                host;
+
+        std::string                contentType;
+        std::string                contentDisposition;
+        std::string                boundary;
+        std::string                form_name;
+        std::string                file_name;
 
         //after 10 second no request -> close
         std::string         method;
@@ -72,10 +80,9 @@ class Connection {
 
         //after 10 second not finished -> cancel
         int                 any_error;//err to return
-        int                 circle_total;//50: to handle a request. After finish 1 request-> = -1;
-        int                 circle_read;// 20: waiting for new information too long -> time out
-        int                 circle_write;// = 100 -> close
-        int                 content_length_left;
+        int                 circleTotal;//50: to handle a request. After finish 1 request-> = -1;
+        int                 circleRead;// 20: waiting for new information too long -> time out
+        int                 circleWrite;// = 100 -> close
         int                 infile;
         std::string         have_read;
 };
