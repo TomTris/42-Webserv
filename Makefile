@@ -14,7 +14,8 @@ SRC = \
 	Files/statusCode.cpp\
 	Files/Webserver.cpp\
 	Files/writer.cpp\
-	Files/Class_Connection.cpp
+	Files/Class_Connection.cpp\
+	Files/deleter.cpp
 
 OBJS = $(SRC:.cpp=.o)
 

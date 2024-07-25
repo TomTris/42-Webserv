@@ -63,8 +63,10 @@ class Connection {
         int                                 isReadingHeader;
         int                                 isWriting; //write back to socket.
         int                                 fdWritingTo;
+        int                                 fdReadingFrom; // haven't
         int                                 doesClientClosed;
         int                                 contentLength;
+        int                                 autoIndex; // haven't done?
 
         std::string                         host;
         std::string                         contentType;
@@ -141,7 +143,9 @@ void	load_config(int ac, char **av, std::vector<server_t> &server_config);
 int	connection_write(Server &server, Connection &current_connection, std::vector<int> &to_del);
 
 
-std::string handle_200(void);
+int deleter(Connection &current_connection);
+
+std::string handle_0(void);
 std::string	handle_204(void);
 std::string	handle_400(void);
 std::string	handle_401(void);
@@ -150,4 +154,5 @@ std::string	handle_404(void);
 std::string	handle_408(void);
 std::string	handle_409(void);
 std::string	handle_411(void);
+std::string	handle_00(void);
 #endif

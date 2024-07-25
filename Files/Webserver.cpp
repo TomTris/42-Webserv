@@ -4,7 +4,6 @@ void	handle_event(std::vector<Server> &servers, fd_set &read_fds, fd_set &write_
 {
 	int					fd;
 	Connection			*current_connection;
-
 	for (int i = 0; i < servers.size(); i++)
 	{
 		if (FD_ISSET(servers[i].serverFd, &read_fds))
@@ -60,21 +59,23 @@ int	main(int ac, char **av)
 	re_try = 1000;
 	tv.tv_sec = 0;
 	tv.tv_usec = 100000;
+
 	try {
 		FD_ZERO(&read_fds);
 		load_config_n_socket_create(ac, av, servers, max_fd);
 		while (1)
 		{
 			set_init(read_fds, write_fds, max_fd, servers);
-			std::cout << max_fd << std::endl;
 			activity = select(max_fd + 1, &read_fds, &write_fds, NULL, NULL);
 			usleep(500000);
 			if (activity < 0  && errno != EINTR)
 			{
-				std::cout << activity << std::endl;
+				std::cout << "activity = " << activity << std::endl;
 				perror("select error");
 				if (--re_try == 0)
+				{
 					return (0);
+				}
 			} 
 			else
 			{
@@ -87,7 +88,7 @@ int	main(int ac, char **av)
 	}
 	catch (const std::runtime_error&e) {
 		perror(e.what());
-		return (1);
+		return (0);
 	}
 	return (0);
 }

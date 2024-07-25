@@ -1,6 +1,29 @@
 #include "../Tomweb.hpp"
 
-std::string handle_200(void)
+std::string	get_status_code(int nbr)
+{
+	if (nbr == 200)
+		return handle_0();
+	if (nbr == 204)
+		return handle_204();
+	if (nbr == 400)
+		return handle_400();
+	if (nbr == 401)
+		return handle_401();
+	if (nbr == 403)
+		return handle_403();
+	if (nbr == 404)
+		return handle_404();
+	if (nbr == 408)
+		return handle_408();
+	if (nbr == 409)
+		return handle_409();
+	if (nbr == 411)
+		return handle_411();
+	return (handle_00());
+}
+
+std::string handle_0(void)
 {
 	std::string http = "HTTP/1.1 200 OK\r\n"
 				"Content-Type: text/html\r\n"
@@ -104,3 +127,13 @@ std::string	handle_411(void)
 	return (http);
 }
 
+std::string	handle_00(void)
+{
+	std::string http = "HTTP/1.1 400 Add later\r\n"
+			"Content-Type: text/html\r\n"
+			"\r\n"
+			"<html><body>"
+			"Add later\n"
+			"</body></html>";
+	return (http);
+}
