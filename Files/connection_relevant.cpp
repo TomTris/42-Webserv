@@ -23,6 +23,8 @@ int	connections_delete(std::vector<int> &to_del_fds, std::vector<Server> &server
 	while (to_del_fds.size() > 0)
 	{
 		connection_delete(to_del_fds[0], servers);
+		close(to_del_fds[0]);
+		to_del_fds.erase(to_del_fds.begin());
 	}
 	return (1);
 }

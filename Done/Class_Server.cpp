@@ -20,6 +20,10 @@ Server::Server(server_t& s): err(0)
         this->err = 1;
         return ;    
     }
+    int opt = 1;
+	if (setsockopt(this->serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0) {
+		throw std::runtime_error("Set Address Reuse Failed");
+	}
     if (listen(this->serverFd, 10) < 0)
     {
         close(this->serverFd);
