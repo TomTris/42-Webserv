@@ -14,15 +14,11 @@ void	handle_event(std::vector<Server> &servers, fd_set &read_fds, fd_set &write_
 		for (int j = 0; j < servers[i].connection.size(); j++)
 		{
 			current_connection = &(servers[i].connection[j]);
-			if (FD_ISSET(current_connection->socket_fd, &exception_fds))
-			{
-				connection_exception(servers[i], current_connection, to_del);
-			}
-			if (FD_ISSET(current_connection->socket_fd, &read_fds))
+			if (FD_ISSET(current_connection.socket_fd, &read_fds) && current_connection.isWriting == 0)
 			{
 				connection_read(servers[i], current_connection, to_del);
 			}
-			if (FD_ISSET(current_connection->socket_fd, &write_fds))
+			else if (FD_ISSET(current_connection.socket_fd, &write_fds))
 			{
 				connection_write(servers[i], current_connection, to_del);
 			}
