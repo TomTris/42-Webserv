@@ -14,17 +14,23 @@ Server::Server(server_t& s): err(0)
     this->address.sin_addr.s_addr = htonl(s.host);
     this->locations = s.locations;
     this->body_size_max = s.client_max_body_size;
+    int opt = 1;
+	if (setsockopt(this->serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0) {
+		close(this->serverFd);
+        this->err = 1;
+        throw std::runtime_error("Set Address Reuse Failed");
+	}
     if (bind(this->serverFd, (sockaddr *)&this->address, sizeof(this->address)) < 0)
     {
         close(this->serverFd);
         this->err = 1;
-        return ;    
+        throw std::runtime_error("bind");
     }
     if (listen(this->serverFd, 10) < 0)
     {
         close(this->serverFd);
         this->err = 1;
-        return ;
+        throw std::runtime_error("listen");
     }
 }
 

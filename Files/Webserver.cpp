@@ -80,8 +80,8 @@ int	main(int ac, char **av)
 			{
 				re_try = 1000;
 				handle_event(servers, read_fds, write_fds, to_del_fds);
-				connections_delete(to_del_fds, servers);
 				connections_add(servers);
+				connections_delete(to_del_fds, servers);
 			}
 		}
 	}
