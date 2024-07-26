@@ -7,10 +7,11 @@ Connection::~Connection()
 Connection::Connection(int socket_fd)
 	: socket_fd(socket_fd)
 {
-	this->IsAfterResponseClose = 1;
+	this->IsAfterResponseClose = 0;
 	this->isReadingHeader = 1;
 	this->isWriting = 0;
 	this->fdWritingTo = -1;
+	this->fdReadingFrom = -1;
 	this->doesClientClosed = 0;
 	this->contentLength = 0;
 	this->host = "";
@@ -27,14 +28,19 @@ Connection::Connection(int socket_fd)
 	this->circleRead = 0;
 	this->circleWrite = 0;
 	this->have_read = "";
+	
+	
+	
+	this->autoIndex = 1;// change with config
 }
 
 void Connection::reset()
 {
-	this->IsAfterResponseClose = 1;
+	this->IsAfterResponseClose = 0;
 	this->isReadingHeader = 1;
 	this->isWriting = 0;
 	this->fdWritingTo = -1;
+	this->fdReadingFrom = -1;
 	this->doesClientClosed = 0;
 	this->contentLength = 0;
 	this->host = "";
@@ -50,5 +56,9 @@ void Connection::reset()
 	this->circleTotal = 0;
 	this->circleRead = 0;
 	this->circleWrite = 0;
+	
+	
+	
+	this->autoIndex = 1;// change with config
 }
 

@@ -21,22 +21,18 @@ int	socket_read(Connection &current_connection, std::vector<int> &to_del)
 	check = recv(current_connection.socket_fd, buffer, 5, MSG_PEEK);
 	if (check == 0)
 	{
-		if (current_connection.method == "GET")
-		{
-			to_del.push_back(current_connection.socket_fd);
-			current_connection.doesClientClosed = 1;
-		}		
-		return (set_errNbr(current_connection, 0, 0, 0, current_connection.isWriting));
+		to_del.push_back(current_connection.socket_fd);
+		current_connection.doesClientClosed = 1;
 	}
 	else if (check == -1)
+	{
 		return (set_errNbr(current_connection, 500, 0, 0, 0));
-	
+	}
 	check = read(current_connection.socket_fd, buffer, sizeof(buffer) - 1);
 	if (check == -1)
 		return (set_errNbr(current_connection, 500, 0, 0, 0));
 	buffer[check] = 0;
 	current_connection.have_read += buffer;
-	std::cout << buffer << std::endl;
 	return (1);
 }
 
