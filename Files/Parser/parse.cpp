@@ -561,6 +561,8 @@ void handleLocation(std::string& Location, server_t& s, int& err)
     loc.root = "";
     loc.URI = check;
     handle_URI(loc.URI);
+    if (loc.URI.back() != '/')
+        loc.URI.push_back('/');
     loc.returning = "";
     while (currentLoc != "}" && currentLoc != " }")
     {
