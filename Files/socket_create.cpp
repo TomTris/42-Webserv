@@ -57,8 +57,4 @@ void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers
 	}
 	if (servers.size() == 0)
 		throw std::runtime_error("No Server");
-	for (int i = 0; i < servers[0].server_names.size(); i++)
-	{
-		std::cout << servers[0].server_names[i] << std::endl;
-	}
 }

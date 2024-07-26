@@ -121,6 +121,9 @@ std::string get_path_of_standart_error(int errorNumb);
 std::string get_error_page(Server& serv, int errorNumb);
 std::string get_path_to_file(location& loc, std::string path);
 bool isDirectory(const char *path);
+long long my_atoi(std::string numb);
+bool isNumber(std::string& number);
+void handle_URI(std::string& URI);
 
 int	open_file(Connection &current_connection);
 int	body_handle_post(Connection &current_connection);
