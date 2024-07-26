@@ -12,7 +12,8 @@ Server::Server(server_t& s): err(0)
     this->address.sin_family = AF_INET;
     this->address.sin_port = htons(s.port);
     this->address.sin_addr.s_addr = htonl(s.host);
-    this->locations = s.locations;
+    this->locations.push_back(s.locations);
+    this->server_names.push_back(s.servername);
     this->body_size_max = s.client_max_body_size;
     int opt = 1;
 	if (setsockopt(this->serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0) {
@@ -32,6 +33,8 @@ Server::Server(server_t& s): err(0)
         this->err = 1;
         throw std::runtime_error("listen");
     }
+    this->host = s.host;
+    this->port = s.port;
 }
 
 Server::~Server() {

@@ -96,14 +96,17 @@ class Server
     public:
         ~Server();
         Server(server_t& s);
-        std::vector<Connection>                 connections;
-        std::vector<int>                        to_add_fds;
-        std::vector<location>                   locations;
-        struct sockaddr_in                      address;
-        std::map<int, std::string>              errorPages;
-        int                                     err;
-        int                                     serverFd;
-        int                                     body_size_max;
+        std::vector<Connection>                         connections;
+        std::vector<int>                                to_add_fds;
+        std::vector<std::vector<location> >             locations;
+        std::vector<std::string>                        server_names;
+        struct sockaddr_in                              address;
+        std::map<int, std::string>                      errorPages;
+        int                                             err;
+        int                                             serverFd;
+        int                                             body_size_max;
+        int                                             port;
+        int                                             host;
 
         void accept();
 };
