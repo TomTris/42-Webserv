@@ -27,10 +27,8 @@ std::string handle_0(void)
 {
 	std::string http = "HTTP/1.1 200 OK\r\n"
 				"Content-Type: text/html\r\n"
-				"\r\n"
-				"<html><body>"
-				"OK"
-				"</body></html>";
+				
+				"\r\n";
 	return (http);
 }
 
@@ -39,10 +37,12 @@ std::string	handle_204(void)
 {
 	std::string http = 	"HTTP/1.1 204 KO\r\n"
 			"Content-Type: text/html\r\n"
-			"\r\n"
-			"<html><body>"
-			"Request proccessed successful"
-			"</body></html>";
+			"\r\n";
+	std::string body = "<html><body>"
+			 	"Request proccessed successful"
+				"</body></html>";
+	http += "Content-Length: ";
+	
 	return (http);
 }
 
