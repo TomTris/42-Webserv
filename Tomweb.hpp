@@ -58,6 +58,7 @@ class Connection {
     public:
         Connection(int socket_fd);
         ~Connection();
+        int                                 port;
         int                                 IsAfterResponseClose;
         int                                 socket_fd;
         int                                 isReadingHeader;
