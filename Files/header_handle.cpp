@@ -183,20 +183,20 @@ int	request_header(Server &server, Connection &current_connection)
 
 	if (header_extract(current_connection, header) == -1)
 		return (-1);
-	if (current_connection.URI.length() > 30)
+	if (current_connection.URI.length() > 1000)
 		return (set_errNbr(current_connection, 414, 0, 0, 1));
 	current_connection.have_read.erase(0, header_end + 4);
-	// std::cout << current_connection.errNbr << ": errNbr" << std::endl;
-	// std::cout << current_connection.IsAfterResponseClose << ": IsAfterResponseClose" << std::endl;
-	// std::cout << current_connection.socket_fd << ": socket_fd" << std::endl;
-	// std::cout << current_connection.isReadingHeader << ": isReadingHeader" << std::endl;
-	// std::cout << current_connection.isWriting << ": isWriting" << std::endl;
-	// std::cout << current_connection.fdWritingTo << ": fdWritingTo" << std::endl;
+	std::cout << current_connection.errNbr << ": errNbr" << std::endl;
+	std::cout << current_connection.IsAfterResponseClose << ": IsAfterResponseClose" << std::endl;
+	std::cout << current_connection.socket_fd << ": socket_fd" << std::endl;
+	std::cout << current_connection.isReadingHeader << ": isReadingHeader" << std::endl;
+	std::cout << current_connection.isWriting << ": isWriting" << std::endl;
+	std::cout << current_connection.fdWritingTo << ": fdWritingTo" << std::endl;
 	
 	std::cout << current_connection.host << ": host" << std::endl;
-	// std::cout << current_connection.contentType << ": contentType" << std::endl;
-	// std::cout << current_connection.form_name << ": form_name" << std::endl;
-	// std::cout << current_connection.file_name << ": file_name" << std::endl;
-	// std::cout << current_connection.have_read << ": have_read" << std::endl;
+	std::cout << current_connection.contentType << ": contentType" << std::endl;
+	std::cout << current_connection.form_name << ": form_name" << std::endl;
+	std::cout << current_connection.file_name << ": file_name" << std::endl;
+	std::cout << current_connection.have_read << ": have_read" << std::endl;
 	return (1);
 }
