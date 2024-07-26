@@ -95,7 +95,7 @@ int	stat_value_0(struct stat &info, Connection &current_connection, std::vector<
 		return (writer_handle(403, current_connection.socket_fd, to_del)); // idk what it is, so, permisison denied =))
 	}
 }
-void writer_200(int &new_socket, char *str)
+std::string writer_200(int &new_socket, char *str)
 {
 	std::cout << "writer 200 called " << std::endl;
 
@@ -112,7 +112,7 @@ void writer_200(int &new_socket, char *str)
     
     // Write headers
     write(new_socket, header.str().c_str(), header.str().size());
-    
+    header.str() + body;
     // Write body
     write(new_socket, body.c_str(), body.length());
 }

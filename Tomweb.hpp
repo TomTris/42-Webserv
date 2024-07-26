@@ -27,6 +27,19 @@
 #include <vector>
 #include <map>
 
+
+#define ERROR204 "www/errors/204.html"
+#define ERROR400 "www/errors/400.html"
+#define ERROR401 "www/errors/401.html"
+#define ERROR402 "www/errors/402.html"
+#define ERROR403 "www/errors/403.html"
+#define ERROR404 "www/errors/404.html"
+#define ERROR405 "www/errors/405.html"
+#define ERROR408 "www/errors/408.html"
+#define ERROR409 "www/errors/409.html"
+#define ERROR411 "www/errors/411.html"
+
+
 struct location
 {
     std::string URI;
@@ -108,7 +121,8 @@ class Server
         int                                             body_size_max;
         int                                             port;
         int                                             host;
-
+        std::string get_error_page(int numb);
+        std::string return_default(int numb);
         void accept();
 };
 
@@ -124,6 +138,7 @@ bool isDirectory(const char *path);
 long long my_atoi(std::string numb);
 bool isNumber(std::string& number);
 void handle_URI(std::string& URI);
+bool checkIfFileExistsAndNotDirectory(std::string& path);
 
 int	open_file(Connection &current_connection);
 int	body_handle_post(Connection &current_connection);

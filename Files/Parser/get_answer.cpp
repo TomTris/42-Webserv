@@ -20,7 +20,6 @@ bool checkIfFileExistsAndNotDirectory(std::string& path)
     struct stat path_stat;
 
     if (stat(path.c_str(), &path_stat) == 0) {
-        // Check if it is a regular file
         if (S_ISREG(path_stat.st_mode)) {
             return true;
         } else {
