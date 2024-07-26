@@ -155,9 +155,9 @@ int	request_line(Server &server, Connection &current_connection)
 		return (set_errNbr(current_connection, 400, 0, 0, 1));
 	// location loc = get_location(server.locations, URI);
 	// current_connection.URI = get_path_to_file(loc, URI);
-	// std::cout << current_connection.method << "method" << std::endl;
-	// std::cout << current_connection.URI << "URI" << std::endl;
-	// std::cout << current_connection.HTTP_version << "HTTP_version" << std::endl;
+	std::cout << "{" << current_connection.method << "} method" << std::endl;
+	std::cout << "{" << current_connection.URI << "} URI" << std::endl;
+	std::cout << "{" << current_connection.HTTP_version << "} HTTP_version" << std::endl;
 	// if (!isAllowed(loc, current_connection.method))
 	// 	return (set_errNbr(current_connection, 400, 0, 0, 1));
 	return (1);
@@ -186,17 +186,17 @@ int	request_header(Server &server, Connection &current_connection)
 	if (current_connection.URI.length() > 30)
 		return (set_errNbr(current_connection, 414, 0, 0, 1));
 	current_connection.have_read.erase(0, header_end + 4);
-	std::cout << current_connection.errNbr << ": errNbr" << std::endl;
-	std::cout << current_connection.IsAfterResponseClose << ": IsAfterResponseClose" << std::endl;
-	std::cout << current_connection.socket_fd << ": socket_fd" << std::endl;
-	std::cout << current_connection.isReadingHeader << ": isReadingHeader" << std::endl;
-	std::cout << current_connection.isWriting << ": isWriting" << std::endl;
-	std::cout << current_connection.fdWritingTo << ": fdWritingTo" << std::endl;
+	// std::cout << current_connection.errNbr << ": errNbr" << std::endl;
+	// std::cout << current_connection.IsAfterResponseClose << ": IsAfterResponseClose" << std::endl;
+	// std::cout << current_connection.socket_fd << ": socket_fd" << std::endl;
+	// std::cout << current_connection.isReadingHeader << ": isReadingHeader" << std::endl;
+	// std::cout << current_connection.isWriting << ": isWriting" << std::endl;
+	// std::cout << current_connection.fdWritingTo << ": fdWritingTo" << std::endl;
 	
 	std::cout << current_connection.host << ": host" << std::endl;
-	std::cout << current_connection.contentType << ": contentType" << std::endl;
-	std::cout << current_connection.form_name << ": form_name" << std::endl;
-	std::cout << current_connection.file_name << ": file_name" << std::endl;
-	std::cout << current_connection.have_read << ": have_read" << std::endl;
+	// std::cout << current_connection.contentType << ": contentType" << std::endl;
+	// std::cout << current_connection.form_name << ": form_name" << std::endl;
+	// std::cout << current_connection.file_name << ": file_name" << std::endl;
+	// std::cout << current_connection.have_read << ": have_read" << std::endl;
 	return (1);
 }

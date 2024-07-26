@@ -22,6 +22,7 @@ int	connections_delete(std::vector<int> &to_del_fds, std::vector<Server> &server
 {
 	while (to_del_fds.size() > 0)
 	{
+		std::cout << "rm socket " << to_del_fds[0] << std::endl;
 		connection_delete(to_del_fds[0], servers);
 		close(to_del_fds[0]);
 		to_del_fds.erase(to_del_fds.begin());
@@ -38,8 +39,8 @@ void	connection_accept(Server &server)
 		throw std::runtime_error("accept failed");
 	if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
 		throw std::runtime_error("fcntl failed");
+	std::cout << "ACCCCccept socket :" << new_socket << std::endl;
 	server.to_add_fds.push_back(new_socket);
-
 }
 
 void connections_add(std::vector<Server> &servers)
@@ -48,6 +49,7 @@ void connections_add(std::vector<Server> &servers)
 	{
 		while (servers[i].to_add_fds.size() > 0)
 		{
+			std::cout << "add socket " << servers[i].to_add_fds[0] << std::endl;
 			servers[i].connections.push_back(Connection(servers[i].to_add_fds[0]));
 			servers[i].to_add_fds.erase(servers[i].to_add_fds.begin());
 		}

@@ -41,7 +41,7 @@ std::string	handle_204(void)
 			"Content-Type: text/html\r\n"
 			"\r\n"
 			"<html><body>"
-			"Request proccessed successful\n"
+			"Request proccessed successful"
 			"</body></html>";
 	return (http);
 }
@@ -49,8 +49,9 @@ std::string	handle_204(void)
 std::string	handle_400(void)
 {
 	std::string http = "HTTP/1.1 400 Bad Request\r\n"
-			"Content-Type: text/html\r\n\r\n<html><body>"
-			"Bad Request\n"
+			"Content-Type: text/html\r\n"
+			"\r\n<html><body>"
+			"Bad Request"
 			"</body></html>";
 	return (http);
 }
@@ -62,7 +63,7 @@ std::string	handle_401(void)
 			"Content-Type: text/html\r\n"
 			"\r\n"
 			"<html><body>"
-				"Permission denied\n"
+				"Permission denied"
 			"</body></html>";
 	return (http);
 }
@@ -74,7 +75,7 @@ std::string	handle_403(void)
 			"Content-Type: text/html\r\n"
 			"\r\n"
 			"<html><body>"
-				"Forbidden\n"
+				"Forbidden"
 			"</body></html>";
 	return (http);
 }
@@ -98,7 +99,7 @@ std::string	handle_408(void)
 			"Content-Type: text/html\r\n"
 			"\r\n"
 			"<html><body>"
-				"Request Timeout\n"
+				"Request Timeout"
 			"</body></html>";
 	return (http);
 }
@@ -110,7 +111,7 @@ std::string	handle_409(void)
 			"Content-Type: text/html\r\n"
 			"\r\n"
 			"<html><body>"
-				"Conflict\n"
+				"Conflict"
 			"</body></html>";
 	return (http);
 }
@@ -122,18 +123,18 @@ std::string	handle_411(void)
 			"Content-Type: text/html\r\n"
 			"\r\n"
 			"<html><body>"
-			"Content-Length required\n"
+			"Content-Length required"
 			"</body></html>";
 	return (http);
 }
 
 std::string	handle_00(void)
 {
-	std::string http = "HTTP/1.1 400 Add later\r\n"
+	std::string http = "HTTP/1.1 400 Not found\r\n"
 			"Content-Type: text/html\r\n"
 			"\r\n"
 			"<html><body>"
-			"Add later\n"
+			"Add later"
 			"</body></html>";
 	return (http);
 }
