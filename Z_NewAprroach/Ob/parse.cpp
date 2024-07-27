@@ -650,7 +650,7 @@ int parse(std::string path, std::vector<server_t>& s)
     std::ifstream inputFile(path);
     if (!inputFile)
     {
-      throw std::runtime_error("Couldnt open the file");
+        throw std::runtime_error(path);
         return (1);
     }
     std::string output = "";

@@ -1,19 +1,24 @@
 #include "Connection.hpp"
 
-Connection::Connection(Server &server, int fd) : server(server), socket_fd(fd), reader(fd)
+Connection::Connection(int fd) : socket_fd(fd), reader(fd)
 {
+	std::cout << "new Connect, socket, fd = " << socket_fd << ", " << fd << std::endl;
 	this->IsAfterResponseClose = 1;
 	this->readingHeaderDone = 0;
 	this->circle = 0;
 	this->have_read = "";
 }
 
-void Connection::reset()
+Connection::~Connection()
 {
-	this->IsAfterResponseClose = 1;
-	this->readingHeaderDone = 0;
-	this->circle = 0;
-
-	// this->reader.done = 0;
-	// this->reader.writer.done = 0;
+	std::cout << "1 connect die" << std::endl;
 }
+// void Connection::reset()
+// {
+// 	this->IsAfterResponseClose = 1;
+// 	this->readingHeaderDone = 0;
+// 	this->circle = 0;
+
+// 	// this->reader.done = 0;
+// 	// this->reader.writer.done = 0;
+// }

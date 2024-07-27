@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
-
+#include <poll.h>
 
 #define ERROR204 "www/errors/204.html"
 #define ERROR400 "www/errors/400.html"
@@ -71,6 +71,7 @@ class Server
         ~Server();
         Server(server_t& s);
         std::vector<std::vector<location> >             locations;
+        std::vector<int>                                to_add_fds;
         std::vector<Connection>                         connections;
         std::vector<std::string>                        server_names;
         struct sockaddr_in                              address;
@@ -85,11 +86,9 @@ class Server
 };
 
 #include "Connection.hpp"
-#include "Reader.hpp"
-#include "Writer.hpp"
 
 //----------------------OB--------------------------//
-void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers, int &max_fd);
+void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers);
 int parse(std::string path, std::vector<server_t>& s);
 bool checkIfFileExistsAndNotDirectory(std::string& path);
 location get_location(std::vector<location>& locations, std::string& path);
@@ -104,6 +103,17 @@ bool isNumber(std::string& number);
 void handle_URI(std::string& URI);
 bool checkIfFileExistsAndNotDirectory(std::string& path);
 void set_bytes_to_zero(void *start, int len);
-//----------------------OB--------------------------//
+
+//----------------poll_revelant------------------//
+
+void	add_servers_to_pool(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+void	remove_from_poll(int fd_rm, std::vector<struct pollfd> &fds);
+void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option);
+void    poll_reset(std::vector<struct pollfd> &fds);
+int 	connection_accept(Server &server, std::vector<struct pollfd> &fds);
+int     check_fds(std::vector<struct pollfd> &fds, int fd);
+
+//--------------server_level-----------//
+void	server_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
 
 #endif

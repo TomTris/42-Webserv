@@ -1,6 +1,6 @@
 #include "Reader.hpp"
 #include "Tomweb.hpp"
-Reader::Reader(int connect_fd) : writer(connect_fd, to_write)
+Reader::Reader(int connect_fd) : connect_fd(connect_fd), writer(connect_fd)
 {
 	errNbr = 0;
 	contentLength = 0;

@@ -4,11 +4,17 @@ SRC = \
 	Ob/Class_Server.cpp\
 	Ob/get_answer.cpp\
 	Ob/parse.cpp\
-	Connection.cpp\
 	main.cpp\
-	Reader.cpp\
 	socket_create.cpp\
-	Writer.cpp
+	Connection.cpp\
+	Reader.cpp\
+	Writer.cpp\
+	poll_relevant.cpp\
+	level/server_level.cpp
+	# connection_level.cpp\
+	# read_level.cpp\
+	# write_level.cpp
+
 
 OBJS = $(SRC:.cpp=.o)
 

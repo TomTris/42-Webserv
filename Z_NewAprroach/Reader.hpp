@@ -3,6 +3,8 @@
 
 #pragma once
 #include "Writer.hpp"
+#include <string.h>
+#include <iostream>
 class Reader {
 	public:
 		Reader(int connect_fd);
