@@ -38,6 +38,19 @@ void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option)
 	(fds.end() - 1)->revents = 0;
 }
 
+void	change_option_poll(std::vector<struct pollfd> &fds, int fd, int option)
+{
+	for (int i = 0; i < fds.size(); i++)
+	{
+        if (fds[i].fd == fd) {
+            fds[i].events = option;
+			return ;
+        }
+    }
+	std::cerr << "sth wrong in change_option_poll" << std::endl;
+    // return POLLERR; // Indicate error if the fd is not found
+}
+
 void poll_reset(std::vector<struct pollfd> &fds)
 {
 	for (int i = 0; i < fds.size(); i++)

@@ -38,7 +38,11 @@
 #define ERROR409 "www/errors/409.html"
 #define ERROR411 "www/errors/411.html"
 
+#ifndef BUFFERSIZE
+#define BUFFERSIZE 5000000
+#endif
 
+#include "Connection.hpp"
 struct location
 {
     std::string URI;
@@ -62,7 +66,6 @@ struct server_t
     std::vector<location> locations;
 };
 
-class Connection;
 class Server
 {
     private:
@@ -85,7 +88,6 @@ class Server
         std::string return_default(int numb);
 };
 
-#include "Connection.hpp"
 
 //----------------------OB--------------------------//
 void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers);
@@ -107,13 +109,22 @@ void set_bytes_to_zero(void *start, int len);
 //----------------poll_revelant------------------//
 
 void	add_servers_to_pool(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+
 void	remove_from_poll(int fd_rm, std::vector<struct pollfd> &fds);
 void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option);
 void    poll_reset(std::vector<struct pollfd> &fds);
+void	change_option_poll(std::vector<struct pollfd> &fds, int fd, int option);
+
 int 	connection_accept(Server &server, std::vector<struct pollfd> &fds);
 int     check_fds(std::vector<struct pollfd> &fds, int fd);
 
 //--------------server_level-----------//
 void	server_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
-
+//------------Connection-level-------//
+void	del_connect(Server &server, int j, std::vector<struct pollfd> &fds);
+int	reading_done(Connection &connect);
+int	request_line(Server &server, Connection &cnect);
+int	request_header(Server &server, Connection &cnect);
+int reading_header(Server &server, Connection &connect, std::vector<struct pollfd> &fds);
+void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
 #endif

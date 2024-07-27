@@ -28,7 +28,7 @@ int	main(int ac, char **av, char **env)
 			else
 			{
 				server_level(servers, fds);
-				// connection_level(servers, fds);
+				connection_level(servers, fds);
 				// read_level(servers, fds);
 				// write_level(servers, fds);
 				poll_reset(fds);

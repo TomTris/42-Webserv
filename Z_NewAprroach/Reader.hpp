@@ -12,14 +12,11 @@ class Reader {
 		int                 				errNbr;
 		int									contentLength;
 		int									autoIndex;
+		int									doesClientClose;
 
 		int									connect_fd;
 		std::string							method;
 		std::string							URI;
-
-		std::string							contentType;
-		std::string							form_name;
-		std::string							file_name;
 
 		int									fdReadingFrom;
 		int									done;

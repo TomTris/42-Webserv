@@ -155,14 +155,6 @@ std::string get_path_to_file(location& loc, std::string path)
     return output;
 }
 
-
-// # 1. host (like: localhost:8081 -> localhost is servername) std::string
-// # 2. Method std::string
-// # 3. URL std::string
-// # 4. Port not Port but Server
-// # then you answer me 1. Is Host:Port ok ( function return 0|1) ? 2.  method allow or not 3. what the URL is.
-
-
 int getIndexLocation(std::string &host, Server& serv)
 {
     for (int i = 0; i < serv.server_names.size(); i++)
@@ -193,6 +185,12 @@ bool isHostOk(std::string &host, Server& serv)
     host = h;
     return 1;
 }
+
+// # 1. host (like: localhost:8081 -> localhost is servername) std::string
+// # 2. Method std::string
+// # 3. URL std::string
+// # 4. Port not Port but Server
+// # then you answer me 1. Is Host:Port ok ( function return 0|1) ? 2.  method allow or not 3. what the URL is.
 
 std::vector<std::string> get_data(std::string host, std::string method, std::string url, Server& serv)
 {
