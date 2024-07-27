@@ -8,10 +8,7 @@ Reader::Reader(int connect_fd) : connect_fd(connect_fd), writer(connect_fd)
 
 	method = "";
 	URI = "";
-
-	contentType = "";
-	form_name = "";
-	file_name = "";
+	doesClientClose = 0;
 	fdReadingFrom = -1;
 	done = 1;
 	have_read = "";
@@ -27,9 +24,7 @@ void	Reader::reset()
 	method = "";
 	URI = "";
 
-	contentType = "";
-	form_name = "";
-	file_name = "";
+	doesClientClose = 0;
 	if (fdReadingFrom != connect_fd)
 	{
 		close(fdReadingFrom);
