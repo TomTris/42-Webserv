@@ -9,7 +9,6 @@ Server::Server(server_t& s): err(0)
         this->err = 1;
         return ;
     }
-    set_bytes_to_zero(&this->address, sizeof(this->address));
     this->address.sin_family = AF_INET;
     this->address.sin_port = htons(s.port);
     this->address.sin_addr.s_addr = htonl(s.host);

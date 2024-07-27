@@ -1,7 +1,7 @@
 #include "Writer.hpp"
 #include "Tomweb.hpp"
 
-Writer::Writer(int connect_fd, std::string &to_write) : connect_fd(connect_fd), writeString(to_write)
+Writer::Writer(int connect_fd) : connect_fd(connect_fd)
 {
 	fdWritingTo = -1;
 	done = 1;

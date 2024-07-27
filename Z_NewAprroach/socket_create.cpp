@@ -1,4 +1,4 @@
-#include "../Tomweb.hpp"
+#include "Tomweb.hpp"
 
 void	load_config(int ac, char **av, std::vector<server_t> &server_config)
 {
@@ -22,19 +22,17 @@ int check_if_exists(int host, int port, std::vector<Server> &servers)
 	return (-1);
 }
 
-void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers, int &max_fd)
+void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers)
 {
 	std::vector<server_t>	server_config;
 	load_config(ac, av, server_config);
-	max_fd = 0;
+
 	for (int i = 0; i < server_config.size(); i++)
 	{
 		int ans = check_if_exists(server_config[i].host, server_config[i].port, servers);
 		if (ans == -1)
 		{
 			servers.push_back(Server(server_config[i]));
-			if (servers[i].serverFd > max_fd)
-				max_fd = servers[i].serverFd;
 			if (servers.back().err == 1)
 				throw std::runtime_error("failed while creating socket");
 		}

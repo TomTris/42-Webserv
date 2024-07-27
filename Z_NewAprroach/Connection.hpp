@@ -2,15 +2,14 @@
 # define CONNECTION_HPP
 
 #pragma once
-#include "Tomweb.hpp"
 #include "Reader.hpp"
-
+#include <string.h>
+#include <iostream>
 class Connection {
 	public:
-		Connection(Server &server, int fd);
-		Server								&server;
+        ~Connection();
+		Connection(int fd);
         int									socket_fd;
-
 		int									IsAfterResponseClose;
         int									readingHeaderDone;
         int									circle; //waiting for request
