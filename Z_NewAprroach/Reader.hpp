@@ -1,0 +1,29 @@
+#ifndef READER_HPP
+#define READER_HPP
+
+#pragma once
+#include "Writer.hpp"
+class Reader {
+	public:
+		Reader(int connect_fd);
+		Writer								writer;
+		int                 				errNbr;
+		int									contentLength;
+		int									autoIndex;
+
+		int									connect_fd;
+		std::string							method;
+		std::string							URI;
+
+		std::string							contentType;
+		std::string							form_name;
+		std::string							file_name;
+
+		int									fdReadingFrom;
+		int									done;
+		std::string							have_read;
+		std::string							to_write;
+		void								reset();
+};
+
+#endif
