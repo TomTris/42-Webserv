@@ -127,4 +127,16 @@ int	request_line(Server &server, Connection &cnect);
 int	request_header(Server &server, Connection &cnect);
 int reading_header(Server &server, Connection &connect, std::vector<struct pollfd> &fds);
 void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+
+//----reader-----//
+int	errReturn(Server &server, Connection &cnect, Reader reader, std::vector<struct pollfd> &fds, int j);
+int	reader_get(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds, int j);
+int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds, int j);
+void	read_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+
+//----writer----//
+void	write_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct pollfd> &fds);
+//--Statuscode---//
+std::string	get_header(int nbr);
 #endif

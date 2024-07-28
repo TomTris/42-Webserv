@@ -1,16 +1,14 @@
 #include "../Tomweb.hpp"
 #include <poll.h>
 
+void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option);
 void	add_servers_to_pool(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
 	struct pollfd pfd;
 
 	for (int i = 0; i < servers.size(); i++)
 	{
-		fds.push_back(pfd);
-		fds[i].fd = servers[i].serverFd;
-		fds[i].events = POLLIN;
-		fds[i].revents = 0;
+		add_to_poll(fds, servers[i].serverFd, POLLIN);
 	}
 }
 
@@ -30,24 +28,28 @@ void	remove_from_poll(int fd_rm, std::vector<struct pollfd> &fds)
 void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option)
 {
 	struct pollfd pfd;
-	std::cout << "a" << std::endl;
 	fds.push_back(pfd);
-	std::cout << "b" << std::endl;
 	(fds.end() - 1)->fd = fd_add;
 	(fds.end() - 1)->events = option;
 	(fds.end() - 1)->revents = 0;
+
+	std::cout << "ADDED " << fd_add << " Successful with option " << option  << std::endl;
 }
 
 void	change_option_poll(std::vector<struct pollfd> &fds, int fd, int option)
 {
-	for (int i = 0; i < fds.size(); i++)
-	{
-        if (fds[i].fd == fd) {
-            fds[i].events = option;
-			return ;
-        }
-    }
-	std::cerr << "sth wrong in change_option_poll" << std::endl;
+	std::cout << "option here = " << option << std::endl;
+	remove_from_poll(fd, fds);
+	add_to_poll(fds, fd, option);
+	// for (int i = 0; i < fds.size(); i++)
+	// {
+    //     if (fds[i].fd == fd) {
+    //         fds[i].events = option;
+	// 		std::cerr << "change option SUCCESSFULL of " << fd << " to " << option << std::endl;
+	// 		return ;
+    //     }
+    // }
+	// std::cerr << "sth wrong in change_option_poll" << std::endl;
     // return POLLERR; // Indicate error if the fd is not found
 }
 
@@ -80,13 +82,27 @@ int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
 
 int check_fds(std::vector<struct pollfd> &fds, int fd) {
     // Use const_iterator for read-only access
+	if (fd == -1)
+		return (0);
     for (int i = 0; i < fds.size(); i++)
 	{
         if (fds[i].fd == fd) {
-            return fds[i].revents;
+            // if (fds[i].revents == POLL_ERR)
+			// {
+			// 	int error = 0;
+			// 	socklen_t len = sizeof(error);
+			// 	if (getsockopt(fds[i].fd, SOL_SOCKET, SO_ERROR, &error, &len) < 0) {
+			// 		perror("getsockopt");
+			// 	} else {
+			// 		fprintf(stderr, "Error on file descriptor %d: %s\n", fds[i].fd, strerror(error));
+			// 	}
+			// }
+			std::cout << "fd " << fd << " has option " << fds[i].events << std::endl;
+			std::cout << "fd " << fd << " has revents " << fds[i].revents << std::endl;
+			return fds[i].revents;
         }
     }
-    std::cerr << "sth wrong in check_fds" << std::endl;
+    std::cerr << "sth WRONG in check_fds, fd " << fd << "not found" << std::endl;
     return POLLERR; // Indicate error if the fd is not found
 }
 
@@ -102,7 +118,7 @@ int check_fds(std::vector<struct pollfd> &fds, int fd) {
 // 			servers[i].connections.push_back(Connection(servers[i].to_add_fds[0]));
 // 			fds.push_back(pfd);
 // 			(fds.end() - 1)->fd = servers[i].to_add_fds[0];
-// 			(fds.end() - 1)->events = POLLIN;
+// 			(fds.end() - 1)->events = POLL_IN;
 // 			(fds.end() - 1)->revents = 0;
 // 			servers[i].to_add_fds.erase(servers[i].to_add_fds.begin());
 // 		}

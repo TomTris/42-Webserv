@@ -1,26 +1,25 @@
 #include "Reader.hpp"
 #include "Tomweb.hpp"
-Reader::Reader(int connect_fd) : connect_fd(connect_fd), writer(connect_fd)
+Reader::Reader() : writer()
 {
-	errNbr = 0;
+	errNbr = 200;
 	contentLength = 0;
 	autoIndex = 0;
-
 	method = "";
 	URI = "";
 	doesClientClose = 0;
 	fdReadingFrom = -1;
-	done = 1;
 	have_read = "";
 	to_write = "";
+	openFile = 0;
+	cnect_close = 0;
 }
 
 void	Reader::reset()
 {
-	errNbr = 0;
+	errNbr = 200;
 	contentLength = 0;
 	autoIndex = 0;
-
 	method = "";
 	URI = "";
 
@@ -30,8 +29,8 @@ void	Reader::reset()
 		close(fdReadingFrom);
 	}
 	fdReadingFrom = -1;
-	done = 1;
 	to_write = "" ;
 	have_read = "";
+	cnect_close = 0;
 }
 

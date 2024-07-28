@@ -11,9 +11,10 @@ SRC = \
 	Writer.cpp\
 	poll_relevant.cpp\
 	level/server_level.cpp\
-	level/connection_level.cpp
-	# read_level.cpp\
-	# write_level.cpp
+	level/connection_level.cpp\
+	level/read_level.cpp\
+	level/write_level.cpp\
+	statusCode.cpp
 
 
 OBJS = $(SRC:.cpp=.o)

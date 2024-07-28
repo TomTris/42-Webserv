@@ -1,5 +1,3 @@
-
-
 #include "../Tomweb.hpp"
 
 int count_amount_of_app(std::string path, char c)
