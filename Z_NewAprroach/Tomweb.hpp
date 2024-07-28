@@ -26,6 +26,7 @@
 #include <vector>
 #include <map>
 #include <poll.h>
+#include <filesystem> 
 
 #define ERROR204 "www/errors/204.html"
 #define ERROR400 "www/errors/400.html"

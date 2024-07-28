@@ -1,11 +1,12 @@
 #include "../Tomweb.hpp"
 
-void	del_connect(Server &server, int j, std::vector<struct pollfd> &fds)
+void	del_connect(Server &server, Connection &cnect, int j, std::vector<struct pollfd> &fds)
 {
 	std::cout << "A CONNECTION DELETED" << std::endl;
-	int fd1 = server.connections[j].socket_fd;
-	int	fd2 = server.connections[j].reader.fdReadingFrom;
-	int	fd3 = server.connections[j].reader.writer.fdWritingTo;
+	
+	int fd1 = cnect.socket_fd;
+	int	fd2 = cnect.reader.fdReadingFrom;
+	int	fd3 = cnect.reader.writer.fdWritingTo;
 	
 	if (fd2 == fd1)
 		fd2 = -1;
@@ -24,8 +25,6 @@ void	del_connect(Server &server, int j, std::vector<struct pollfd> &fds)
 		remove_from_poll(fd3, fds);
 		close(fd3);
 	}
-
-	server.connections.erase(server.connections.begin() + j);
 }
 
 int	reading_done(Connection &cnect)
@@ -38,8 +37,13 @@ int	reading_done(Connection &cnect)
 	}
 	if (cnect.reader.method == "POST" && cnect.reader.errNbr < 300)
 	{
-		cnect.reader.have_read = cnect.have_read;
-		cnect.have_read = "";
+		if (cnect.reader.contentLength == -1)
+			cnect.reader.errNbr = 411;
+		else
+		{
+			cnect.reader.have_read = cnect.have_read;
+			cnect.have_read = "";
+		}
 	}
 	std::cout << "reading header done!!" << std::endl;
 	return (1);
@@ -248,14 +252,20 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 				|| (servers[i].connections[j].reader.doesClientClose == 1
 					&& (servers[i].connections[j].reader.method == "" || servers[i].connections[j].reader.method == "GET")))
 			{
-				del_connect(servers[i], j, fds);
+				del_connect(servers[i], servers[i].connections[j], j, fds);
+				dprintf(1, "%s\n", "1231231");
+				servers[i].connections.erase(servers[i].connections.begin() + j);
+				dprintf(1, "%s\n", "2231231");
 				j--;
 			}
 			else if (servers[i].connections[j].readingHeaderDone == 0 && check_fds(fds, servers[i].connections[j].socket_fd) & POLL_IN)
 			{
 				if (reading_header(servers[i], servers[i].connections[j], fds) == 2)
 				{
-					del_connect(servers[i], j, fds);
+					del_connect(servers[i], servers[i].connections[j], j, fds);
+					dprintf(1, "%s\n", "3231231");
+					servers[i].connections.erase(servers[i].connections.begin() + j);
+					dprintf(1, "%s\n", "4231231");
 					j--;
 				}
 			}

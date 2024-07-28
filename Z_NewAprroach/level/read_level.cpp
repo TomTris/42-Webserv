@@ -20,10 +20,11 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	int code;
 	
 	reader.have_read = "";
-	// if (reader.errNbr >= 400)
-	// {
-	// 	cnect.IsAfterResponseClose = 1;
-	// }
+	reader.method = "";
+	if (reader.errNbr >= 400)
+	{
+		cnect.IsAfterResponseClose = 1;
+	}
 	if (stat(file_name.c_str(), &info) == -1)
 	{
 		if (reader.errNbr == 500)
@@ -66,11 +67,44 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	return 1;
 }
 
+int	post_open(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
+{
+	struct stat info;
+	int			fd;
+
+	if (*reader.URI.begin() == '/')
+		reader.URI.erase(0, reader.URI.find_first_not_of('/'));
+	reader.URI = "./" + reader.URI;
+
+	if (stat(reader.URI.c_str(), &info) == 0)
+		return (reader.errNbr = 409, openFuncErr(server, cnect, reader, fds));
+	switch (errno)
+	{
+		case EACCES:
+			return (reader.errNbr = 401, openFuncErr(server, cnect, reader, fds));
+		case ELOOP:
+			return (reader.errNbr = 508, openFuncErr(server, cnect, reader, fds));
+	}
+	fd = open(reader.URI.c_str(), O_WRONLY);
+	if (fd == -1)
+		return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
+	reader.fdReadingFrom = cnect.socket_fd;
+	reader.writer.fdWritingTo = fd;
+	reader.openFile = 1;
+	add_to_poll(fds, fd, POLLOUT);
+	// change_option_poll(fds, cnect.socket_fd, POLLIN);
+	return (1);
+}
+
 int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
 {
 	struct stat info;
 	int	fd;
 
+	if (reader.method == "POST" && reader.post == 2)
+		return (reader.errNbr = 200, openFuncErr(server, cnect, reader, fds));
+	if (reader.method == "POST")
+		return (post_open(server, cnect, reader, fds));
 	if (reader.errNbr >= 300)
 		return openFuncErr(server, cnect, reader, fds);
 	if (*reader.URI.begin() == '/')
@@ -90,7 +124,7 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 				return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
 		}
 	}
-	if (S_ISDIR(info.st_mode))
+	if (S_ISDIR(info.st_mode)) // WARNING: Handle later
 		return (reader.errNbr = 400, openFuncErr(server, cnect, reader, fds));
 	if (!S_ISREG(info.st_mode))
 		return (reader.errNbr = 403, openFuncErr(server, cnect, reader, fds));
@@ -129,10 +163,10 @@ int	read_write(Server &server, Connection &cnect, Reader &reader, std::vector<st
 		if (reader.errNbr >= 500)
 			return (reader.cnect_close = 1, 1);
 		reader.errNbr = 500;
-		reader.openFile = 0;
 		close(reader.fdReadingFrom);
 		remove_from_poll(reader.fdReadingFrom, fds);
 		reader.fdReadingFrom = -1;
+		reader.openFile = 0;
 		return 1;
 	}
 	if (check == 0)
@@ -155,15 +189,60 @@ int	reader_get(Server &server, Connection &cnect, Reader &reader, std::vector<st
 	return (1);
 }
 
+int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
+{
+	std::cout << "-----" << reader.contentLength << std::endl;
+	if (reader.post == 0)
+	{
+		if (reader.contentLength <= reader.have_read.length())
+		{
+			reader.writer.writeString += reader.have_read.substr(0, reader.contentLength);
+			reader.have_read.erase(0, reader.contentLength);
+			reader.have_read += reader.have_read_2;
+			cnect.have_read = reader.have_read;
+			reader.have_read = "";
+			reader.post = 1;
+			reader.contentLength = 0;
+		}
+		else if (reader.contentLength <= reader.have_read_2.length() + reader.have_read.length())
+		{
+			reader.writer.writeString += reader.have_read;
+			reader.writer.writeString += reader.have_read_2.substr(0, reader.contentLength - reader.have_read.length());
+			reader.have_read_2.erase(0, reader.contentLength - reader.have_read.length());
+			cnect.have_read = reader.have_read_2;
+			reader.have_read = "";
+			reader.post = 1;
+			reader.contentLength = 0;
+		}
+		else
+		{
+			reader.writer.writeString += reader.have_read;
+			reader.writer.writeString += reader.have_read_2;
+			reader.contentLength -= (reader.have_read.length() + reader.have_read_2.length());
+		}
+		return 1;
+	}
+	if (reader.post == 1)
+	{
+		remove_from_poll(reader.writer.fdWritingTo, fds);
+		close(reader.writer.fdWritingTo);
+		reader.writer.fdWritingTo = cnect.socket_fd;
+		reader.fdReadingFrom = -1;
+		reader.openFile = 0;
+		reader.post = 2;
+	}
+	return (1);
+}
+
 int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds, int j)
 {
 	if (reader.openFile == 0)
 		openFunc(server, cnect, reader, fds);
 	read_write(server, cnect, reader, fds);
-	if (reader.method == "GET")
+	if (reader.method == "GET" || reader.method == "")
 		return reader_get(server, cnect, reader, fds);
-	// else if (reader.method == "POST")
-	// 	return reader_post(server, cnect, reader, fds);
+	else if (reader.method == "POST")
+		return reader_post(server, cnect, reader, fds);
 	// else if (reader.method == "DELETE")
 	// 	return reader_delete(server, cnect, reader, fds);
 	else

@@ -3,7 +3,7 @@
 Reader::Reader() : writer()
 {
 	errNbr = 200;
-	contentLength = 0;
+	contentLength = -1;
 	autoIndex = 0;
 	method = "";
 	URI = "";
@@ -18,21 +18,6 @@ Reader::Reader() : writer()
 
 void	Reader::reset()
 {
-	errNbr = 200;
-	contentLength = 0;
-	autoIndex = 0;
-	method = "";
-	URI = "";
-
-	doesClientClose = 0;
-	if (fdReadingFrom != connect_fd)
-	{
-		close(fdReadingFrom);
-	}
-	fdReadingFrom = -1;
-	to_write = "" ;
-	have_read = "";
-	cnect_close = 0;
-	have_read_2 = "";
+	
 }
 
