@@ -20,6 +20,10 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	int code;
 	
 	reader.have_read = "";
+	if (reader.errNbr >= 400)
+	{
+		cnect.IsAfterResponseClose = 1;
+	}
 	if (stat(file_name.c_str(), &info) == -1)
 	{
 		if (reader.errNbr == 500)
