@@ -18,7 +18,8 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	std::string file_name = "./www/errors/" + std::to_string(reader.errNbr) + ".html";
 	int	fd;
 	int code;
-
+	
+	reader.have_read = "";
 	if (stat(file_name.c_str(), &info) == -1)
 	{
 		if (reader.errNbr == 500)
@@ -66,7 +67,6 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 	struct stat info;
 	int	fd;
 
-	reader.have_read = "";
 	if (reader.errNbr >= 300)
 		return openFuncErr(server, cnect, reader, fds);
 	if (*reader.URI.begin() == '/')

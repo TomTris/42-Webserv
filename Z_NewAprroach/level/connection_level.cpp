@@ -36,9 +36,10 @@ int	reading_done(Connection &cnect)
 	{
 		cnect.IsAfterResponseClose = 1;
 	}
-	if (cnect.reader.method == "POST")
+	if (cnect.reader.method == "POST" && cnect.reader.errNbr < 300)
 	{
 		cnect.reader.have_read = cnect.have_read;
+		cnect.have_read = "";
 	}
 	std::cout << "reading header done!!" << std::endl;
 	return (1);
@@ -48,7 +49,7 @@ int	reading_done(Connection &cnect)
 int	extract_IsAfterResponseClose(std::string &header_o)
 {
 	std::string	header = header_o;
-	std::string	str = "\r\nConnection";
+	std::string	str = "\r\nConnection: ";
 	ssize_t	start = header.find(str);
 	if (start == std::string::npos)
 		return (0);
@@ -57,11 +58,9 @@ int	extract_IsAfterResponseClose(std::string &header_o)
 	if (end == std::string::npos)
 		return (0);
 	std::string content = header.substr(start, end);
-	std::stringstream socket_stream(content);
-	std::string value;
-	if (value == "keep-alive")
-		return (1);
-	return (0);
+	if (content.find("keep-alive") < 10)
+		return (0);
+	return (1);
 }
 
 int	extract_contentLength(std::string &header_o)
@@ -185,6 +184,9 @@ int	request_line(Server &server, Connection &cnect)
 	return (1);
 }
 
+
+//WARING WARNING WARNING:
+//need to handle, so that 1 space enter also isn't allowed, must separate requestline and header part.
 int	request_header(Server &server, Connection &cnect)
 {
 	while (1)
@@ -195,7 +197,6 @@ int	request_header(Server &server, Connection &cnect)
 			break ;
 	}
 	ssize_t	header_end = cnect.have_read.find("\r\n\r\n");
-	
 	if (header_end == std::string::npos)
 	{
 		if (cnect.have_read.length() > 1000)
@@ -205,6 +206,7 @@ int	request_header(Server &server, Connection &cnect)
 	if (request_line(server, cnect) == -1)
 		return (1);
 	header_extract(cnect, cnect.have_read);
+	cnect.have_read.erase(0, header_end + 4);
 	return (reading_done(cnect));
 }
 
@@ -233,8 +235,9 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 		for (int j = 0; j < servers[i].connections.size(); j++)
 		{
 			if ( servers[i].connections[j].reader.cnect_close == 1
+				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.readingDone == 1)
 				|| (servers[i].connections[j].reader.doesClientClose == 1
-				&& (servers[i].connections[j].reader.method == "" || servers[i].connections[j].reader.method == "GET")))
+					&& (servers[i].connections[j].reader.method == "" || servers[i].connections[j].reader.method == "GET")))
 			{
 				del_connect(servers[i], j, fds);
 				j--;
