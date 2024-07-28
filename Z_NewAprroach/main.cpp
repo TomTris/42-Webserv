@@ -17,11 +17,9 @@ int	main(int ac, char **av, char **env)
 	// add_to_poll(fds, fd, POLLIN|POLLOUT);
 	try {
 		load_config_n_socket_create(ac, av, servers);
-		poll_reset(fds);
 		add_servers_to_pool(servers, fds);
 		while(1)
 		{
-			poll_reset(fds);
 			activity = poll(fds.data(), fds.size(), 1000);
 			std::cout << "fds.size = " << fds.size() << std::endl;
 			// std::cout << "fd here = " << fd << std::endl;

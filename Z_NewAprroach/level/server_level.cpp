@@ -11,7 +11,7 @@ void	server_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 			add = connection_accept(servers[i], fds);
 			if (add != -1)
 			{
-				servers[0].connections.push_back(add);
+				servers[0].connections.push_back(Connection(add));
 				add_to_poll(fds, add, POLLIN | POLLOUT);
 			}
 		}
