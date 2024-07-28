@@ -13,6 +13,7 @@ Reader::Reader() : writer()
 	to_write = "";
 	openFile = 0;
 	cnect_close = 0;
+	have_read_2 = "";
 }
 
 void	Reader::reset()
@@ -32,5 +33,6 @@ void	Reader::reset()
 	to_write = "" ;
 	have_read = "";
 	cnect_close = 0;
+	have_read_2 = "";
 }
 
