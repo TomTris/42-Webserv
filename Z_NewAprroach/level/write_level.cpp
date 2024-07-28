@@ -10,7 +10,6 @@ int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct
 			cnect.reader.cnect_close = 1;
 			return 1;
 		}
-		std::cout << "{" << writer.writeString << "}"<< std::endl;
 		std::cout << "write good" << std::endl;
 		writer.writeString = "";
 	}

@@ -26,6 +26,7 @@ class Reader {
 		int									done; // done reader and writer.
 
 		std::string							have_read;
+		std::string							have_read_2;
 		std::string							to_write;
 		void								reset();
 };
