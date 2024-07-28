@@ -80,6 +80,6 @@ int check_fds(std::vector<struct pollfd> &fds, int fd) {
 			return fds[i].revents;
         }
     }
-    std::cerr << "sth WRONG in check_fds, fd " << fd << "not found" << std::endl;
+    // std::cerr << "sth WRONG in check_fds, fd " << fd << "not found" << std::endl;
     return POLLERR;
 }

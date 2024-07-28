@@ -17,8 +17,8 @@ class Reader {
 		int									autoIndex;
 		int									doesClientClose;
 
-		int									connect_fd;
 		std::string							method;
+		int									post;
 		std::string							URI;
 
 		int									cnect_close;
