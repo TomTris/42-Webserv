@@ -23,7 +23,6 @@ class Reader {
 
 		int									cnect_close;
 		int									fdReadingFrom;
-		int									done; // done reader and writer.
 
 		std::string							have_read;
 		std::string							have_read_2;

@@ -31,7 +31,7 @@ void	del_connect(Server &server, int j, std::vector<struct pollfd> &fds)
 int	reading_done(Connection &cnect)
 {
 	cnect.readingHeaderDone = 1;
-	cnect.reader.done = 0;
+	cnect.reader.readingDone = 0;
 	if (cnect.reader.errNbr >= 400)
 	{
 		cnect.IsAfterResponseClose = 1;
@@ -52,15 +52,17 @@ int	extract_IsAfterResponseClose(std::string &header_o)
 	std::string	str = "\r\nConnection: ";
 	ssize_t	start = header.find(str);
 	if (start == std::string::npos)
-		return (0);
+		return (1);
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
 	if (end == std::string::npos)
-		return (0);
+		return (1);
 	std::string content = header.substr(start, end);
-	if (content.find("keep-alive") < 10)
-		return (0);
-	return (1);
+	
+	if (content.find("keep-alive") == std::string::npos
+		|| content.find("keep-alive") >= 10)
+		return (1);
+	return (0);
 }
 
 int	extract_contentLength(std::string &header_o)
@@ -144,7 +146,9 @@ int	header_extract(Connection &cnect, std::string &header_o)
 {
 	std::string host;
 
+	std::cout << "Here2 " << cnect.IsAfterResponseClose << std::endl;
 	cnect.IsAfterResponseClose = extract_IsAfterResponseClose(header_o);
+	std::cout << "Here " << cnect.IsAfterResponseClose << std::endl;
 	cnect.reader.contentLength = extract_contentLength(header_o);
 	// extract_contentType(header_o);
 	//  extract_host(cnect, header_o);
@@ -234,7 +238,12 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 	{
 		for (int j = 0; j < servers[i].connections.size(); j++)
 		{
-			if ( servers[i].connections[j].reader.cnect_close == 1
+			// std::cout << "].IsAfterResponseClose" <<servers[i].connections[j].IsAfterResponseClose << std::endl;
+			// std::cout << "].readingHeaderDone" <<servers[i].connections[j].readingHeaderDone << std::endl;
+			// std::cout << "reader.doesClientClose" <<servers[i].connections[j].reader.doesClientClose << std::endl;
+			// std::cout << "reader.cnect_close" <<servers[i].connections[j].reader.cnect_close << std::endl;
+			// std::cout << servers[i].connections[j].reader. << std::endl;
+			if (servers[i].connections[j].reader.cnect_close == 1
 				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.readingDone == 1)
 				|| (servers[i].connections[j].reader.doesClientClose == 1
 					&& (servers[i].connections[j].reader.method == "" || servers[i].connections[j].reader.method == "GET")))
