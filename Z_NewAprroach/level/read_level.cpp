@@ -20,10 +20,10 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	int code;
 	
 	reader.have_read = "";
-	if (reader.errNbr >= 400)
-	{
-		cnect.IsAfterResponseClose = 1;
-	}
+	// if (reader.errNbr >= 400)
+	// {
+	// 	cnect.IsAfterResponseClose = 1;
+	// }
 	if (stat(file_name.c_str(), &info) == -1)
 	{
 		if (reader.errNbr == 500)
@@ -182,7 +182,7 @@ void	read_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 		for (int j = 0; j < servers[i].connections.size(); j++)
 		{
 			cnect = &servers[i].connections[j];
-			if (cnect->readingHeaderDone == 1 && cnect->reader.done == 0)
+			if (cnect->readingHeaderDone == 1 && cnect->reader.readingDone == 0)
 			{
 				reader(servers[i], *cnect, cnect->reader, fds, j);
 			}
