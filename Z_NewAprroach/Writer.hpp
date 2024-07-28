@@ -6,12 +6,9 @@
 class Writer {
 	public:
 	
-		Writer(int connect_fd);
-		int					connect_fd;
+		Writer();
 		std::string			writeString;
 		int					fdWritingTo;
-		int					done;
-		void				reset();
 };
 
 #endif

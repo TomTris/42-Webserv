@@ -2,6 +2,7 @@
 
 void	del_connect(Server &server, int j, std::vector<struct pollfd> &fds)
 {
+	std::cout << "A CONNECTION DELETED" << std::endl;
 	int fd1 = server.connections[j].socket_fd;
 	int	fd2 = server.connections[j].reader.fdReadingFrom;
 	int	fd3 = server.connections[j].reader.writer.fdWritingTo;
@@ -27,13 +28,19 @@ void	del_connect(Server &server, int j, std::vector<struct pollfd> &fds)
 	server.connections.erase(server.connections.begin() + j);
 }
 
-int	reading_done(Connection &connect)
+int	reading_done(Connection &cnect)
 {
-	connect.readingHeaderDone = 1;
-	if (connect.reader.errNbr >= 400)
+	cnect.readingHeaderDone = 1;
+	cnect.reader.done = 0;
+	if (cnect.reader.errNbr >= 400)
 	{
-		connect.IsAfterResponseClose = 1;
+		cnect.IsAfterResponseClose = 1;
 	}
+	if (cnect.reader.method == "POST")
+	{
+		cnect.reader.have_read = cnect.have_read;
+	}
+	std::cout << "reading header done!!" << std::endl;
 	return (1);
 }
 
@@ -151,8 +158,6 @@ int	request_line(Server &server, Connection &cnect)
 	ssize_t		request_line_end;
 
 	request_line_end = cnect.have_read.find("\r\n");
-	if (request_line_end == std::string::npos)
-		return (cnect.reader.errNbr = 400, reading_done(cnect));
 
 	std::string request_line = cnect.have_read.substr(0, request_line_end);
 	std::stringstream socket_stream(request_line);
@@ -173,6 +178,7 @@ int	request_line(Server &server, Connection &cnect)
 	cnect.reader.method = method;
 	cnect.reader.URI = URI;
 	cnect.have_read.erase(0, request_line_end);
+	std::cout << URI << std::endl;
 	// std:: string host = extract_host(cnect, header_o);
 	// if (host != g)
 	//return (cnect.reader.errNbr = 400, reading_done(cnect)); // need to change
@@ -181,6 +187,13 @@ int	request_line(Server &server, Connection &cnect)
 
 int	request_header(Server &server, Connection &cnect)
 {
+	while (1)
+	{
+		if (*cnect.have_read.begin() == '\r' && *(cnect.have_read.begin() + 1) == '\n')
+			cnect.have_read.erase(0, 2);
+		else
+			break ;
+	}
 	ssize_t	header_end = cnect.have_read.find("\r\n\r\n");
 	
 	if (header_end == std::string::npos)
@@ -191,7 +204,7 @@ int	request_header(Server &server, Connection &cnect)
 	}
 	if (request_line(server, cnect) == -1)
 		return (1);
-	return (header_extract(cnect, cnect.have_read));
+	header_extract(cnect, cnect.have_read);
 	return (reading_done(cnect));
 }
 
@@ -200,14 +213,11 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 	int		check;
 	char	buffer[BUFFERSIZE + 1];
 
-	check = recv(connect.socket_fd, buffer, BUFFERSIZE, MSG_PEEK);
-	if (check == 0)
-		return (2);
-	if (check == -1)
-		return (connect.reader.errNbr = 500, reading_done(connect));
 	check = read(connect.socket_fd, buffer, BUFFERSIZE);
 	if (check == -1)
 		return (connect.reader.errNbr = 500, reading_done(connect));
+	if (check == 0)
+		return (2);
 	buffer[check] = 0;
 	connect.have_read += buffer;
 	std::cout << "length = " << strlen(buffer) << std::endl;
@@ -217,17 +227,19 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 
 void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
+	std::cout << "connection level" << std::endl;
 	for (int i = 0; i < servers.size(); i++)
 	{
 		for (int j = 0; j < servers[i].connections.size(); j++)
 		{
-			if (servers[i].connections[j].reader.doesClientClose == 1
-				&& (servers[i].connections[j].reader.method == "" || servers[i].connections[j].reader.method == "GET"))
+			if ( servers[i].connections[j].reader.cnect_close == 1
+				|| (servers[i].connections[j].reader.doesClientClose == 1
+				&& (servers[i].connections[j].reader.method == "" || servers[i].connections[j].reader.method == "GET")))
 			{
 				del_connect(servers[i], j, fds);
 				j--;
 			}
-			else if (servers[i].connections[j].readingHeaderDone == 0 && check_fds(fds, servers[i].connections[j].socket_fd) == POLLIN)
+			else if (servers[i].connections[j].readingHeaderDone == 0 && check_fds(fds, servers[i].connections[j].socket_fd) & POLL_IN)
 			{
 				if (reading_header(servers[i], servers[i].connections[j], fds) == 2)
 				{
@@ -238,3 +250,23 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 		}
 	}
 }
+
+// void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
+// {
+// 	std::cout << "connection level" << std::endl;
+// 	char	buffer[BUFFERSIZE + 1];
+// 	int	 bytes_read;
+
+// 	for (int i = 0; i < servers.size(); i++)
+// 	{
+// 		for (int j = 0; j < servers[i].connections.size(); j++)
+// 		{
+// 			std::cout << "cnect fd = " << servers[i].connections[j].socket_fd << std::endl;
+// 			if (check_fds(fds, servers[i].connections[j].socket_fd) == 1)
+// 			{
+// 				bytes_read = read(servers[i].connections[j].socket_fd, buffer, BUFFERSIZE);
+// 				check_fds(fds, servers[i].connections[j].socket_fd);
+// 			}
+// 		}
+// 	}
+// }

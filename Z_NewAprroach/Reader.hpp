@@ -7,9 +7,12 @@
 #include <iostream>
 class Reader {
 	public:
-		Reader(int connect_fd);
+		Reader();
 		Writer								writer;
 		int                 				errNbr;
+		int									openFile;
+		int									readingDone; // reading part done
+
 		int									contentLength;
 		int									autoIndex;
 		int									doesClientClose;
@@ -18,8 +21,10 @@ class Reader {
 		std::string							method;
 		std::string							URI;
 
+		int									cnect_close;
 		int									fdReadingFrom;
-		int									done;
+		int									done; // done reader and writer.
+
 		std::string							have_read;
 		std::string							to_write;
 		void								reset();

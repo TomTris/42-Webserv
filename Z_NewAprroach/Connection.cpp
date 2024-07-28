@@ -1,6 +1,6 @@
 #include "Connection.hpp"
 
-Connection::Connection(int fd) : socket_fd(fd), reader(fd)
+Connection::Connection(int fd) : socket_fd(fd), reader()
 {
 	std::cout << "new Connect, socket, fd = " << socket_fd << ", " << fd << std::endl;
 	this->IsAfterResponseClose = 1;
