@@ -6,10 +6,18 @@ int	main(int ac, char **av, char **env)
 	std::vector<struct pollfd> fds;
 	int							activity;
 	int							re_try;
-int	i = 0;
-	std::vector<int> a;
-
+	int	a;
 	re_try = 1000;
+	if (BUFFERSIZE > 10000)
+	{
+		std::cerr << "Too big BUFFERSIZE" << std::endl;
+		return (1);
+	}
+	if (BUFFERSIZE < 2)
+	{
+		std::cerr << "Invalid BUFFERSIZE" << std::endl;
+		return (1);
+	}
 	try {
 		load_config_n_socket_create(ac, av, servers);
 		add_servers_to_pool(servers, fds);
@@ -17,6 +25,20 @@ int	i = 0;
 		{
 			activity = poll(fds.data(), fds.size(), 0);
 			std::cout << "fds.size = " << fds.size() << std::endl;
+			for (int i = 0; i < fds.size(); i++)
+			{
+				std::cout << fds[i].fd << ", " << std::ends;
+			}
+			std::cout << "\nwith options" << std::ends;
+			for (int i = 0; i < fds.size(); i++)
+			{
+				std::cout << fds[i].events << ", " << std::ends;
+			}
+			std::cout << "\n with revents" << std::ends;
+			for (int i = 0; i < fds.size(); i++)
+			{
+				std::cout << fds[i].revents << ", " << std::ends;
+			}
 			usleep(2000);
 			// check_fds(fds, fd);
 			if (activity < 0)
@@ -28,10 +50,13 @@ int	i = 0;
 			else
 			{
 				server_level(servers, fds);
+				std::cout << "\n--1----" << std::endl;
 				connection_level(servers, fds);
+				std::cout << "---2---" << std::endl;
 				read_level(servers, fds);
+				std::cout << "----3--" << std::endl;
 				write_level(servers, fds);
-				// std::cout << "--" << i++ << "----" << std::endl;
+				std::cout << "--" << a++ << "----" << std::endl;
 			}
 		}
 	}

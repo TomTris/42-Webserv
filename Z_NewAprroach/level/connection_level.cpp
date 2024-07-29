@@ -76,11 +76,11 @@ int	extract_contentLength(std::string &header_o)
 	std::string	str = "\r\nContent-Length:";
 	ssize_t	start = header.find(str);
 	if (start == std::string::npos)
-		return (-1);
+		return (0);
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
 	if (end == std::string::npos)
-		return (-1);
+		return (0);
 	std::string content = header.substr(start, end);
 	std::stringstream socket_stream(content);
 	int value;
@@ -239,18 +239,22 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 	{
 		for (int j = 0; j < servers[i].connections.size(); j++)
 		{
-			// std::cerr << "].IsAfterResponseClose" <<servers[i].connections[j].IsAfterResponseClose << std::endl;
-			// std::cerr << "].readingHeaderDone" <<servers[i].connections[j].readingHeaderDone << std::endl;
-			// std::cerr << "reader.doesClientClose" <<servers[i].connections[j].reader.doesClientClose << std::endl;
-			// std::cerr << "reader.cnect_close" <<servers[i].connections[j].reader.cnect_close << std::endl;
-			// std::cerr << servers[i].connections[j].reader. << std::endl;
+			std::cout << "servers[i].connections[j] = " << servers[i].connections[j].socket_fd << std::endl;
+			std::cout << "servers[i].connections[j].reader.cnect_close = " << servers[i].connections[j].reader.cnect_close << std::endl;
+			std::cout << "servers[i].connections[j].IsAfterResponseClose" << servers[i].connections[j].IsAfterResponseClose << std::endl;
+			std::cout << "servers[i].connections[j].reader.readingDone" << servers[i].connections[j].reader.readingDone << std::endl;
+			std::cout << "servers[i].connections[j].readingHeaderDone" << servers[i].connections[j].readingHeaderDone << std::endl;
+			std::cout << "servers[i].connections[j].reader.contentLength = " << servers[i].connections[j].reader.contentLength << std::endl;
+			usleep(500000);
 			if (servers[i].connections[j].reader.cnect_close == 1
-				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.readingDone == 1)
-				|| (servers[i].connections[j].reader.doesClientClose == 1
-					&& (servers[i].connections[j].reader.method == "" || servers[i].connections[j].reader.method == "GET")))
+				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.readingDone == 1))
 			{
 				del_connect(servers[i], servers[i].connections[j], j, fds);
 				j--;
+			}
+			else if (servers[i].connections[j].reader.readingDone == 1)
+			{
+				servers[i].connections[j].reset();
 			}
 			else if (servers[i].connections[j].readingHeaderDone == 0 && check_fds(fds, servers[i].connections[j].socket_fd) == POLL_IN)
 			{
@@ -263,23 +267,3 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 		}
 	}
 }
-
-// void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
-// {
-// 	std::cerr << "connection level" << std::endl;
-// 	char	buffer[BUFFERSIZE + 1];
-// 	int	 bytes_read;
-
-// 	for (int i = 0; i < servers.size(); i++)
-// 	{
-// 		for (int j = 0; j < servers[i].connections.size(); j++)
-// 		{
-// 			std::cerr << "cnect fd = " << servers[i].connections[j].socket_fd << std::endl;
-// 			if (check_fds(fds, servers[i].connections[j].socket_fd) == 1)
-// 			{
-// 				bytes_read = read(servers[i].connections[j].socket_fd, buffer, BUFFERSIZE);
-// 				check_fds(fds, servers[i].connections[j].socket_fd);
-// 			}
-// 		}
-// 	}
-// }
