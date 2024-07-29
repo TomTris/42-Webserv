@@ -32,10 +32,16 @@ int	reading_done(Connection &cnect)
 {
 	cnect.readingHeaderDone = 1;
 	cnect.reader.readingDone = 0;
+	cnect.reader.time_out = clock();
 	if (cnect.reader.errNbr >= 400)
 	{
 		cnect.IsAfterResponseClose = 1;
 		return (1);
+	}
+	if (cnect.reader.method == "GET" || cnect.reader.method == "DELETE")
+	{
+		if (cnect.reader.contentLength > 0)
+			cnect.reader.errNbr = 400;
 	}
 	if (cnect.reader.method == "POST" && cnect.reader.errNbr < 300)
 	{
@@ -223,15 +229,18 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 	int		check;
 	char	buffer[BUFFERSIZE + 1];
 
-	check = read(connect.socket_fd, buffer, BUFFERSIZE);
-	if (check == -1)
-		return (connect.reader.errNbr = 500, reading_done(connect));
-	if (check == 0)
-		return (2);
-	std::string a;
-	a.append(buffer, check);
-	std::cout << a << std::endl;
-	connect.have_read.append(buffer, check);
+	if (check_fds(fds, connect.socket_fd) == POLL_IN)
+	{
+		check = read(connect.socket_fd, buffer, BUFFERSIZE);
+		if (check == -1)
+			return (connect.reader.errNbr = 500, reading_done(connect));
+		if (check == 0)
+			return (2);
+		std::string a;
+		a.append(buffer, check);
+		std::cout << a << std::endl;
+		connect.have_read.append(buffer, check);
+	}
 	return (request_header(server, connect));
 }
 
@@ -245,10 +254,10 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 		{
 			// std::cout << "servers[i].connections[j] = " << servers[i].connections[j].socket_fd << std::endl;
 			// std::cout << "servers[i].connections[j].reader.cnect_close = " << servers[i].connections[j].reader.cnect_close << std::endl;
-			std::cout << "servers[i].connections[j].IsAfterResponseClose" << servers[i].connections[j].IsAfterResponseClose << std::endl;
-			std::cout << "servers[i].connections[j].reader.readingDone" << servers[i].connections[j].reader.readingDone << std::endl;
-			std::cout << "servers[i].connections[j].readingHeaderDone" << servers[i].connections[j].readingHeaderDone << std::endl;
-			std::cout << "servers[i].connections[j].reader.contentLength = " << servers[i].connections[j].reader.contentLength << std::endl;
+			// std::cout << "servers[i].connections[j].IsAfterResponseClose" << servers[i].connections[j].IsAfterResponseClose << std::endl;
+			// std::cout << "servers[i].connections[j].reader.readingDone" << servers[i].connections[j].reader.readingDone << std::endl;
+			// std::cout << "servers[i].connections[j].readingHeaderDone" << servers[i].connections[j].readingHeaderDone << std::endl;
+			// std::cout << "servers[i].connections[j].reader.contentLength = " << servers[i].connections[j].reader.contentLength << std::endl;
 			// usleep(500000);
 			now = clock();
 			// std::cout << (double) now << std::endl;
@@ -270,7 +279,7 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 			{
 				servers[i].connections[j].reset();
 			}
-			else if (servers[i].connections[j].readingHeaderDone == 0 && check_fds(fds, servers[i].connections[j].socket_fd) == POLL_IN)
+			else if (servers[i].connections[j].readingHeaderDone == 0)
 			{
 				if (reading_header(servers[i], servers[i].connections[j], fds) == 2)
 				{

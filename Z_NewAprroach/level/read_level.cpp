@@ -52,6 +52,7 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 			return (reader.cnect_close = 1, 1);
 		return (anotherErr(server, cnect, reader, fds, 500));
 	}
+	std::cout << "aaf sleep " << std::endl;
 	int	length = info.st_size;
 	if (length == 0)
 		reader.readingDone = 1;
@@ -86,7 +87,7 @@ int	post_open(Server &server, Connection &cnect, Reader &reader, std::vector<str
 			return (reader.errNbr = 508, openFuncErr(server, cnect, reader, fds));
 	}
 	fd = open(reader.URI.c_str(), O_CREAT | O_RDWR , 0777);
-	
+	std::cout << "fd = " << fd << " named " << reader.URI.c_str() << std::endl;
 	// std::cerr << "file name = {" << reader.URI.c_str() << "}"<< std::endl;
 	// std::cerr << "open in post open" << std::endl;
 	if (fd == -1)
@@ -138,6 +139,7 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 	if (!(info.st_mode & S_IRUSR))
 		return (reader.errNbr = 403, openFuncErr(server, cnect, reader, fds));
 	fd = open(reader.URI.c_str(), O_RDONLY);
+	std::cout << "1aa1" << std::endl;
 	if (fd == -1)
 		return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
 	int	length = info.st_size;
