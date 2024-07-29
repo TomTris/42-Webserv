@@ -290,18 +290,31 @@ int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	// std::cerr << "reader post > 1" << std::endl;
 	return (1);
 }
-int	z = 0;
+
 int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds, int j)
 {
-	std::cout << "z = " << z << std::endl;
-	std::cout << "reader.contentLength = " << reader.contentLength << std::endl;
-	std::cout << "------1-errcode = " << reader.errNbr << std::endl;
+	int fd;
+	clock_t now = clock();
+	if ((now - reader.time_out)/ 1000 > TIME_OUT
+		&& check_fds(fds, reader.fdReadingFrom) != POLLIN)
+	{
+		reader.readingDone = 1;
+		if (reader.fdReadingFrom != cnect.socket_fd)
+			fd = reader.fdReadingFrom;
+		else
+			fd = reader.writer.fdWritingTo;
+		remove_from_poll(fd, fds);
+		if (check_fds(fds, cnect.socket_fd) != POLLIN)
+			change_option_poll(fds, cnect.socket_fd, POLLIN);
+		close(fd);
+		reader.writer.fdWritingTo = -1;
+		reader.fdReadingFrom = cnect.socket_fd;
+		reader.errNbr = 408;
+	}
 	if (reader.openFile == 0)
 		openFunc(server, cnect, reader, fds);
 	else if (reader.contentLength == 0)
 	{
-		int fd;
-
 		reader.readingDone = 1;
 		if (reader.fdReadingFrom != cnect.socket_fd)
 			fd = reader.fdReadingFrom;
@@ -345,6 +358,7 @@ int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct
 void	read_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
 	// std::cerr << "reader level" << std::endl;
+	time_t now;
 	Connection *cnect;
 	for (int i = 0; i < servers.size(); i++)
 	{

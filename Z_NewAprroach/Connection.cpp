@@ -6,6 +6,7 @@ Connection::Connection(int fd) : socket_fd(fd), reader()
 	this->IsAfterResponseClose = 1;
 	this->readingHeaderDone = 0;
 	this->have_read = "";
+	time_out = clock();
 }
 
 Connection::~Connection()
@@ -30,4 +31,5 @@ void Connection::reset()
 	reader.URI = "";
 	reader.writer.fdWritingTo = -1;
 	reader.writer.writeString = "";
+	time_out = clock();
 }

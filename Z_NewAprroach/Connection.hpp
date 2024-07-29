@@ -14,6 +14,7 @@ class Connection {
         int									readingHeaderDone;
         std::string							have_read;
 		Reader								reader;
+		time_t								time_out;
         void reset();
 };
 
