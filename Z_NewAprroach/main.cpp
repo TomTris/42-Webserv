@@ -39,7 +39,7 @@ int	main(int ac, char **av, char **env)
 			{
 				std::cout << fds[i].revents << ", " << std::ends;
 			}
-			usleep(2000);
+			// usleep(2000);
 			// check_fds(fds, fd);
 			if (activity < 0)
 			{
@@ -50,14 +50,15 @@ int	main(int ac, char **av, char **env)
 			else
 			{
 				server_level(servers, fds);
-				std::cout << "\n--1----" << std::endl;
 				connection_level(servers, fds);
+				poll(fds.data(), fds.size(), 0);
 				std::cout << "---2---" << std::endl;
 				read_level(servers, fds);
 				std::cout << "----3--" << std::endl;
 				write_level(servers, fds);
 				std::cout << "--" << a++ << "----" << std::endl;
 			}
+		usleep(250000);
 		}
 	}
 	catch (const std::runtime_error&e) {
