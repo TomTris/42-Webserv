@@ -52,25 +52,6 @@ void poll_reset(std::vector<struct pollfd> &fds)
 	}
 }
 
-int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
-{
-	int		new_socket;
-	size_t	addrlen = sizeof(server.address);
-
-	if ((new_socket = accept(server.serverFd, (struct sockaddr *)&server.address, (socklen_t*)&addrlen)) < 0)
-	{
-		perror("accept failed");
-		return -1;
-	}
-	if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
-	{
-		perror("fcnl failed");
-		return -1;
-	}
-	std::cout << "AAAACCCCEEEEPPPPTTTT; "<< new_socket << std::endl;
-	return (new_socket);
-}
-
 int check_fds(std::vector<struct pollfd> &fds, int fd) {
 	if (fd == -1)
 		return (0);

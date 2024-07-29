@@ -10,10 +10,10 @@ Reader::Reader() : writer()
 	doesClientClose = 0;
 	fdReadingFrom = -1;
 	have_read = "";
-	to_write = "";
+	have_read_2 = "";
 	openFile = 0;
 	cnect_close = 0;
-	have_read_2 = "";
+	post = 0;
 }
 
 void	Reader::reset()

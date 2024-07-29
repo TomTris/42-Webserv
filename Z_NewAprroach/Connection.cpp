@@ -2,7 +2,7 @@
 
 Connection::Connection(int fd) : socket_fd(fd), reader()
 {
-	std::cout << "new Connect, socket, fd = " << socket_fd << ", " << fd << std::endl;
+	std::cerr << "new Connect, socket, fd = " << socket_fd << ", " << fd << std::endl;
 	this->IsAfterResponseClose = 1;
 	this->readingHeaderDone = 0;
 	this->circle = 0;
@@ -11,14 +11,4 @@ Connection::Connection(int fd) : socket_fd(fd), reader()
 
 Connection::~Connection()
 {
-	std::cout << "1 connect die" << std::endl;
 }
-// void Connection::reset()
-// {
-// 	this->IsAfterResponseClose = 1;
-// 	this->readingHeaderDone = 0;
-// 	this->circle = 0;
-
-// 	// this->reader.done = 0;
-// 	// this->reader.writer.done = 0;
-// }
