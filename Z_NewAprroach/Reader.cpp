@@ -7,7 +7,6 @@ Reader::Reader() : writer()
 	autoIndex = 0;
 	method = "";
 	URI = "";
-	doesClientClose = 0;
 	fdReadingFrom = -1;
 	have_read = "";
 	have_read_2 = "";

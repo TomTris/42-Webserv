@@ -15,10 +15,10 @@ class Reader {
 
 		int									contentLength;
 		int									autoIndex;
-		int									doesClientClose;
 
 		std::string							method;
 		int									post;
+		
 		std::string							URI;
 
 		int									cnect_close;

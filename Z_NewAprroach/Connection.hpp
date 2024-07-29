@@ -9,13 +9,12 @@ class Connection {
 	public:
         ~Connection();
 		Connection(int fd);
-        int									socket_fd;
+        int							socket_fd;
 		int									IsAfterResponseClose;
         int									readingHeaderDone;
-        int									circle; //waiting for request
         std::string							have_read;
-        void								reset();
 		Reader								reader;
+        void reset();
 };
 
 #endif

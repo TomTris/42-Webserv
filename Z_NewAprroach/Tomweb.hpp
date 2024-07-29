@@ -40,7 +40,7 @@
 #define ERROR411 "www/errors/411.html"
 
 #ifndef BUFFERSIZE
-#define BUFFERSIZE 100
+#define BUFFERSIZE 10000
 #endif
 
 #include "Connection.hpp"

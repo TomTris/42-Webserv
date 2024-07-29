@@ -10,11 +10,11 @@ int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
 		perror("accept failed");
 		return -1;
 	}
-	// if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
-	// {
-	// 	perror("fcnl failed");
-	// 	return -1;
-	// }
+	if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
+	{
+		perror("fcnl failed");
+		return -1;
+	}
 	server.connections.push_back(Connection(new_socket));
 	add_to_poll(fds, new_socket, POLLIN);
 	return (new_socket);
