@@ -27,6 +27,7 @@
 #include <map>
 #include <poll.h>
 #include <filesystem> 
+#include <ctime>
 
 #define ERROR204 "www/errors/204.html"
 #define ERROR400 "www/errors/400.html"
@@ -42,7 +43,7 @@
 #ifndef BUFFERSIZE
 #define BUFFERSIZE 10000
 #endif
-
+#define TIME_OUT 5
 #include "Connection.hpp"
 struct location
 {

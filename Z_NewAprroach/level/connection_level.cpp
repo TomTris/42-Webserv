@@ -238,6 +238,7 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
 	// std::cerr << "connection level" << std::endl;
+	time_t	now;
 	for (int i = 0; i < servers.size(); i++)
 	{
 		for (int j = 0; j < servers[i].connections.size(); j++)
@@ -249,7 +250,17 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 			std::cout << "servers[i].connections[j].readingHeaderDone" << servers[i].connections[j].readingHeaderDone << std::endl;
 			std::cout << "servers[i].connections[j].reader.contentLength = " << servers[i].connections[j].reader.contentLength << std::endl;
 			// usleep(500000);
-			if (servers[i].connections[j].reader.cnect_close == 1
+			now = clock();
+			// std::cout << (double) now << std::endl;
+			if (servers[i].connections[j].readingHeaderDone == 0
+				&& check_fds(fds, servers[i].connections[j].socket_fd) != POLLIN
+				&& (now - servers[i].connections[j].time_out) / 1000 >= TIME_OUT)
+			{
+				servers[i].connections[j].readingHeaderDone = 1;
+				servers[i].connections[j].reader.errNbr = 408;
+				servers[i].connections[j].reader.method = "";
+			}
+			else if (servers[i].connections[j].reader.cnect_close == 1
 				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.readingDone == 1))
 			{
 				del_connect(servers[i], servers[i].connections[j], j, fds);

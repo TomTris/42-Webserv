@@ -14,6 +14,8 @@ void	add_servers_to_pool(std::vector<Server> &servers, std::vector<struct pollfd
 
 void	remove_from_poll(int fd_rm, std::vector<struct pollfd> &fds)
 {
+	if (fd_rm < 0)
+		return ;
 	for (int i = 0; i < fds.size(); i++)
 	{
 		if (fds[i].fd == fd_rm)
