@@ -4,4 +4,5 @@
 Writer::Writer()
 {
 	fdWritingTo = -1;
+	writeString = "";
 }
