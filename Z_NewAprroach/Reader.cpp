@@ -3,7 +3,7 @@
 Reader::Reader() : writer()
 {
 	errNbr = 200;
-	contentLength = -1;
+	contentLength = 0;
 	autoIndex = 0;
 	method = "";
 	URI = "";

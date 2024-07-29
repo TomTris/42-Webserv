@@ -19,11 +19,12 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	int	fd;
 	int code;
 	
-	// reader.have_read = "\r\n\r\n\r\n";
-	// reader.have_read = "";
 	reader.method = "";
 	if (reader.errNbr >= 400)
 	{
+	reader.have_read = "\r\n\r\n\r\n";
+	reader.have_read = "";
+		std::cout << "Errornbr > 400 => set IsAFterresponsecloe =1 " << std::endl;
 		cnect.IsAfterResponseClose = 1;
 	}
 	if (stat(file_name.c_str(), &info) == -1)
@@ -84,7 +85,7 @@ int	post_open(Server &server, Connection &cnect, Reader &reader, std::vector<str
 		case ELOOP:
 			return (reader.errNbr = 508, openFuncErr(server, cnect, reader, fds));
 	}
-	fd = open(reader.URI.c_str(), O_CREAT | O_RDWR , 0666);
+	fd = open(reader.URI.c_str(), O_CREAT | O_RDWR , 0777);
 	
 	// std::cerr << "file name = {" << reader.URI.c_str() << "}"<< std::endl;
 	// std::cerr << "open in post open" << std::endl;
@@ -160,11 +161,16 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 {
 	int		check;
 	int 	size;
-	if (reader.contentLength > BUFFERSIZE)
+	int		actual_contentLength;
+
+	actual_contentLength = reader.contentLength;
+	if (reader.method == "POST")
+		actual_contentLength = reader.contentLength - reader.have_read.length();
+
+	if (actual_contentLength > BUFFERSIZE)
 		size = BUFFERSIZE;
 	else
-		size = reader.contentLength;
-	
+		size = actual_contentLength + 1;
 	char	buffer[size + 1];
 
 // std::cerr << "Getin reader funcuntion at read level" << std::endl;
@@ -174,7 +180,9 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 		// std::cerr << "fd " << reader.fdReadingFrom << "is not in POLL IN" << std::endl;
 		return 1;
 	}
+	std::cout << "size = " << size << std::endl;
 	check = read(reader.fdReadingFrom, buffer, sizeof(buffer) - 1);
+	std::cout << "check = " << check << std::endl;
 	// std::cerr << "check = " << check << std::endl;
 	// std::cerr << " Read level read"<< std::endl;
 	if (check == -1)
@@ -204,6 +212,9 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 	}
 	// std::cerr <<  buffer << std::endl;
 	reader.have_read_2.append(buffer, check);
+	std::string a;
+	a.append(buffer, check);
+	std::cout << a << std::endl;
 	return (1);
 }
 
@@ -279,10 +290,12 @@ int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	// std::cerr << "reader post > 1" << std::endl;
 	return (1);
 }
-
+int	z = 0;
 int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds, int j)
 {
+	std::cout << "z = " << z << std::endl;
 	std::cout << "reader.contentLength = " << reader.contentLength << std::endl;
+	std::cout << "------1-errcode = " << reader.errNbr << std::endl;
 	if (reader.openFile == 0)
 		openFunc(server, cnect, reader, fds);
 	else if (reader.contentLength == 0)
@@ -301,6 +314,7 @@ int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct
 		reader.writer.fdWritingTo = -1;
 		reader.fdReadingFrom = cnect.socket_fd;
 	}
+	std::cout << "-----2-1-errcode = " << reader.errNbr << std::endl;
 	if (reader.contentLength < 0)
 	{
 		std::cerr << "contenteleng <<< 0, " << reader.contentLength << std::endl;
@@ -309,18 +323,22 @@ int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct
 	if (reader.cnect_close == 1 || reader.readingDone == 1)
 		return (1);
 	std::cout << "++3++" << std::endl;
+	std::cout << "------13-errcode = " << reader.errNbr << std::endl;
 	read_func(server, cnect, reader, fds);
+	std::cout << "------14-errcode = " << reader.errNbr << std::endl;
 	std::cout << "+++4+" << std::endl;
+	std::cout << "reader.method = " << reader.method << std::endl;
 	if (reader.method == "GET" || reader.method == "")
 		return reader_get(server, cnect, reader, fds);
 	else if (reader.method == "POST")
 		return reader_post(server, cnect, reader, fds);
+		std::cout << "------15-errcode = " << reader.errNbr << std::endl;
 	// else if (reader.method == "DELETE")
 	// 	return reader_delete(server, cnect, reader, fds);
-	else
-	{
-		std::cerr << "sth wrong in reader" << std::endl;
-	}
+	// else
+	// {
+	// 	std::cerr << "sth wrong in reader" << std::endl;
+	// }
 	return 1;
 }
 

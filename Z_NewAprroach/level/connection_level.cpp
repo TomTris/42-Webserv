@@ -39,8 +39,8 @@ int	reading_done(Connection &cnect)
 	}
 	if (cnect.reader.method == "POST" && cnect.reader.errNbr < 300)
 	{
-		if (cnect.reader.contentLength == -1)
-			cnect.reader.errNbr = 411;
+		if (cnect.reader.contentLength < 0)
+			cnect.reader.errNbr = 400;
 		else
 		{
 			cnect.reader.have_read = cnect.have_read;
@@ -228,6 +228,9 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 		return (connect.reader.errNbr = 500, reading_done(connect));
 	if (check == 0)
 		return (2);
+	std::string a;
+	a.append(buffer, check);
+	std::cout << a << std::endl;
 	connect.have_read.append(buffer, check);
 	return (request_header(server, connect));
 }
@@ -239,13 +242,13 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 	{
 		for (int j = 0; j < servers[i].connections.size(); j++)
 		{
-			std::cout << "servers[i].connections[j] = " << servers[i].connections[j].socket_fd << std::endl;
-			std::cout << "servers[i].connections[j].reader.cnect_close = " << servers[i].connections[j].reader.cnect_close << std::endl;
+			// std::cout << "servers[i].connections[j] = " << servers[i].connections[j].socket_fd << std::endl;
+			// std::cout << "servers[i].connections[j].reader.cnect_close = " << servers[i].connections[j].reader.cnect_close << std::endl;
 			std::cout << "servers[i].connections[j].IsAfterResponseClose" << servers[i].connections[j].IsAfterResponseClose << std::endl;
 			std::cout << "servers[i].connections[j].reader.readingDone" << servers[i].connections[j].reader.readingDone << std::endl;
 			std::cout << "servers[i].connections[j].readingHeaderDone" << servers[i].connections[j].readingHeaderDone << std::endl;
 			std::cout << "servers[i].connections[j].reader.contentLength = " << servers[i].connections[j].reader.contentLength << std::endl;
-			usleep(500000);
+			// usleep(500000);
 			if (servers[i].connections[j].reader.cnect_close == 1
 				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.readingDone == 1))
 			{
