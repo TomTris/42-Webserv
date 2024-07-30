@@ -34,6 +34,7 @@
 #include <cerrno>
 #include <algorithm>
 
+#define ERROR200 "www/errors/200.html"
 #define ERROR204 "www/errors/204.html"
 #define ERROR400 "www/errors/400.html"
 #define ERROR401 "www/errors/401.html"
@@ -44,6 +45,7 @@
 #define ERROR408 "www/errors/408.html"
 #define ERROR409 "www/errors/409.html"
 #define ERROR411 "www/errors/411.html"
+#define ERROR431 "www/errors/431.html"
 
 #ifndef BUFFERSIZE
 #define BUFFERSIZE 10000
@@ -95,6 +97,8 @@ class Server
         std::string return_default(int numb);
 };
 
+//Parser
+std::vector<std::string> get_data(std::string host, std::string method, std::string url, Server& serv);
 
 //----------------------OB--------------------------//
 void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers);
@@ -129,7 +133,6 @@ int     check_fds(std::vector<struct pollfd> &fds, int fd);
 void	server_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
 //------------Connection-level-------//
 void	del_connect(Server &server, int j, std::vector<struct pollfd> &fds);
-int	reading_done(Connection &connect);
 int	request_line(Server &server, Connection &cnect);
 int	request_header(Server &server, Connection &cnect);
 int reading_header(Server &server, Connection &connect, std::vector<struct pollfd> &fds);

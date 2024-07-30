@@ -29,12 +29,33 @@ void	del_connect(Server &server, Connection &cnect, int j, std::vector<struct po
 	// sleep(1);
 }
 
-int	reading_done(Connection &cnect)
+int	reading_done(Server &server, Connection &cnect, Reader &reader)
 {
 	cnect.readingHeaderDone = 1;
 	cnect.reader.readingDone = 0;
 	cnect.reader.time_out = clock();
-	if (cnect.reader.errNbr >= 400)
+	std::cout << "reader.host = {" << reader.host << "}" << std::endl;
+	std::cout << "reader.method = {" << reader.method << "}" << std::endl;
+	std::cout << "reader.URI = {" << reader.URI << "}" << std::endl;
+	std::vector<std::string> a = get_data(reader.host, reader.method, reader.URI, server);
+	std::cout << "a[0] = " << a[0] << std::endl;
+	std::cout << "a[1] = " << a[1] << std::endl;
+	std::cout << "a[2] = " << a[2] << std::endl;
+	std::cout << "a[3] = " << a[3] << std::endl;
+	if (a[0] == "0" || reader.contentLength > server.body_size_max)
+		reader.errNbr = 400;
+	else if (a[1] == "0")
+		reader.errNbr = 405;
+	else
+	{
+		reader.URI = a[2];
+		if (a[3] == "0")
+			reader.autoIndex = 0;
+		else
+			reader.autoIndex = 1;
+	}
+	sleep(10);
+	if (cnect.reader.errNbr >= 300)
 	{
 		cnect.IsAfterResponseClose = 1;
 		return (1);
@@ -164,6 +185,7 @@ int	header_extract(Connection &cnect, std::string &header_o)
 
 	cnect.IsAfterResponseClose = extract_IsAfterResponseClose(header_o);
 	cnect.reader.contentLength = extract_contentLength(header_o);
+	cnect.reader.host = extract_host(cnect, header_o);
 	// extract_contentType(header_o);
 	//  extract_host(cnect, header_o);
 	// extract_boundary(cnect, header_o)
@@ -183,15 +205,15 @@ int	request_line(Server &server, Connection &cnect)
 	std::string URI = "";
 	std::string HTTP_version = "";
 	if (!(socket_stream >> method >> URI >> HTTP_version))
-		return (cnect.reader.errNbr = 400, reading_done(cnect));
+		return (cnect.reader.errNbr = 400, cnect.readingHeaderDone = 1, 1);
 	// std::cerr << "{" << method << "} method" << std::endl;
 	// std::cerr << "{" << URI << "} URI" << std::endl;
 	if (method != "GET" && method != "POST" && method != "DELETE")
-		return (cnect.reader.errNbr = 405, reading_done(cnect));
+		return (cnect.reader.errNbr = 405, cnect.readingHeaderDone = 1, 1);
 	if (URI.length() > 60)
-		return (cnect.reader.errNbr = 400, reading_done(cnect)); // need to change
+		return (cnect.reader.errNbr = 400, cnect.readingHeaderDone = 1, 1); // need to change
 	if (HTTP_version != "HTTP/1.1")
-		return (cnect.reader.errNbr = 400, reading_done(cnect)); // need to change
+		return (cnect.reader.errNbr = 400, cnect.readingHeaderDone = 1, 1); // need to change
 	cnect.reader.method = method;
 	cnect.reader.URI = URI;
 	cnect.have_read.erase(0, request_line_end);
@@ -218,7 +240,7 @@ int	request_header(Server &server, Connection &cnect)
 	if (header_end == std::string::npos)
 	{
 		if (cnect.have_read.length() > 1000)
-			return (cnect.reader.errNbr = 431); //Request field header too large
+			return (cnect.reader.errNbr = 431);
 		return (0);
 	}
 	if (request_line(server, cnect) == -1)
@@ -226,7 +248,7 @@ int	request_header(Server &server, Connection &cnect)
 	header_extract(cnect, cnect.have_read);
 	header_end = cnect.have_read.find("\r\n\r\n");
 	cnect.have_read.erase(0, header_end + 4);
-	return (reading_done(cnect));
+	return (reading_done(server, cnect, cnect.reader));
 }
 
 int reading_header(Server &server, Connection &connect, std::vector<struct pollfd> &fds)
@@ -238,13 +260,12 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 	{
 		check = read(connect.socket_fd, buffer, BUFFERSIZE);
 		if (check == -1)
-			return (connect.reader.errNbr = 500, reading_done(connect));
+			return (connect.reader.errNbr = 500, connect.readingHeaderDone = 1, 1);
 		if (check == 0)
 			return (2);
-		std::string a;
-		a.append(buffer, check);
-		std::cout << a << std::endl;
-		// sleep(3);
+		// std::string a;
+		// a.append(buffer, check);
+		// std::cout << a << std::endl;
 		connect.have_read.append(buffer, check);
 	}
 	return (request_header(server, connect));
@@ -252,26 +273,16 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 
 void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
-	// std::cerr << "connection level" << std::endl;
 	time_t	now;
 	for (int i = 0; i < servers.size(); i++)
 	{
 		for (int j = 0; j < servers[i].connections.size(); j++)
 		{
-			// std::cout << "servers[i].connections[j] = " << servers[i].connections[j].socket_fd << std::endl;
-			// std::cout << "servers[i].connections[j].reader.cnect_close = " << servers[i].connections[j].reader.cnect_close << std::endl;
-			// std::cout << "servers[i].connections[j].IsAfterResponseClose" << servers[i].connections[j].IsAfterResponseClose << std::endl;
-			// std::cout << "servers[i].connections[j].reader.readingDone" << servers[i].connections[j].reader.readingDone << std::endl;
-			// std::cout << "servers[i].connections[j].readingHeaderDone" << servers[i].connections[j].readingHeaderDone << std::endl;
-			// std::cout << "servers[i].connections[j].reader.contentLength = " << servers[i].connections[j].reader.contentLength << std::endl;
-			// usleep(500000);
 			now = clock();
-			// std::cout << (double) now << std::endl;
 			if (servers[i].connections[j].readingHeaderDone == 0
 				&& check_fds(fds, servers[i].connections[j].socket_fd) != POLLIN
 				&& (now - servers[i].connections[j].time_out) / 1000 >= TIME_OUT)
 			{
-				std::cout << "time_out deleted" << std::endl;
 				servers[i].connections[j].readingHeaderDone = 1;
 				servers[i].connections[j].reader.errNbr = 408;
 				servers[i].connections[j].reader.method = "";
@@ -279,10 +290,6 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 			else if (servers[i].connections[j].reader.cnect_close == 1
 				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.readingDone == 1))
 			{
-				std::cout << "request done" << std::endl;
-				std::cout << "(servers[i].connections[j].reader.cnect_close " << servers[i].connections[j].reader.cnect_close << std::endl;
-				std::cout << "servers[i].connections[j].IsAfterResponseClose " << servers[i].connections[j].IsAfterResponseClose << std::endl;
-				std::cout << "servers[i].connections[j].reader.readingDone "  << servers[i].connections[j].reader.readingDone << std::endl;
 				del_connect(servers[i], servers[i].connections[j], j, fds);
 				j--;
 			}
@@ -294,7 +301,6 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 			{
 				if (reading_header(servers[i], servers[i].connections[j], fds) == 2)
 				{
-					std::cout << "connection closed" << std::endl;
 					del_connect(servers[i], servers[i].connections[j], j, fds);
 					j--;
 				}

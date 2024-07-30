@@ -19,7 +19,7 @@ class Reader {
 
 		std::string							method;
 		int									post;
-		
+		std::string							host;
 		std::string							URI;
 
 		int									cnect_close;
