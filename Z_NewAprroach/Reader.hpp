@@ -5,6 +5,7 @@
 #include "Writer.hpp"
 #include <string.h>
 #include <iostream>
+#include <dirent.h>
 class Reader {
 	public:
 		Reader();
@@ -28,6 +29,7 @@ class Reader {
 		std::string							have_read_2;
 		void								reset();
 		time_t								time_out;
+		DIR									*dir;
 };
 
 #endif

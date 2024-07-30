@@ -26,6 +26,7 @@ void	del_connect(Server &server, Connection &cnect, int j, std::vector<struct po
 		close(fd3);
 	}
 	server.connections.erase(server.connections.begin() + j);
+	sleep(5);
 }
 
 int	reading_done(Connection &cnect)
@@ -45,6 +46,7 @@ int	reading_done(Connection &cnect)
 	}
 	if (cnect.reader.method == "POST" && cnect.reader.errNbr < 300)
 	{
+		std::cout << "connection level, contentleng = " << cnect.reader.contentLength << std::endl;
 		if (cnect.reader.contentLength < 0)
 			cnect.reader.errNbr = 400;
 		else
@@ -265,6 +267,7 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 				&& check_fds(fds, servers[i].connections[j].socket_fd) != POLLIN
 				&& (now - servers[i].connections[j].time_out) / 1000 >= TIME_OUT)
 			{
+				std::cout << "time_out deleted" << std::endl;
 				servers[i].connections[j].readingHeaderDone = 1;
 				servers[i].connections[j].reader.errNbr = 408;
 				servers[i].connections[j].reader.method = "";
@@ -272,6 +275,10 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 			else if (servers[i].connections[j].reader.cnect_close == 1
 				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.readingDone == 1))
 			{
+				std::cout << "request done" << std::endl;
+				std::cout << "(servers[i].connections[j].reader.cnect_close " << servers[i].connections[j].reader.cnect_close << std::endl;
+				std::cout << "servers[i].connections[j].IsAfterResponseClose " << servers[i].connections[j].IsAfterResponseClose << std::endl;
+				std::cout << "servers[i].connections[j].reader.readingDone "  << servers[i].connections[j].reader.readingDone << std::endl;
 				del_connect(servers[i], servers[i].connections[j], j, fds);
 				j--;
 			}
@@ -283,6 +290,7 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 			{
 				if (reading_header(servers[i], servers[i].connections[j], fds) == 2)
 				{
+					std::cout << "connection closed" << std::endl;
 					del_connect(servers[i], servers[i].connections[j], j, fds);
 					j--;
 				}

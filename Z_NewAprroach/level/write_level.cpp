@@ -2,13 +2,14 @@
 
 int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct pollfd> &fds)
 {
-	std::cout << "1-----e------" << std::endl;
+	std::cout << "1-----write_level in, fd write = " << writer.fdWritingTo << "------" << std::endl;
 	if (check_fds(fds, writer.fdWritingTo) == POLLOUT)
 	{
-		// std::cerr << "Write size " << writer.writeString.length() << std::endl;
+		std::cout << "1-----write_level POLLOUT------" << std::endl;
+		std::cerr << "Write size " << writer.writeString.length() << std::endl;
 		// std::cerr << "content = " << writer.writeString << std::endl;
 		// std::cerr << "write to " <<  writer.fdWritingTo << std::endl;
-		std::cout << "1-----f------" << std::endl;
+		// std::cout << "1-----f------" << std::endl;
 		if (writer.writeString.length() > 0)
 		{
 			if (write(writer.fdWritingTo, writer.writeString.c_str(), writer.writeString.length()) == -1)
@@ -24,7 +25,7 @@ int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct
 	}
 	// else
 	// 	std::cerr << writer.fdWritingTo << "Not in POLLOUT "<< std::endl;
-	std::cout << "1-----j------" << std::endl;
+	// std::cout << "1-----j------" << std::endl;
 	return (1);
 }
 
@@ -32,13 +33,13 @@ void	write_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
 	// std::cerr << "writer level" << std::endl;
 	Connection *cnect;
-	std::cout << "1-----ab------" << std::endl;
+	// std::cout << "1----write_level------" << std::endl;
 	for (int i = 0; i < servers.size(); i++)
 	{
-		std::cout << "1-----c------" << std::endl;
+		// std::cout << "1-----c------" << std::endl;
 		for (int j = 0; j < servers[i].connections.size(); j++)
 		{
-			std::cout << "1-----d------" << std::endl;
+			// std::cout << "1-----d------" << std::endl;
 			cnect = &servers[i].connections[j];
 			if (cnect->readingHeaderDone == 1)
 			{

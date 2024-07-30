@@ -3,6 +3,7 @@
 Reader::Reader() : writer()
 {
 	errNbr = 200;
+	readingDone = 0;
 	contentLength = 0;
 	autoIndex = 0;
 	method = "";
@@ -13,6 +14,7 @@ Reader::Reader() : writer()
 	openFile = 0;
 	cnect_close = 0;
 	post = 0;
+	dir = NULL;
 }
 
 void	Reader::reset()
