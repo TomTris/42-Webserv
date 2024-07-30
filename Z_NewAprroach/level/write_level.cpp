@@ -7,7 +7,7 @@ int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct
 		if (writer.writeString.length() > 0)
 		{
 			// if (cnect.reader.URI.find("ico") == std::string::npos)
-			// 	std::cout << "{" << writer.writeString << "}" << std::endl;
+				std::cout << "{" << writer.writeString << "}" << std::endl;
 			if (write(writer.fdWritingTo, writer.writeString.c_str(), writer.writeString.length()) == -1)
 				return (cnect.reader.cnect_close = 1, 1);
 			else
