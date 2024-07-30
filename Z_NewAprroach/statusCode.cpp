@@ -106,6 +106,16 @@ std::string	handle_411(void)
 	return (http);
 }
 
+std::string	handle_431(void)
+{
+	std::string http = "HTTP/1.1 411 Header field too big\r\n"
+			"Content-Type: text/html\r\n";
+			// "\r\n"
+			// "<html><body>"
+			// "Content-Length required\n"
+			// "</body></html>";
+	return (http);
+}
 
 std::string	get_header(int nbr)
 {

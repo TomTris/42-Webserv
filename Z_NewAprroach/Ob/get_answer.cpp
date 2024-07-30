@@ -188,7 +188,9 @@ bool isHostOk(std::string &host, Server& serv)
 // # 2. Method std::string
 // # 3. URL std::string
 // # 4. Port not Port but Server
-// # then you answer me 1. Is Host:Port ok ( function return 0|1) ? 2.  method allow or not 3. what the URL is.
+// # then you answer me 1. Is Host:Port ok ( function return "0"|"1") ? 2.  method allow or not 3. what the URL is.
+// 4. Auto index "0"|"1"
+// 5.
 
 std::vector<std::string> get_data(std::string host, std::string method, std::string url, Server& serv)
 {

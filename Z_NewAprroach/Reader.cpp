@@ -16,6 +16,7 @@ Reader::Reader() : writer()
 	post = 0;
 	errFuncCall = 0;
 	dir = NULL;
+	host = "";
 }
 
 void	Reader::reset()
