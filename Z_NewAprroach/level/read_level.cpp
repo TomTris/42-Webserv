@@ -73,6 +73,8 @@ int	post_open(Server &server, Connection &cnect, Reader &reader, std::vector<str
 	struct stat info;
 	int			fd;
 	
+	if (reader.method == "POST" && reader.post == 2)
+		return (reader.errNbr = 200, openFuncErr(server, cnect, reader, fds));
 	if (*reader.URI.begin() == '/')
 		reader.URI.erase(0, reader.URI.find_first_not_of('/'));
 	if (stat(reader.URI.c_str(), &info) == 0)
@@ -90,8 +92,9 @@ int	post_open(Server &server, Connection &cnect, Reader &reader, std::vector<str
 	reader.fdReadingFrom = cnect.socket_fd;
 	reader.writer.fdWritingTo = fd;
 	reader.openFile = 1;
+	
 	add_to_poll(fds, fd, POLLOUT);
-	change_option_poll(fds, cnect.socket_fd, POLLIN);
+	change_option_poll(fds, cnect.socket_fd, POLLIN); // can be commented out
 	return (1);
 }
 
@@ -162,16 +165,11 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 	struct stat info;
 	int	fd;
 
-	// if (reader.method == "POST" && reader.post == 2)
-	// 	return (reader.errNbr = 200, openFuncErr(server, cnect, reader, fds));
-	// if (reader.method == "POST")
-	// 	return (post_open(server, cnect, reader, fds));
-	if (reader.errNbr >= 300)
+	if (reader.errNbr >= 300 || reader.errFuncCall == 1)
 		return openFuncErr(server, cnect, reader, fds);
 	if (*reader.URI.begin() == '/')
 		reader.URI.erase(0, reader.URI.find_first_not_of('/'));
 	reader.URI = "./" + reader.URI;
-	std::cout << "URI will be " << reader.URI << std::endl;
 	if (stat(reader.URI.c_str(), &info) == -1)
 	{
 		switch (errno)
@@ -186,7 +184,6 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 				return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
 		}
 	}
-	std::cout << "URI will be " << reader.URI << std::endl;
 	if (S_ISDIR(info.st_mode))
 	{
 		if (reader.autoIndex == 0)
@@ -315,7 +312,7 @@ int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<s
 			reader.have_read_2 = "";
 			cnect.have_read = reader.have_read;
 			reader.have_read = "";
-			reader.post = 1;
+			reader.post = 2;
 			reader.contentLength = 0;
 		}
 		else if (reader.contentLength <= reader.have_read_2.length() + reader.have_read.length())
@@ -326,7 +323,7 @@ int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<s
 			reader.have_read_2.erase(0, reader.contentLength - reader.have_read.length());
 			cnect.have_read = reader.have_read_2;
 			reader.have_read_2 = "";
-			reader.post = 1;
+			reader.post = 2;
 			reader.contentLength = 0;
 		}
 		else
@@ -339,10 +336,16 @@ int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<s
 		}
 		return 1;
 	}
-	if (reader.post == 1)
+	if (reader.post == 2)
 	{
+		close(reader.writer.fdWritingTo);
+		remove_from_poll(reader.writer.fdWritingTo, fds);
 		reader.openFile = 0;
-		reader.post = 2;
+		reader.fdReadingFrom = cnect.socket_fd;
+		reader.writer.fdWritingTo = -1;
+		reader.writer.writeString = "";
+		reader.method = "GET";
+		reader.errFuncCall = 1;
 	}
 	return (1);
 }
@@ -363,7 +366,12 @@ int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct
 	if (isTimeOut(reader, fds) == 1)
 		return (1);
 	if (reader.openFile == 0)
-		openFunc(server, cnect, reader, fds);
+	{
+		if (reader.method == "GET" || reader.method == "DELETE")
+			openFunc(server, cnect, reader, fds);
+		if (reader.method == "POST")
+			post_open(server, cnect, reader, fds);
+	}
 	if (reader.cnect_close == 1 || reader.readingDone == 1)
 		return (1);
 	read_func(server, cnect, reader, fds);

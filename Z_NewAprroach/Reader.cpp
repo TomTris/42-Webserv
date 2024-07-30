@@ -14,6 +14,7 @@ Reader::Reader() : writer()
 	openFile = 0;
 	cnect_close = 0;
 	post = 0;
+	errFuncCall = 0;
 	dir = NULL;
 }
 
