@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Delete Request Form</title>
+</head>
+
+<body>
+  <form id="delete-form">
+    <input type="text" id="uri-input" name="uri" placeholder="Resource URI path">
+    <button type="button" onclick="sendDeleteRequest()">Delete</button><br>
+    <p id="result"></p>
+  </form>
+
+  <script>
+    function sendDeleteRequest() {
+      const uriInput = document.getElementById('uri-input').value;
+      const resultElement = document.getElementById('result');
+
+      if (!uriInput) {
+        resultElement.innerHTML = 'Please provide a URI path.';
+        return;
+      }
+
+      const apiUrl = uriInput;
+      const requestOptions = {
+        method: 'DELETE',
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (response.ok) {
+            resultElement.innerHTML = 'Resource deleted successfully. Status: ' + response.status + ' ' + response.statusText;
+          } else {
+            resultElement.innerHTML = 'Error while deleting. Status: ' + response.status + ' ' + response.statusText;
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          resultElement.innerHTML = 'Error while deleting. See console for details.';
+        });
+    }
+  </script>
+</body>
+
+</html>
