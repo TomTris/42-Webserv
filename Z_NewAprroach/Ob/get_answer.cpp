@@ -178,7 +178,7 @@ bool isHostOk(std::string &host, Server& serv)
     if (getIndexLocation(host, serv) == -1)
         return (0);
     int port = my_atoi(host);
-    if (serv.port != port || port > 0XFF)
+    if (serv.port != port || port > 0XFFFF)
         return (0);
     host = h;
     return 1;

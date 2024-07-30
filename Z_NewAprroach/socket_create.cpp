@@ -53,6 +53,11 @@ void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers
 			}
 		}
 	}
+	for (int i = 0; i < servers.size(); i++)
+	{
+		if (servers[i].server_names[0] != "")
+			servers[i].server_names[0] = "";
+	}
 	if (servers.size() == 0)
 		throw std::runtime_error("No Server");
 }
