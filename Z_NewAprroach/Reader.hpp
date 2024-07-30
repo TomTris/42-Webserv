@@ -30,6 +30,7 @@ class Reader {
 		void								reset();
 		time_t								time_out;
 		DIR									*dir;
+		int									errFuncCall;
 };
 
 #endif
