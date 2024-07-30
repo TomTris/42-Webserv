@@ -5,7 +5,7 @@ Reader::Reader() : writer()
 	errNbr = 200;
 	readingDone = 0;
 	contentLength = 0;
-	autoIndex = 0;
+	autoIndex = 1;
 	method = "";
 	URI = "";
 	fdReadingFrom = -1;

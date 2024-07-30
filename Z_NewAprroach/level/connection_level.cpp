@@ -26,7 +26,7 @@ void	del_connect(Server &server, Connection &cnect, int j, std::vector<struct po
 		close(fd3);
 	}
 	server.connections.erase(server.connections.begin() + j);
-	sleep(5);
+	sleep(1);
 }
 
 int	reading_done(Connection &cnect)

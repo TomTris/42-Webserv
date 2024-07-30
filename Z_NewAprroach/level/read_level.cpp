@@ -22,9 +22,8 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	reader.method = "";
 	if (reader.errNbr >= 400)
 	{
-	reader.have_read = "\r\n\r\n\r\n";
-	reader.have_read = "";
-		std::cout << "Errornbr > 400 => set IsAFterresponsecloe =1 " << std::endl;
+		reader.have_read = "\r\n\r\n\r\n";
+		reader.have_read = "";
 		cnect.IsAfterResponseClose = 1;
 	}
 	if (stat(file_name.c_str(), &info) == -1)
@@ -52,14 +51,13 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 			return (reader.cnect_close = 1, 1);
 		return (anotherErr(server, cnect, reader, fds, 500));
 	}
-	std::cout << "aaf sleep " << std::endl;
 	int	length = info.st_size;
 	if (length == 0)
 		reader.readingDone = 1;
 	reader.writer.writeString = get_header(reader.errNbr);
 	reader.writer.writeString += "Content-Length: ";
 	reader.writer.writeString += std::to_string(length);
-	reader.writer.writeString += "\r\n\r\n";
+	reader.writer.writeString += "\r\n";
 	reader.contentLength = length;
 	reader.openFile = 1;
 	reader.fdReadingFrom = fd;
@@ -87,22 +85,60 @@ int	post_open(Server &server, Connection &cnect, Reader &reader, std::vector<str
 			return (reader.errNbr = 508, openFuncErr(server, cnect, reader, fds));
 	}
 	fd = open(reader.URI.c_str(), O_CREAT | O_RDWR , 0777);
-	std::cout << "fd = " << fd << " named " << reader.URI.c_str() << std::endl;
-	// std::cerr << "file name = {" << reader.URI.c_str() << "}"<< std::endl;
-	// std::cerr << "open in post open" << std::endl;
 	if (fd == -1)
 		return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
 	reader.fdReadingFrom = cnect.socket_fd;
-	std::cout << "fd = " << fd << std::endl;
 	reader.writer.fdWritingTo = fd;
-	std::cout << "reader.writer.fdWritingTo = " << reader.writer.fdWritingTo << std::endl;
 	reader.openFile = 1;
-	// std::cerr  << "read form  = " << reader.fdReadingFrom << std::endl;
-	// std::cerr  << "writign to = " << reader.writer.fdWritingTo << std::endl;
 	add_to_poll(fds, fd, POLLOUT);
-	// std::cerr << "new fd " << fd << "is put in pollout" << std::endl;
-	// std::cerr << "cnect.socket_fd = " << cnect.socket_fd << "is put in POLLIN" << std::endl;
 	change_option_poll(fds, cnect.socket_fd, POLLIN);
+	return (1);
+}
+
+int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
+{
+	reader.dir = opendir(reader.URI.c_str());
+	if (reader.dir == NULL) {
+        return (reader.errNbr = 401, openFuncErr(server, cnect, reader, fds));
+    }
+	struct dirent *entry;
+
+	while (1)
+	{
+		if (*(reader.URI.end() - 1) == '/')
+			reader.URI.erase(reader.URI.length() - 1, reader.URI.length());
+		else
+			break ;
+	}
+	reader.URI.append("/", 1);
+	reader.writer.writeString = get_header(200);
+
+	std::string content = "<!DOCTYPE html>\n"
+	"<html>\n"
+		"<head>\n"
+			"<title> Directory Listing </title>\n"
+		"</head>\n"
+		"<body>\n"
+			"<h1>Directory Listing</h1>\n"
+			"<ol>\n";
+    while ((entry = readdir(reader.dir)))
+		content += "<li><a href=\"" + reader.URI + entry->d_name +  "\">"  + entry->d_name +  "</a></li>\n";
+	closedir(reader.dir);
+	content +=			"<ol>\n"
+					"</body>\n"
+				"</html>";
+	reader.writer.writeString += "Content-Length: " + std::to_string(content.length()) + "\r\n\r\n" + content;
+	change_option_poll(fds, cnect.socket_fd, POLLOUT);
+	reader.writer.fdWritingTo = cnect.socket_fd;
+	reader.fdReadingFrom = -1;
+	reader.openFile = 0;
+	reader.contentLength = 0;
+	cnect.have_read = reader.have_read;
+	reader.have_read_2 = "";
+	reader.have_read = "";
+	reader.contentLength = 0;
+	reader.errNbr = 200;
+	reader.readingDone = 1;
 	return (1);
 }
 
@@ -110,15 +146,15 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 {
 	struct stat info;
 	int	fd;
-	if (reader.method == "POST" && reader.post == 2)
-		return (reader.errNbr = 200, openFuncErr(server, cnect, reader, fds));
-	if (reader.method == "POST")
-		return (post_open(server, cnect, reader, fds));
+
+	// if (reader.method == "POST" && reader.post == 2)
+	// 	return (reader.errNbr = 200, openFuncErr(server, cnect, reader, fds));
+	// if (reader.method == "POST")
+	// 	return (post_open(server, cnect, reader, fds));
 	if (reader.errNbr >= 300)
 		return openFuncErr(server, cnect, reader, fds);
 	if (*reader.URI.begin() == '/')
 		reader.URI.erase(0, reader.URI.find_first_not_of('/'));
-		std::cout << "1+3+++" << std::endl;
 	reader.URI = "./" + reader.URI;
 	if (stat(reader.URI.c_str(), &info) == -1)
 	{
@@ -134,23 +170,24 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 				return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
 		}
 	}
-	if (S_ISDIR(info.st_mode)) // WARNING: Handle later
-		return (reader.errNbr = 400, openFuncErr(server, cnect, reader, fds));
+	if (S_ISDIR(info.st_mode))
+	{
+		if (reader.autoIndex == 0)
+			return (reader.errNbr = 400, openFuncErr(server, cnect, reader, fds));
+		return (directory_open(server, cnect, reader, fds));
+	}
 	if (!S_ISREG(info.st_mode))
 		return (reader.errNbr = 403, openFuncErr(server, cnect, reader, fds));
 	if (!(info.st_mode & S_IRUSR))
 		return (reader.errNbr = 403, openFuncErr(server, cnect, reader, fds));
 	fd = open(reader.URI.c_str(), O_RDONLY);
-	std::cout << "1aa1" << std::endl;
 	if (fd == -1)
 		return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
 	int	length = info.st_size;
 	if (length == 0)
 		reader.readingDone = 1;
-	reader.writer.writeString = get_header(reader.errNbr);
-	reader.writer.writeString += "Content-Length: ";
-	reader.writer.writeString += std::to_string(length);
-	reader.writer.writeString += "\r\n\r\n";
+	reader.writer.writeString = get_header(reader.errNbr) + \
+								"Content-Length: " + std::to_string(length) + "\r\n\r\n";
 	reader.contentLength = length;
 	reader.openFile = 1;
 	reader.fdReadingFrom = fd;
@@ -177,22 +214,12 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 		size = actual_contentLength + 1;
 	char	buffer[size + 1];
 
-// std::cerr << "Getin reader funcuntion at read level" << std::endl;
-// std::cerr << "reader.fdReadingForm = " << reader.fdReadingFrom << std::endl;
 	if ((check_fds(fds, reader.fdReadingFrom) != POLLIN))
-	{
-		// std::cerr << "fd " << reader.fdReadingFrom << "is not in POLL IN" << std::endl;
 		return 1;
-	}
-	std::cout << "size = " << size << std::endl;
+	
 	check = read(reader.fdReadingFrom, buffer, sizeof(buffer) - 1);
-	std::cout << "check = " << check << std::endl;
-	// std::cerr << "check = " << check << std::endl;
-	// std::cerr << " Read level read"<< std::endl;
 	if (check == -1)
 	{
-		// sleep(2);
-		// std::cerr << "read -1" << std::endl;
 		if (reader.errNbr >= 500)
 			return (reader.cnect_close = 1, 1);
 		reader.errNbr = 500;
@@ -204,26 +231,22 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 	}
 	if (check == 0)
 	{
-		// sleep(2);
-		// std::cerr << "read =0" << std::endl;
 		reader.readingDone = 1;
 		reader.cnect_close = 1;
 		cnect.IsAfterResponseClose = 1;
-		// close(reader.fdReadingFrom);
-		// remove_from_poll(reader.fdReadingFrom, fds);
-		// reader.fdReadingFrom = -1;
 		return 1;
 	}
-	// std::cerr <<  buffer << std::endl;
 	reader.have_read_2.append(buffer, check);
-	std::string a;
-	a.append(buffer, check);
-	std::cout << a << std::endl;
 	return (1);
 }
 
 int	reader_get(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
 {
+	if (reader.dir != NULL)
+	{
+		reader.dir = NULL;
+		return 1;
+	}
 	if (reader.contentLength <= reader.have_read.length())
 	{
 		reader.writer.writeString += reader.have_read.substr(0, reader.contentLength);
@@ -232,9 +255,8 @@ int	reader_get(Server &server, Connection &cnect, Reader &reader, std::vector<st
 		reader.have_read_2 = "";
 		cnect.have_read = reader.have_read;
 		reader.have_read = "";
-		// reader.post = 1;
 		reader.contentLength = 0;
-		// std::cerr << "read1: " << reader.contentLength << std::endl;
+		reader.readingDone = 1;
 	}
 	else if (reader.contentLength <= reader.have_read_2.length() + reader.have_read.length())
 	{
@@ -244,9 +266,8 @@ int	reader_get(Server &server, Connection &cnect, Reader &reader, std::vector<st
 		reader.have_read_2.erase(0, reader.contentLength - reader.have_read.length());
 		cnect.have_read = reader.have_read_2;
 		reader.have_read_2 = "";
-		// reader.post = 1;
 		reader.contentLength = 0;
-		// std::cerr << "read2: " << reader.contentLength << std::endl;
+		reader.readingDone = 1;
 	}
 	else
 	{
@@ -255,18 +276,14 @@ int	reader_get(Server &server, Connection &cnect, Reader &reader, std::vector<st
 		reader.contentLength = reader.contentLength - reader.have_read.length() - reader.have_read_2.length();
 		reader.have_read = "";
 		reader.have_read_2 = "";
-		// std::cerr << "read3: " << reader.contentLength << std::endl;
 	}
 	return (1);
 }
 
 int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
 {
-	// std::cerr << "get in reader of post request" << std::endl;
 	if (reader.post == 0)
 	{
-		// std::cerr << "reader post = 0" << std::endl;
-		// std::cerr << "read0: " << reader.contentLength << std::endl;
 		if (reader.contentLength <= reader.have_read.length())
 		{
 			reader.writer.writeString += reader.have_read.substr(0, reader.contentLength);
@@ -277,7 +294,6 @@ int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<s
 			reader.have_read = "";
 			reader.post = 1;
 			reader.contentLength = 0;
-			// std::cerr << "read1: " << reader.contentLength << std::endl;
 		}
 		else if (reader.contentLength <= reader.have_read_2.length() + reader.have_read.length())
 		{
@@ -289,7 +305,6 @@ int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<s
 			reader.have_read_2 = "";
 			reader.post = 1;
 			reader.contentLength = 0;
-			// std::cerr << "read2: " << reader.contentLength << std::endl;
 		}
 		else
 		{
@@ -298,94 +313,52 @@ int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<s
 			reader.contentLength = reader.contentLength - reader.have_read.length() - reader.have_read_2.length();
 			reader.have_read = "";
 			reader.have_read_2 = "";
-			// std::cerr << "read3: " << reader.contentLength << std::endl;
 		}
 		return 1;
 	}
 	if (reader.post == 1)
 	{
-		// std::cerr << "reader post = 1" << std::endl;
-		// remove_from_poll(reader.writer.fdWritingTo, fds);
-		// close(reader.writer.fdWritingTo);
-		// reader.writer.fdWritingTo = -1;
-		// reader.fdReadingFrom = -1;
 		reader.openFile = 0;
 		reader.post = 2;
 	}
-	// std::cerr << "reader post > 1" << std::endl;
 	return (1);
+}
+
+int	isTimeOut(Reader &reader, std::vector<struct pollfd> &fds)
+{
+	int fd;
+	clock_t now = clock();
+
+	if ((now - reader.time_out)/ 1000 > TIME_OUT
+		&& check_fds(fds, reader.fdReadingFrom) != POLLIN)
+		return (reader.readingDone = 1, 1);
+	return (0);
 }
 
 int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds, int j)
 {
-	int fd;
-	clock_t now = clock();
-	if ((now - reader.time_out)/ 1000 > TIME_OUT
-		&& check_fds(fds, reader.fdReadingFrom) != POLLIN)
-	{
-		reader.readingDone = 1;
-		if (reader.fdReadingFrom != cnect.socket_fd)
-			fd = reader.fdReadingFrom;
-		else
-			fd = reader.writer.fdWritingTo;
-		remove_from_poll(fd, fds);
-		if (check_fds(fds, cnect.socket_fd) != POLLIN)
-			change_option_poll(fds, cnect.socket_fd, POLLIN);
-		close(fd);
-		reader.writer.fdWritingTo = -1;
-		reader.fdReadingFrom = cnect.socket_fd;
-		reader.errNbr = 408;
-	}
+	if (isTimeOut(reader, fds) == 1)
+		return (1);
 	if (reader.openFile == 0)
 		openFunc(server, cnect, reader, fds);
-	else if (reader.contentLength == 0)
-	{
-		reader.readingDone = 1;
-		if (reader.fdReadingFrom != cnect.socket_fd)
-			fd = reader.fdReadingFrom;
-		else
-			fd = reader.writer.fdWritingTo;
-		remove_from_poll(fd, fds);
-		if (check_fds(fds, cnect.socket_fd) != POLLIN)
-			change_option_poll(fds, cnect.socket_fd, POLLIN);
-		close(fd);
-		reader.writer.fdWritingTo = -1;
-		std::cout << "getin here, change it to -1? " << std::endl;
-		std::cout << "read.open = " << reader.openFile << std::endl;
-		std::cout << "contentlength = " << reader.contentLength << std::endl;
-		reader.fdReadingFrom = cnect.socket_fd;
-	}
-	std::cout << "-----2-1-errcode = " << reader.errNbr << std::endl;
-	if (reader.contentLength < 0)
-	{
-		std::cerr << "contenteleng <<< 0, " << reader.contentLength << std::endl;
-	}
-	std::cout << "+2+++" << std::endl;
 	if (reader.cnect_close == 1 || reader.readingDone == 1)
 		return (1);
-	std::cout << "++3++" << std::endl;
-	std::cout << "------13-errcode = " << reader.errNbr << std::endl;
 	read_func(server, cnect, reader, fds);
-	std::cout << "------14-errcode = " << reader.errNbr << std::endl;
-	std::cout << "+++4+" << std::endl;
-	std::cout << "reader.method = " << reader.method << std::endl;
-	if (reader.method == "GET" || reader.method == "")
+	if (reader.cnect_close == 1 || reader.readingDone == 1)
+		return (1);
+	if (reader.method == "GET" || reader.method == "" || reader.method == "DELETE")
+	{
 		return reader_get(server, cnect, reader, fds);
-	else if (reader.method == "POST")
-		return reader_post(server, cnect, reader, fds);
-		std::cout << "------15-errcode = " << reader.errNbr << std::endl;
-	// else if (reader.method == "DELETE")
-	// 	return reader_delete(server, cnect, reader, fds);
-	// else
+	}
+	// else if (reader.method == "POST")
 	// {
-	// 	std::cerr << "sth wrong in reader" << std::endl;
+	// 	return reader_post(server, cnect, reader, fds);
 	// }
 	return 1;
 }
 
 void	read_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
-	// std::cerr << "reader level" << std::endl;
 	time_t now;
 	Connection *cnect;
 	for (int i = 0; i < servers.size(); i++)
