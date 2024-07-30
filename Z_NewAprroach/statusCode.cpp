@@ -3,7 +3,7 @@
 std::string handle_200(void)
 {
 	std::string http = "HTTP/1.1 200 OK\r\n"
-				"Content-Type: text/html\r\n";
+					"Content-Type: text/html; charset=UTF-8\r\n";
 				// "Content-Length: ";
 				// "\r\n"
 				// "<html><body>"
@@ -109,7 +109,7 @@ std::string	handle_411(void)
 
 std::string	get_header(int nbr)
 {
-	if (nbr == 0)
+	if (nbr == 200)
 		return handle_200();
 	if (nbr == 204)
 		return handle_204();
@@ -125,5 +125,6 @@ std::string	get_header(int nbr)
 		return handle_408();
 	if (nbr == 409)
 		return handle_409();
+	std::cout << "ERROR NBR = "  << nbr << std::endl;
 	return handle_411();
 }
