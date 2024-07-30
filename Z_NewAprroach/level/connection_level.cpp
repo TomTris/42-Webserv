@@ -26,7 +26,7 @@ void	del_connect(Server &server, Connection &cnect, int j, std::vector<struct po
 		close(fd3);
 	}
 	server.connections.erase(server.connections.begin() + j);
-	sleep(1);
+	// sleep(1);
 }
 
 int	reading_done(Connection &cnect)
@@ -241,6 +241,7 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 		std::string a;
 		a.append(buffer, check);
 		std::cout << a << std::endl;
+		sleep(3);
 		connect.have_read.append(buffer, check);
 	}
 	return (request_header(server, connect));

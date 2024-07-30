@@ -97,6 +97,9 @@ int	post_open(Server &server, Connection &cnect, Reader &reader, std::vector<str
 
 int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
 {
+	std::string a;
+	std::string b;
+
 	reader.dir = opendir(reader.URI.c_str());
 	if (reader.dir == NULL) {
         return (reader.errNbr = 401, openFuncErr(server, cnect, reader, fds));
@@ -106,7 +109,7 @@ int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vecto
 	while (1)
 	{
 		if (*(reader.URI.end() - 1) == '/')
-			reader.URI.erase(reader.URI.length() - 1, reader.URI.length());
+			reader.URI.erase(reader.URI.length() - 1);
 		else
 			break ;
 	}
@@ -122,7 +125,23 @@ int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vecto
 			"<h1>Directory Listing</h1>\n"
 			"<ol>\n";
     while ((entry = readdir(reader.dir)))
-		content += "<li><a href=\"" + reader.URI + entry->d_name +  "\">"  + entry->d_name +  "</a></li>\n";
+	{
+		if (entry->d_name[0] == '.' && entry->d_name[1] == '.' && entry->d_name[2] == '\0')
+		{
+			a = (std::string) reader.URI;
+			a.erase(a.end() - 1);
+			while (a.find("/") != std::string::npos)
+			{
+				std::cout << a << std::endl;
+				b += a.substr(0, a.find("/") + 1);
+				a = a.substr(a.find("/") + 1, a.length());
+			}
+			content += "<li><a href=\"" + b +  "\">"  + entry->d_name +  "</a></li>\n";
+		}
+		else
+			content += "<li><a href=\"" + reader.URI + entry->d_name +  "\">"  + entry->d_name +  "</a></li>\n";
+			std::cout << content << std::endl;
+	}
 	closedir(reader.dir);
 	content +=			"<ol>\n"
 					"</body>\n"
@@ -131,13 +150,9 @@ int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vecto
 	change_option_poll(fds, cnect.socket_fd, POLLOUT);
 	reader.writer.fdWritingTo = cnect.socket_fd;
 	reader.fdReadingFrom = -1;
-	reader.openFile = 0;
-	reader.contentLength = 0;
 	cnect.have_read = reader.have_read;
 	reader.have_read_2 = "";
 	reader.have_read = "";
-	reader.contentLength = 0;
-	reader.errNbr = 200;
 	reader.readingDone = 1;
 	return (1);
 }
@@ -156,6 +171,7 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 	if (*reader.URI.begin() == '/')
 		reader.URI.erase(0, reader.URI.find_first_not_of('/'));
 	reader.URI = "./" + reader.URI;
+	std::cout << "URI will be " << reader.URI << std::endl;
 	if (stat(reader.URI.c_str(), &info) == -1)
 	{
 		switch (errno)
@@ -170,6 +186,7 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 				return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
 		}
 	}
+	std::cout << "URI will be " << reader.URI << std::endl;
 	if (S_ISDIR(info.st_mode))
 	{
 		if (reader.autoIndex == 0)
@@ -236,6 +253,10 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 		cnect.IsAfterResponseClose = 1;
 		return 1;
 	}
+	std::string a;
+		a.append(buffer, check);
+		std::cout << a << std::endl;
+		// sleep(4);
 	reader.have_read_2.append(buffer, check);
 	return (1);
 }
@@ -282,6 +303,8 @@ int	reader_get(Server &server, Connection &cnect, Reader &reader, std::vector<st
 
 int	reader_post(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
 {
+	if (reader.dir != NULL)
+		return (reader.dir = NULL, 1);
 	if (reader.post == 0)
 	{
 		if (reader.contentLength <= reader.have_read.length())
@@ -350,10 +373,10 @@ int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct
 	{
 		return reader_get(server, cnect, reader, fds);
 	}
-	// else if (reader.method == "POST")
-	// {
-	// 	return reader_post(server, cnect, reader, fds);
-	// }
+	else if (reader.method == "POST")
+	{
+		return reader_post(server, cnect, reader, fds);
+	}
 	return 1;
 }
 

@@ -37,6 +37,7 @@ void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option)
 
 void	change_option_poll(std::vector<struct pollfd> &fds, int fd, int option)
 {
+	std::cout << "fd = " << fd << std::endl;
 	for (int i = 0; i < fds.size(); i++)
 	{
         if (fds[i].fd == fd) {

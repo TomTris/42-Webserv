@@ -49,7 +49,7 @@ int	main(int ac, char **av, char **env)
 			}
 			else
 			{
-				usleep(500000);
+				// usleep(500000);
 				server_level(servers, fds);
 			poll(fds.data(), fds.size(), 0);
 				connection_level(servers, fds);
@@ -77,7 +77,7 @@ int	main(int ac, char **av, char **env)
 				write_level(servers, fds);
 				std::cout << "--" << a++ << "----" << std::endl;
 			}
-		usleep(250000);
+		// usleep(250000);
 		}
 	}
 	catch (const std::runtime_error&e) {
