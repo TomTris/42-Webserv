@@ -28,6 +28,11 @@
 #include <poll.h>
 #include <filesystem> 
 #include <ctime>
+#include <cstdio>
+#include <iostream>
+#include <cstring>
+#include <cerrno>
+#include <algorithm>
 
 #define ERROR204 "www/errors/204.html"
 #define ERROR400 "www/errors/400.html"

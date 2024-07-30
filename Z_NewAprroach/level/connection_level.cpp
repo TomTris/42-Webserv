@@ -43,6 +43,7 @@ int	reading_done(Connection &cnect)
 	{
 		if (cnect.reader.contentLength > 0)
 			cnect.reader.errNbr = 400;
+		return (1);
 	}
 	if (cnect.reader.method == "POST" && cnect.reader.errNbr < 300)
 	{
@@ -54,7 +55,9 @@ int	reading_done(Connection &cnect)
 			cnect.reader.have_read = cnect.have_read;
 			cnect.have_read = "";
 		}
+		return (1);
 	}
+	cnect.reader.errNbr = 400;
 	return (1);
 }
 

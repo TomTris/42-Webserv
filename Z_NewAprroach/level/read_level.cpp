@@ -8,7 +8,7 @@ int	anotherErr(Server &server, Connection &cnect, Reader &reader, std::vector<st
 		reader.errNbr = code;
 		return (openFuncErr(server, cnect, reader, fds));
 	}
-	reader.cnect_close = 1;
+	cnect.IsAfterResponseClose = 1;
 	return (1);
 }
 int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
@@ -17,13 +17,12 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	std::string header = get_header(reader.errNbr);
 	std::string file_name = "./www/errors/" + std::to_string(reader.errNbr) + ".html";
 	int	fd;
-	int code;
-	
-	reader.method = "";
+
+	reader.method = "GET";
 	if (reader.errNbr >= 400)
 	{
-		reader.have_read = "\r\n\r\n\r\n";
 		reader.have_read = "";
+		reader.have_read_2 = "";
 		cnect.IsAfterResponseClose = 1;
 	}
 	if (stat(file_name.c_str(), &info) == -1)
@@ -57,7 +56,7 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	reader.writer.writeString = get_header(reader.errNbr);
 	reader.writer.writeString += "Content-Length: ";
 	reader.writer.writeString += std::to_string(length);
-	reader.writer.writeString += "\r\n";
+	reader.writer.writeString += "\r\n\r\n";
 	reader.contentLength = length;
 	reader.openFile = 1;
 	reader.fdReadingFrom = fd;
@@ -143,7 +142,6 @@ int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vecto
 		}
 		else
 			content += "<li><a href=\"" + reader.URI + entry->d_name +  "\">"  + entry->d_name +  "</a></li>\n";
-			std::cout << content << std::endl;
 	}
 	closedir(reader.dir);
 	content +=			"<ol>\n"
@@ -361,30 +359,87 @@ int	isTimeOut(Reader &reader, std::vector<struct pollfd> &fds)
 	return (0);
 }
 
+int	stat_minus(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
+{
+	switch (errno)
+	{
+		case ENOENT:
+			return (reader.errNbr = 200, reader.errFuncCall = 1, 1);
+		case EACCES:
+			return (reader.errNbr = 401, 0);
+		case ELOOP:
+			return (reader.errNbr = 508, 0);
+		default:
+			return (reader.errNbr = 500, 0);
+	}
+	return (0);
+}
+int	handle_delete(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
+{
+	struct stat info;
+	int	fd;
+	int	check;
+	
+	reader.method = "GET";
+
+	if (*reader.URI.begin() == '/')
+		reader.URI.erase(0, reader.URI.find_first_not_of('/'));
+	reader.URI = "./" + reader.URI;
+	if (stat(reader.URI.c_str(), &info) == -1)
+	{
+		switch (errno)
+		{
+			case ENOENT:
+				return (reader.errNbr = 200, reader.errFuncCall = 1, 1);
+			case EACCES:
+				return (reader.errNbr = 401, 0);
+			case ELOOP:
+				return (reader.errNbr = 508, 0);
+			default:
+				return (reader.errNbr = 500, 0);
+		}
+	}
+	if (S_ISDIR(info.st_mode))
+		return (reader.errNbr = 400, 0);
+	if (!S_ISREG(info.st_mode))
+		return (reader.errNbr = 403, 0);
+	if (!(info.st_mode & S_IRUSR))
+		return (reader.errNbr = 403, 0);
+	if (std::remove(reader.URI.c_str()) == 0)
+		return (reader.errNbr = 200, reader.errFuncCall = 1, 1);
+	else
+		return (reader.errNbr = 500, 0);
+}
+
 int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds, int j)
 {
-	if (isTimeOut(reader, fds) == 1)
+	if (cnect.reader.method == "DELETE" && reader.errNbr < 300)
+		handle_delete(server, cnect, reader, fds);
+	else if (isTimeOut(reader, fds) == 1)
 		return (1);
 	if (reader.openFile == 0)
 	{
-		if (reader.method == "GET" || reader.method == "DELETE")
+		if (reader.errNbr >= 300)
+			openFuncErr(server, cnect, reader, fds);
+		else if (reader.method == "GET" || reader.method == "DELETE")
 			openFunc(server, cnect, reader, fds);
-		if (reader.method == "POST")
+		else if (reader.method == "POST")
 			post_open(server, cnect, reader, fds);
+		else
+		{
+			std::cout << "sth wrong in reader " << std::endl;
+			// sleep(5);
+		}
 	}
 	if (reader.cnect_close == 1 || reader.readingDone == 1)
 		return (1);
 	read_func(server, cnect, reader, fds);
 	if (reader.cnect_close == 1 || reader.readingDone == 1)
 		return (1);
-	if (reader.method == "GET" || reader.method == "" || reader.method == "DELETE")
-	{
+	if (reader.method == "GET" || reader.method == "DELETE")
 		return reader_get(server, cnect, reader, fds);
-	}
 	else if (reader.method == "POST")
-	{
 		return reader_post(server, cnect, reader, fds);
-	}
 	return 1;
 }
 
