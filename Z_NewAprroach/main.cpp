@@ -49,11 +49,29 @@ int	main(int ac, char **av, char **env)
 			}
 			else
 			{
+				usleep(500000);
 				server_level(servers, fds);
 				connection_level(servers, fds);
 				poll(fds.data(), fds.size(), 0);
+				std::cout << "\n2. POLL-----" << std::endl;
+				std::cout << "fds.size = " << fds.size() << std::endl;
+			for (int i = 0; i < fds.size(); i++)
+			{
+				std::cout << fds[i].fd << ", " << std::ends;
+			}
+			std::cout << "\nwith options" << std::ends;
+			for (int i = 0; i < fds.size(); i++)
+			{
+				std::cout << fds[i].events << ", " << std::ends;
+			}
+			std::cout << "\n with revents" << std::ends;
+			for (int i = 0; i < fds.size(); i++)
+			{
+				std::cout << fds[i].revents << ", " << std::ends;
+			}
 				std::cout << "---2---" << std::endl;
 				read_level(servers, fds);
+				poll(fds.data(), fds.size(), 0);
 				std::cout << "----3--" << std::endl;
 				write_level(servers, fds);
 				std::cout << "--" << a++ << "----" << std::endl;
