@@ -49,12 +49,15 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	else
 	{
 		reader.URI = a[2];
+		if (*reader.URI.begin() != '/')
+			reader.URI = "/" + reader.URI;
 		if (a[3] == "0")
 			reader.autoIndex = 0;
 		else
 			reader.autoIndex = 1;
 	}
-	sleep(10);
+	// std::cout <<reader.URI << std::endl;
+	// sleep(10);
 	if (cnect.reader.errNbr >= 300)
 	{
 		cnect.IsAfterResponseClose = 1;
