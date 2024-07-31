@@ -23,7 +23,7 @@ void Connection::reset()
 	reader.cnect_close = 0;
 	reader.contentLength = 0;
 	reader.errNbr = 200;
-	reader.fdReadingFrom = this->socket_fd;
+	reader.fdReadingFrom = -1;
 	reader.method = "";
 	reader.openFile = 0;
 	reader.post = 0;

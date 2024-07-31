@@ -154,7 +154,8 @@ int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vecto
 		b += "</a></li>\n";
 		content += b;
     }
-		// std::cout << content << std::endl;
+		std::cout << content << std::endl;
+		std::cout << "------------------------" << std::endl;
 	// std::cout << 10 << std::endl;
 	// sleep (1);
 	// std::cout << 11 << std::endl;
@@ -254,8 +255,11 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 
 	if ((check_fds(fds, reader.fdReadingFrom) != POLLIN))
 		return 1;
-	
+	if (reader.writer.writeString.length() != 0)
+		return (1);	
 	check = read(reader.fdReadingFrom, buffer, sizeof(buffer) - 1);
+	// std::cout << "+-+-+-**-+*-+*-+=/*-+=*-+ ??? " << std::endl;
+
 	if (check == -1)
 	{
 		if (reader.errNbr >= 500)
@@ -270,13 +274,14 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 	if (check == 0)
 	{
 		reader.readingDone = 1;
-		reader.cnect_close = 1;
+		// reader.cnect_close = 1;
 		cnect.IsAfterResponseClose = 1;
 		return 1;
 	}
 	// std::string a;
 	// 	a.append(buffer, check);
-		// std::cout << a << std::endl;
+	// 	std::cout << a << std::endl;
+	// std::cout << "=/*+=/*+=/*-+/=*-+" << std::endl;
 		// sleep(4);
 	reader.have_read_2.append(buffer, check);
 	return (1);
@@ -426,11 +431,15 @@ int	handle_delete(Server &server, Connection &cnect, Reader &reader, std::vector
 
 int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds, int j)
 {
+	// std::cout << 1111111 << std::endl;
+	// std::cout << 1111111 << std::endl;
+	// std::cout << 1111111 << std::endl;
+	// std::cout << 1111111 << std::endl;
+	// std::cout << 1111111 << std::endl;
 	if (cnect.reader.method == "DELETE" && reader.errNbr < 300)
 		handle_delete(server, cnect, reader, fds);
 	else if (isTimeOut(reader, fds) == 1)
 		return (1);
-
 	if (reader.openFile == 0)
 	{
 		if (reader.errNbr >= 300)
@@ -443,7 +452,10 @@ int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct
 		else if (reader.method == "POST")
 			post_open(server, cnect, reader, fds);
 		else
+		{
+			std::cout << "reader here 405" << std::endl;
 			return (reader.errNbr = 405, 1);
+		}
 	}
 	if (reader.cnect_close == 1 || reader.readingDone == 1)
 		return (1);

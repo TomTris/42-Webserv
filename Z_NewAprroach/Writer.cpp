@@ -5,4 +5,5 @@ Writer::Writer()
 {
 	fdWritingTo = -1;
 	writeString = "";
+	writingDone = 1;
 }

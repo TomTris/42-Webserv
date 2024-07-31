@@ -2,6 +2,11 @@
 
 int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct pollfd> &fds)
 {
+	// std::cout <<22222222<< std::endl;
+	// std::cout <<22222222<< std::endl;
+	// std::cout <<22222222<< std::endl;
+	// std::cout <<22222222<< std::endl;
+	// std::cout <<22222222<< std::endl;
 	if (check_fds(fds, writer.fdWritingTo) == POLLOUT)
 	{
 		if (writer.writeString.length() > 0)
@@ -12,31 +17,29 @@ int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct
 			if (write(writer.fdWritingTo, writer.writeString.c_str(), writer.writeString.length()) == -1)
 				return (cnect.reader.cnect_close = 1, 1);
 			else
-			writer.writeString = "";
-		}
-	}
-	if (cnect.reader.readingDone == 1)
-	{
-		int fd1 = cnect.socket_fd;
-		int	fd2 = cnect.reader.fdReadingFrom;
-		int	fd3 = cnect.reader.writer.fdWritingTo;
-		
-		if (fd2 == fd1)
-			fd2 = -1;
-		if (fd3 == fd1)
-			fd3 = -1;
-		remove_from_poll(fd1, fds);
-		close(fd1);
-		
-		if (fd2 != -1)
-		{
-			remove_from_poll(fd2, fds);
-			close(fd2);
-		}
-		if (fd3 != -1)
-		{
-			remove_from_poll(fd3, fds);
-			close(fd3);
+			{
+				writer.writeString = "";
+				if (cnect.reader.readingDone == 1)
+				{
+					writer.writingDone = 1;
+					std::cout << "writer.writingDone == " << writer.writingDone << std::endl;
+					std::cout << "cnect.IsAfterResponseClose " << cnect.IsAfterResponseClose << std::endl;
+					int fd1 = cnect.socket_fd;
+					int	fd2 = cnect.reader.fdReadingFrom;
+					int	fd3 = cnect.reader.writer.fdWritingTo;
+					
+					if (fd2 != cnect.socket_fd)
+					{
+						remove_from_poll(fd2, fds);
+						close(fd2);
+					}
+					else if (fd3 != cnect.socket_fd)
+					{
+						remove_from_poll(fd3, fds);
+						close(fd3);
+					}
+				}
+			}
 		}
 	}
 	return (1);

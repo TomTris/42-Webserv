@@ -29,6 +29,7 @@ void	remove_from_poll(int fd_rm, std::vector<struct pollfd> &fds)
 void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option)
 {
 	struct pollfd pfd;
+	std::cout << "fd " << fd_add << " is add to " << option << std::endl;
 	fds.push_back(pfd);
 	(fds.end() - 1)->fd = fd_add;
 	(fds.end() - 1)->events = option;
@@ -57,13 +58,14 @@ void poll_reset(std::vector<struct pollfd> &fds)
 
 int check_fds(std::vector<struct pollfd> &fds, int fd) {
 	if (fd == -1)
-		return (0);
+		return (-1);
     for (int i = 0; i < fds.size(); i++)
 	{
-        if (fds[i].fd == fd) {
+        // std::cout << "fds[" << i << "] = " << fds[i].fd << std::endl;
+		if (fds[i].fd == fd) {
 			return fds[i].revents;
         }
     }
     // std::cerr << "sth WRONG in check_fds, fd " << fd << "not found" << std::endl;
-    return POLLERR;
+    return -1;
 }
