@@ -42,7 +42,7 @@ int	main(int ac, char **av, char **env)
 				usleep(10000);
 				std::cout << 1 << std::endl;
 				// {
-				// 	std::cout << 1 << std::endl;
+				// 	std::cout << 11 << std::endl;
 				// 	std::cout << "here have read  after2 = {" << servers[0].connections[0].have_read << "}\n--------------------------------------------------------\n\n"<< std::endl;
 				// }
 				// std::cout << 1 << std::endl;
