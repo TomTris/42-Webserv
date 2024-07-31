@@ -48,7 +48,7 @@
 #define ERROR431 "www/errors/431.html"
 
 #ifndef BUFFERSIZE
-#define BUFFERSIZE 10000
+#define BUFFERSIZE 100
 #endif
 #define TIME_OUT 200
 #include "Connection.hpp"
@@ -148,5 +148,5 @@ void	read_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
 void	write_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
 int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct pollfd> &fds);
 //--Statuscode---//
-std::string	get_header(int nbr);
+std::string	get_header(int nbr, std::string str);
 #endif

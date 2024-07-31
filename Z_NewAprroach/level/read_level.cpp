@@ -14,10 +14,12 @@ int	anotherErr(Server &server, Connection &cnect, Reader &reader, std::vector<st
 int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
 {
 	struct stat info;
-	std::string header = get_header(reader.errNbr);
+	// std::string header = get_header(reader.errNbr);
 	std::string file_name = "./www/errors/" + std::to_string(reader.errNbr) + ".html";
 	int	fd;
-
+	// std::cout << "reader.method" <<std::endl;
+	// std::cout << reader.errNbr << std::endl;
+	// std::cout << reader.URI << std::endl;
 	reader.method = "GET";
 	if (reader.errNbr >= 400)
 	{
@@ -29,18 +31,23 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	{
 		if (reader.errNbr == 500)
 			return (reader.cnect_close = 1, 1);
+		// std::cout << "abc" << std::endl;
 		return (anotherErr(server, cnect, reader, fds, 500));
 	}
 	if (!S_ISREG(info.st_mode))
 	{
 		if (reader.errNbr == 500)
 			return (reader.cnect_close = 1, 1);
-		return (anotherErr(server, cnect, reader, fds, 500));
+		{
+			// std::cout << "abc1" << std::endl;
+			return (anotherErr(server, cnect, reader, fds, 500));
+		}
 	}
 	if (!(info.st_mode & S_IRUSR))
 	{
 		if (reader.errNbr == 500)
 			return (reader.cnect_close = 1, 1);
+		// std::cout << "abc1" << std::endl;
 		return (anotherErr(server, cnect, reader, fds, 500));
 	}
 	fd = open(file_name.c_str(), O_RDONLY);
@@ -48,12 +55,13 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	{
 		if (reader.errNbr == 500)
 			return (reader.cnect_close = 1, 1);
+		// std::cout << "abc1" << std::endl;
 		return (anotherErr(server, cnect, reader, fds, 500));
 	}
 	int	length = info.st_size;
 	if (length == 0)
 		reader.readingDone = 1;
-	reader.writer.writeString = get_header(reader.errNbr);
+	reader.writer.writeString = get_header(reader.errNbr, "0");
 	reader.writer.writeString += "Content-Length: ";
 	reader.writer.writeString += std::to_string(length);
 	reader.writer.writeString += "\r\n\r\n";
@@ -87,7 +95,9 @@ int	post_open(Server &server, Connection &cnect, Reader &reader, std::vector<str
 	}
 	fd = open(reader.URI.c_str(), O_CREAT | O_RDWR , 0777);
 	if (fd == -1)
+	{
 		return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
+	}
 	reader.fdReadingFrom = cnect.socket_fd;
 	reader.writer.fdWritingTo = fd;
 	reader.openFile = 1;
@@ -101,48 +111,55 @@ int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vecto
 {
 	std::string a;
 	std::string b;
-
+	// std::cout << "cnect.socket_fd = "<< cnect.socket_fd << std::endl;
 	reader.dir = opendir(reader.URI.c_str());
 	if (reader.dir == NULL) {
         return (reader.errNbr = 401, openFuncErr(server, cnect, reader, fds));
     }
 	struct dirent *entry;
-
-	while (1)
-	{
-		if (*(reader.URI.end() - 1) == '/')
-			reader.URI.erase(reader.URI.length() - 1);
-		else
-			break ;
-	}
-	reader.URI.append("/", 1);
-	reader.writer.writeString = get_header(200);
-
+	// while (1)
+	// {
+	// 	if (*(reader.URI.end() - 1) == '/')
+	// 		reader.URI.erase(reader.URI.length() - 1);
+	// 	else
+	// 		break ;
+	// }
+	// reader.URI.append("/", 1);
+	reader.writer.writeString = get_header(200, ".html");
 	std::string content = "<!DOCTYPE html>\n"
 	"<html>\n"
-		"<head>\n"
-			"<title> Directory Listing </title>\n"
-		"</head>\n"
+	"	<head>\n"
+	"		<title> Directory Listing </title>\n"
+	"	</head>\n"
 		"<body>\n"
 			"<h1>Directory Listing</h1>\n"
 			"<ol>\n";
+		struct stat	info;
+	int i = 0;
     while ((entry = readdir(reader.dir)))
 	{
-		if (entry->d_name[0] == '.' && entry->d_name[1] == '.' && entry->d_name[2] == '\0')
-		{
-			a = (std::string) reader.URI;
-			a.erase(a.end() - 1);
-			while (a.find("/") != std::string::npos)
-			{
-				std::cout << a << std::endl;
-				b += a.substr(0, a.find("/") + 1);
-				a = a.substr(a.find("/") + 1, a.length());
-			}
-			content += "<li><a href=\"" + b +  "\">"  + entry->d_name +  "</a></li>\n";
-		}
-		else
-			content += "<li><a href=\"" + reader.URI + entry->d_name +  "\">"  + entry->d_name +  "</a></li>\n";
-	}
+		// std::cout << i++ << std::endl;
+		a = "";
+		b= "";
+		a = reader.URI + entry->d_name;
+		stat(a.c_str() , &info);
+		b += "<li><a href=\"";
+		b += entry->d_name;
+		if (S_ISDIR(info.st_mode))
+			b += "/";
+		b += "\">";
+		b += entry->d_name;
+		if (S_ISDIR(info.st_mode))
+			b += "/";
+		b += "</a></li>\n";
+		content += b;
+    }
+		// std::cout << content << std::endl;
+	// std::cout << 10 << std::endl;
+	// sleep (1);
+	// std::cout << 11 << std::endl;
+	// usleep(40000);
+	// std::cout << 12 << std::endl;
 	closedir(reader.dir);
 	content +=			"<ol>\n"
 					"</body>\n"
@@ -150,6 +167,7 @@ int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vecto
 	reader.writer.writeString += "Content-Length: " + std::to_string(content.length()) + "\r\n\r\n" + content;
 	change_option_poll(fds, cnect.socket_fd, POLLOUT);
 	reader.writer.fdWritingTo = cnect.socket_fd;
+	// std::cout << "cnect.socket_fd " << cnect.socket_fd << " is put to pollout" << std::endl;
 	reader.fdReadingFrom = -1;
 	cnect.have_read = reader.have_read;
 	reader.have_read_2 = "";
@@ -165,15 +183,17 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 
 	if (reader.errNbr >= 300 || reader.errFuncCall == 1)
 		return openFuncErr(server, cnect, reader, fds);
+	// std::cout << "reader.URI before = " << reader.URI << std::endl;
 	if (*reader.URI.begin() == '/')
 		reader.URI.erase(0, reader.URI.find_first_not_of('/'));
 	reader.URI = "./" + reader.URI;
+	// std::cout << "reader.URI after = " << reader.URI << std::endl;
 	if (stat(reader.URI.c_str(), &info) == -1)
 	{
 		switch (errno)
 		{
 			case ENOENT:
-				return (reader.errNbr = 400, openFuncErr(server, cnect, reader, fds));
+				return (reader.errNbr = 404, openFuncErr(server, cnect, reader, fds));
 			case EACCES:
 				return (reader.errNbr = 401, openFuncErr(server, cnect, reader, fds));
 			case ELOOP:
@@ -182,23 +202,29 @@ int	openFunc(Server &server, Connection &cnect, Reader &reader, std::vector<stru
 				return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
 		}
 	}
+	// std::cout << 1 << std::endl;
 	if (S_ISDIR(info.st_mode))
 	{
+		// std::cout << 2 << std::endl;
 		if (reader.autoIndex == 0)
 			return (reader.errNbr = 400, openFuncErr(server, cnect, reader, fds));
 		return (directory_open(server, cnect, reader, fds));
 	}
+	// std::cout << 3 << std::endl;
 	if (!S_ISREG(info.st_mode))
 		return (reader.errNbr = 403, openFuncErr(server, cnect, reader, fds));
 	if (!(info.st_mode & S_IRUSR))
 		return (reader.errNbr = 403, openFuncErr(server, cnect, reader, fds));
 	fd = open(reader.URI.c_str(), O_RDONLY);
 	if (fd == -1)
+	{
 		return (reader.errNbr = 500, openFuncErr(server, cnect, reader, fds));
+	}
+	// std::cout << "fd ok" << " URI = " << reader.URI << std::endl;
 	int	length = info.st_size;
 	if (length == 0)
 		reader.readingDone = 1;
-	reader.writer.writeString = get_header(reader.errNbr) + \
+	reader.writer.writeString = get_header(reader.errNbr, reader.URI) + \
 								"Content-Length: " + std::to_string(length) + "\r\n\r\n";
 	reader.contentLength = length;
 	reader.openFile = 1;
@@ -248,9 +274,9 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 		cnect.IsAfterResponseClose = 1;
 		return 1;
 	}
-	std::string a;
-		a.append(buffer, check);
-		std::cout << a << std::endl;
+	// std::string a;
+	// 	a.append(buffer, check);
+		// std::cout << a << std::endl;
 		// sleep(4);
 	reader.have_read_2.append(buffer, check);
 	return (1);
@@ -353,27 +379,12 @@ int	isTimeOut(Reader &reader, std::vector<struct pollfd> &fds)
 	int fd;
 	clock_t now = clock();
 
-	if ((now - reader.time_out)/ 1000 > TIME_OUT
+	if ((now - reader.time_out)/ 1000000 > TIME_OUT
 		&& check_fds(fds, reader.fdReadingFrom) != POLLIN)
 		return (reader.readingDone = 1, 1);
 	return (0);
 }
 
-int	stat_minus(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
-{
-	switch (errno)
-	{
-		case ENOENT:
-			return (reader.errNbr = 200, reader.errFuncCall = 1, 1);
-		case EACCES:
-			return (reader.errNbr = 401, 0);
-		case ELOOP:
-			return (reader.errNbr = 508, 0);
-		default:
-			return (reader.errNbr = 500, 0);
-	}
-	return (0);
-}
 int	handle_delete(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
 {
 	struct stat info;
@@ -408,7 +419,9 @@ int	handle_delete(Server &server, Connection &cnect, Reader &reader, std::vector
 	if (std::remove(reader.URI.c_str()) == 0)
 		return (reader.errNbr = 200, reader.errFuncCall = 1, 1);
 	else
+	{
 		return (reader.errNbr = 500, 0);
+	}
 }
 
 int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds, int j)
@@ -417,37 +430,38 @@ int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct
 		handle_delete(server, cnect, reader, fds);
 	else if (isTimeOut(reader, fds) == 1)
 		return (1);
+
 	if (reader.openFile == 0)
 	{
 		if (reader.errNbr >= 300)
+		{
 			openFuncErr(server, cnect, reader, fds);
+			reader.method = "GET";
+		}
 		else if (reader.method == "GET" || reader.method == "DELETE")
 			openFunc(server, cnect, reader, fds);
 		else if (reader.method == "POST")
 			post_open(server, cnect, reader, fds);
 		else
-		{
-			std::cout << "sth wrong in reader " << std::endl;
-			// sleep(5);
-		}
+			return (reader.errNbr = 405, 1);
 	}
 	if (reader.cnect_close == 1 || reader.readingDone == 1)
 		return (1);
 	read_func(server, cnect, reader, fds);
+
 	if (reader.cnect_close == 1 || reader.readingDone == 1)
 		return (1);
 	if (reader.method == "GET" || reader.method == "DELETE")
-		return reader_get(server, cnect, reader, fds);
+		reader_get(server, cnect, reader, fds);
 	else if (reader.method == "POST")
-		return reader_post(server, cnect, reader, fds);
+		reader_post(server, cnect, reader, fds);
 	return 1;
 }
 
 void	read_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
 	time_t now;
-	Connection *cnect;
-	for (int i = 0; i < servers.size(); i++)
+	Connection *cnect;	for (int i = 0; i < servers.size(); i++)
 	{
 		for (int j = 0; j < servers[i].connections.size(); j++)
 		{
