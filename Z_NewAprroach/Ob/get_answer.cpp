@@ -205,6 +205,7 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
         output.push_back("0");
         output.push_back("0");
         output.push_back("0");
+        output.push_back("");
         return (output);
     }
     output.push_back("1");
@@ -219,6 +220,7 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
         output.push_back("1");
         output.push_back(url);
         output.push_back("1");
+        output.push_back("");
         return (output);
     }
     if (isAllowed(loc, method))
@@ -230,6 +232,7 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
         output.push_back("0");
         output.push_back("0");
         output.push_back("0");
+        output.push_back("");
         return (output);
     }
     std::string path = get_path_to_file(loc, url);
@@ -242,5 +245,6 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
     {
         output.push_back("0");
     }
+    output.push_back(loc.returning);
     return (output);
 }
