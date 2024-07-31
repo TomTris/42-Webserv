@@ -236,6 +236,8 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
         return (output);
     }
     std::string path = get_path_to_file(loc, url);
+    while (path.back() == '/' && path.size() != 1)
+        path.pop_back();
     output.push_back(path);
     if (loc.autoindex)
     {
