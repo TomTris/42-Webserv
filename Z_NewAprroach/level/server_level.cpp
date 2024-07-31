@@ -18,7 +18,7 @@ int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
 	server.connections.push_back(Connection(new_socket));
 	add_to_poll(fds, new_socket, POLLIN);
 	(server.connections.end() - 1)->time_out = clock();
-	std::cout << "ACCCEEPT " << new_socket << std::endl;
+	// std::cout << "ACCCEEPT " << new_socket << std::endl;
 	return (new_socket);
 }
 

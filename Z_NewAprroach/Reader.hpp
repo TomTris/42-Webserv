@@ -27,7 +27,6 @@ class Reader {
 
 		std::string							have_read;
 		std::string							have_read_2;
-		void								reset();
 		time_t								time_out;
 		DIR									*dir;
 		int									errFuncCall;
