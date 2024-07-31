@@ -21,26 +21,10 @@ int	main(int ac, char **av, char **env)
 	try {
 		load_config_n_socket_create(ac, av, servers);
 		add_servers_to_pool(servers, fds);
+		std::cout << "ok " << std::endl;
 		while(1)
 		{
 			activity = poll(fds.data(), fds.size(), 0);
-			// std::cout << "fds.size = " << fds.size() << std::endl;
-			// for (int i = 0; i < fds.size(); i++)
-			// {
-			// 	std::cout << fds[i].fd << ", " << std::ends;
-			// }
-			// std::cout << "\nwith options" << std::ends;
-			// for (int i = 0; i < fds.size(); i++)
-			// {
-			// 	std::cout << fds[i].events << ", " << std::ends;
-			// }
-			// std::cout << "\n with revents" << std::ends;
-			// for (int i = 0; i < fds.size(); i++)
-			// {
-			// 	std::cout << fds[i].revents << ", " << std::ends;
-			// }
-			// usleep(2000);
-			// check_fds(fds, fd);
 			if (activity < 0)
 			{
 				perror("select error");
@@ -49,34 +33,31 @@ int	main(int ac, char **av, char **env)
 			}
 			else
 			{
-				// usleep(500000);
 				server_level(servers, fds);
-			poll(fds.data(), fds.size(), 0);
+				poll(fds.data(), fds.size(), 0);
+
 				connection_level(servers, fds);
-			poll(fds.data(), fds.size(), 0);
-				// std::cout << "\n2. POLL-----" << std::endl;
-				// std::cout << "fds.size = " << fds.size() << std::endl;
-				// for (int i = 0; i < fds.size(); i++)
+				// std::cout << 1 << std::endl;
+				check_fds(fds, 0);
+				usleep(10000);
+				std::cout << 1 << std::endl;
 				// {
-				// 	std::cout << fds[i].fd << ", " << std::ends;
+				// 	std::cout << 1 << std::endl;
+				// 	std::cout << "here have read  after2 = {" << servers[0].connections[0].have_read << "}\n--------------------------------------------------------\n\n"<< std::endl;
 				// }
-				// std::cout << "\nwith options" << std::ends;
-				// for (int i = 0; i < fds.size(); i++)
-				// {
-				// 	std::cout << fds[i].events << ", " << std::ends;
-				// }
-				// std::cout << "\n with revents" << std::ends;
-				// for (int i = 0; i < fds.size(); i++)
-				// {
-				// 	std::cout << fds[i].revents << ", " << std::ends;
-				// }
-				// std::cout << "---2---" << std::endl;
+				// std::cout << 1 << std::endl;
+				poll(fds.data(), fds.size(), 0);
+				// sleep(1);
+				check_fds(fds, 0);
 				read_level(servers, fds);
-			poll(fds.data(), fds.size(), 0);
-			sleep(1);
-				// std::cout << "----3--" << std::endl;
+				// if (check_fds(fds, 4) == POLLIN || check_fds(fds, 4) == POLLOUT)
+				// {
+				// 	std::cout << 2222<< std::endl;
+				// 	std::cout << "here have read  after2 = {" << servers[0].connections[0].have_read << "}\n--------------------------------------------------------\n\n"<< std::endl;
+				// }
+				poll(fds.data(), fds.size(), 0);
+
 				write_level(servers, fds);
-				// std::cout << "--" << a++ << "----" << std::endl;
 			}
 		// usleep(250000);
 		}

@@ -2,8 +2,31 @@
 
 void	del_connect(Server &server, Connection &cnect, int j, std::vector<struct pollfd> &fds)
 {
-	std::cerr << "A CONNECTION DELETED" << std::endl;
-
+	// std::cerr << "A CONNECTION DELETED" << std::endl;
+	// std::cout << "cnect.have_read = " << cnect.have_read << std::endl;
+	// std::cout << "cnect.IsAfterResponseClose = " << cnect.IsAfterResponseClose << std::endl;
+	
+	// std::cout << "cnect.socket_fd = " << cnect.socket_fd << std::endl;
+	// std::cout << "cnect.reader.autoIndex = " << cnect.reader.autoIndex << std::endl;
+	// std::cout << "cnect.reader.contentLength = " << cnect.reader.contentLength << std::endl;
+	// std::cout << "cnect.reader.errFuncCall = " << cnect.reader.errFuncCall << std::endl;
+	// std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
+	// std::cout << "cnect.reader.fdReadingFrom = " << cnect.reader.fdReadingFrom << std::endl;
+	// std::cout << "cnect.reader.have_read = " << cnect.reader.have_read << std::endl;
+	// std::cout << "cnect.reader.have_read_2 = " << cnect.reader.have_read_2 << std::endl;
+	// std::cout << "cnect.reader.host = " << cnect.reader.host << std::endl;
+	// std::cout << "cnect.reader.method = " << cnect.reader.method << std::endl;
+	// std::cout << "cnect.reader.openFile = " << cnect.reader.openFile << std::endl;
+	// std::cout << "cnect.reader.post = " << cnect.reader.post << std::endl;
+	// std::cout << "cnect.reader.URI = " << cnect.reader.URI << std::endl;
+	// std::cout << "cnect.reader.writer.fdWritingTo = " << cnect.reader.writer.fdWritingTo << std::endl;
+	// std::cout << "cnect.reader.writer.writeString = " << cnect.reader.writer.writeString << std::endl;
+	// std::cout << "--------------------------- " << std::endl;
+	// std::cout << "cnect.reader.cnect_close = " << cnect.reader.cnect_close << std::endl;
+	// std::cout << "cnect.reader.readingDone = " << cnect.reader.readingDone << std::endl;
+	// std::cout << "cnect.readingHeaderDone = " << cnect.readingHeaderDone << std::endl;
+	// std::cout << "cnect.reader.writer.writingDone = " << cnect.reader.writer.writingDone << std::endl;
+	// std::cout << "------------------------------------------------------------------------------------------------------------ " << std::endl;
 	int fd1 = cnect.socket_fd;
 	int	fd2 = cnect.reader.fdReadingFrom;
 	int	fd3 = cnect.reader.writer.fdWritingTo;
@@ -36,18 +59,22 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	cnect.reader.time_out = clock();
 	// std::cout << "reader.host = {" << reader.host << "}" << std::endl;
 	// std::cout << "reader.method = {" << reader.method << "}" << std::endl;
-	// std::cout << "reader.URI = {" << reader.URI << "}" << std::endl;
+	// std::cout << "cnect.have rad = " << cnect.have_read << std::endl;
+	std::cout << "reader.URI = {" << reader.URI << "}" << std::endl;
 	std::vector<std::string> a = get_data(reader.host, reader.method, reader.URI, server);
 	// std::cout << "a[0] = " << a[0] << std::endl;
 	// std::cout << "a[1] = " << a[1] << std::endl;
 	if (*reader.URI.begin() != '/')
 		reader.URI = a[2];
-	// std::cout << "a[2] = " << reader.URI << std::endl;
+	std::cout << "a[2] = " << reader.URI << std::endl;
 	// std::cout << "a[3] = " << a[3] << std::endl;
 	if (a[0] == "0" || reader.contentLength > server.body_size_max)
 		reader.errNbr = 400;
 	else if (a[1] == "0")
+	{
+		// std::cout << "a[1] said not allowed" << std::endl;
 		reader.errNbr = 405;
+	}
 	else
 	{
 		if (a[3] == "0")
@@ -78,6 +105,7 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 		}
 		return (1);
 	}
+	std::cout << "connection level 405" << std::endl;
 	cnect.reader.errNbr = 405;
 	return (1);
 }
@@ -146,11 +174,11 @@ std::string	extract_host(Connection &current_connection, std::string &header_o)
 	std::string	str = "\r\nHost:";
 	ssize_t	start = header.find(str);
 	if (start == std::string::npos)
-		return (0);
+		return ("");
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
 	if (end == std::string::npos)
-		return (0);
+		return ("");
 	std::string content = header.substr(start, end);
 	std::stringstream socket_stream(content);
 	std::string value;
@@ -219,7 +247,7 @@ int	request_line(Server &server, Connection &cnect)
 	}
 	cnect.reader.method = method;
 	cnect.reader.URI = URI;
-	cnect.have_read.erase(0, request_line_end);
+	// cnect.have_read.erase(0, request_line_end);
 	// std::cerr << URI << std::endl;
 	// std:: string host = extract_host(cnect, header_o);
 	// if (host != g)
@@ -232,32 +260,37 @@ int	request_line(Server &server, Connection &cnect)
 //need to handle, so that 1 space enter also isn't allowed, must separate requestline and header part.
 int	request_header(Server &server, Connection &cnect)
 {
-	while (1)
-	{
-		if (*cnect.have_read.begin() == '\r' && *(cnect.have_read.begin() + 1) == '\n')
-			cnect.have_read.erase(0, 2);
-		else
-			break ;
-	}
+	// while (1)
+	// {
+	// 	if (*cnect.have_read.begin() == '\r' && *(cnect.have_read.begin() + 1) == '\n')
+	// 		cnect.have_read.erase(0, 2);
+	// 	else
+	// 		break ;
+	// }
+	if (cnect.have_read.length() == 0)
+		return (1);
+	// sleep(1);
 	ssize_t	header_end = cnect.have_read.find("\r\n\r\n");
 	if (header_end == std::string::npos)
 	{
-		if (cnect.have_read.length() > 1000)
-			return (cnect.reader.errNbr = 431);
+		if (cnect.have_read.length() > 2000)
+			return (cnect.readingHeaderDone = 1, cnect.IsAfterResponseClose = 1, cnect.reader.errNbr = 431);
 		return (0);
 	}
-	if (request_line(server, cnect) == -1)
-		return (1);
+	// std::cout << "000000000000000" << std::endl;
+	// sleep(1);
+	// std::cout << "{" << cnect.have_read.substr(0, header_end) << "}" << std::endl;
+	// if (request_line(server, cnect) == -1)
+	// 	return (1);
+	request_line(server, cnect);
 	header_extract(cnect, cnect.have_read);
 	header_end = cnect.have_read.find("\r\n\r\n");
 	cnect.have_read.erase(0, header_end + 4);
 	return (reading_done(server, cnect, cnect.reader));
 }
 
-int reading_header(Server &server, Connection &connect, std::vector<struct pollfd> &fds, int i)
+int reading_header(Server &server, Connection &connect, std::vector<struct pollfd> &fds)
 {
-	if (i == 100)
-		return (2);
 	int		check;
 	char	buffer[BUFFERSIZE + 1];
 	if (check_fds(fds, connect.socket_fd) == POLL_IN)
@@ -265,16 +298,25 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 		check = read(connect.socket_fd, buffer, BUFFERSIZE);
 		if (check == -1)
 		{
-			std::cout << "Check = -1, fd = " << connect.socket_fd << std::endl;
-			return (reading_header(server, connect, fds, i + 1));
+			// std::cout << "Check = -1, fd = " << connect.socket_fd << std::endl;
+			// return (1);
 			return (connect.reader.errNbr = 500, connect.readingHeaderDone = 1, 1);
 		}
 		if (check == 0)
 			return (2);
-		// std::string a;
+		int check2 = check;
+		// std::cout << "fd = " << connect.socket_fd << std::endl;
+		// std::string a = "";
+		// std::cout << "\n\n--------------------------------------------------------"
+		// << "\nhere have read before = {" << connect.have_read << "}\n"<< std::endl;
 		// a.append(buffer, check);
-		// std::cout << a << std::endl;
+		// std::cout << "++++++++++++++++++++++++" << std::endl;
+		// std::cout << "read() return : \n{" << a << "}" << std::endl;
+		// std::cout << "++++++++++++++++++++++++" << std::endl;
+		// sleep(1);
 		connect.have_read.append(buffer, check);
+		// std::cout << "here have read  after1 = {" << connect.have_read << "}\n--------------------------------------------------------\n\n"<< std::endl;
+		// sleep(2);
 	}
 	// std::cout << "Here it should be 0: " << connect.readingHeaderDone << std::endl;
 	return (request_header(server, connect));
@@ -305,22 +347,27 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 				servers[i].connections[j].reader.method = "GET";
 			}
 			else if (servers[i].connections[j].reader.cnect_close == 1
-				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.readingDone == 1))
+				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.writer.writingDone == 1))
 			{
 				del_connect(servers[i], servers[i].connections[j], j, fds);
 				j--;
 			}
-			else if (servers[i].connections[j].reader.readingDone == 1)
+			else if (servers[i].connections[j].reader.writer.writingDone == 1)
 			{
 				servers[i].connections[j].reset();
 			}
 			else if (servers[i].connections[j].readingHeaderDone == 0)
 			{
-				if (reading_header(servers[i], servers[i].connections[j], fds, 0) == 2)
+				// std::cout << " aaaaai = " << i << std::endl;
+				// std::cout << " aaaaaj = " << j << std::endl;
+				if (reading_header(servers[i], servers[i].connections[j], fds) == 2)
 				{
 					del_connect(servers[i], servers[i].connections[j], j, fds);
 					j--;
 				}
+				// std::cout << " bbbbbi = " << i << std::endl;
+				// std::cout << " bbbbbj = " << i << std::endl;
+				// sleep(1);
 			}
 		}
 	}

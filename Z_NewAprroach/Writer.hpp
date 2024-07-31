@@ -9,7 +9,7 @@ class Writer {
 		Writer();
 		std::string			writeString;
 		int					fdWritingTo;
-		// int					writingDone;
+		int					writingDone;
 };
 
 #endif

@@ -50,7 +50,7 @@
 #ifndef BUFFERSIZE
 #define BUFFERSIZE 100
 #endif
-#define TIME_OUT 200
+#define TIME_OUT 5
 #include "Connection.hpp"
 struct location
 {
