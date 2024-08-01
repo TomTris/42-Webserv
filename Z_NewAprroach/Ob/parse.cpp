@@ -668,7 +668,7 @@ int parse(std::string path, std::vector<server_t>& s)
         return 1;
     }
     std::vector<std::string> server_ts = getserver_ts(output);
-    server_t *s1;
+    // server_t *s1;
     int err = 0;
     for (int i = 0; i < server_ts.size(); i++)
     {
@@ -678,7 +678,7 @@ int parse(std::string path, std::vector<server_t>& s)
             return 1;
         }
         s.push_back(createserver_t(server_ts[i], err));
-        delete s1;
+        // delete s1;
         if (err)
             return 1;
     }
