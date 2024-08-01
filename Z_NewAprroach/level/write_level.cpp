@@ -22,12 +22,12 @@ int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct
 				if (cnect.reader.readingDone == 1)
 				{
 					writer.writingDone = 1;
-					std::cout << "writer.writingDone == " << writer.writingDone << std::endl;
-					std::cout << "cnect.IsAfterResponseClose " << cnect.IsAfterResponseClose << std::endl;
+					// std::cout << "writer.writingDone == " << writer.writingDone << std::endl;
+					// std::cout << "cnect.IsAfterResponseClose " << cnect.IsAfterResponseClose << std::endl;
 					int fd1 = cnect.socket_fd;
 					int	fd2 = cnect.reader.fdReadingFrom;
 					int	fd3 = cnect.reader.writer.fdWritingTo;
-					
+
 					if (fd2 != cnect.socket_fd)
 					{
 						remove_from_poll(fd2, fds);

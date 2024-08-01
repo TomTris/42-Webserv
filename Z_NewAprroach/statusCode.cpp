@@ -155,6 +155,13 @@ std::string	handle_508(void)
 	return (http);
 }
 
+std::string handle_301(std::string str)
+{
+	std::string http = "HTTP/1.1 301 Moved Permanently\r\n"
+		"Location: " + str + "\r\n"
+		"Content-Length: 0\r\n\r\n";
+	return (http);
+}
 std::string	get_header(int nbr, std::string str)
 {
 	// std::cout << "ERROR NBR = "  << nbr << std::endl;
@@ -166,6 +173,8 @@ std::string	get_header(int nbr, std::string str)
 			return handle_200(str);	
 		case 204:
 			return handle_204();
+		case 301:
+			return handle_301(str);
 
 		case 400:
 			return handle_400();

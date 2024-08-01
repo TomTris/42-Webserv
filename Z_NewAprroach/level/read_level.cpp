@@ -11,12 +11,25 @@ int	anotherErr(Server &server, Connection &cnect, Reader &reader, std::vector<st
 	cnect.IsAfterResponseClose = 1;
 	return (1);
 }
+
+
 int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
 {
 	struct stat info;
 	// std::string header = get_header(reader.errNbr);
 	std::string file_name = "./www/errors/" + std::to_string(reader.errNbr) + ".html";
 	int	fd;
+	if (reader.errNbr >= 300 && reader.errNbr < 400)
+	{
+		reader.writer.writeString = get_header(reader.errNbr, reader.URI);
+		// reader.have_read_2 = "";
+		// reader.contentLength = 0;
+		// reader.openFile = 1;
+		reader.fdReadingFrom = -1;
+		reader.writer.fdWritingTo = cnect.socket_fd;
+		reader.readingDone = 1;
+		return (2);
+	}
 	// std::cout << "reader.method" <<std::endl;
 	// std::cout << reader.errNbr << std::endl;
 	// std::cout << reader.URI << std::endl;
@@ -154,8 +167,8 @@ int	directory_open(Server &server, Connection &cnect, Reader &reader, std::vecto
 		b += "</a></li>\n";
 		content += b;
     }
-		std::cout << content << std::endl;
-		std::cout << "------------------------" << std::endl;
+		// std::cout << content << std::endl;
+		// std::cout << "------------------------" << std::endl;
 	// std::cout << 10 << std::endl;
 	// sleep (1);
 	// std::cout << 11 << std::endl;

@@ -62,29 +62,37 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	// std::cout << "cnect.have rad = " << cnect.have_read << std::endl;
 	std::cout << "reader.URI = {" << reader.URI << "}" << std::endl;
 	std::vector<std::string> a = get_data(reader.host, reader.method, reader.URI, server);
-	// std::cout << "a[0] = " << a[0] << std::endl;
-	// std::cout << "a[1] = " << a[1] << std::endl;
+	std::cout << "a[0] = " << a[0] << std::endl;
+	std::cout << "a[1] = " << a[1] << std::endl;
+	std::cout << "a[4] = " << a[4] << std::endl;
+	//URI
 	if (*reader.URI.begin() != '/')
 		reader.URI = a[2];
 	std::cout << "a[2] = " << reader.URI << std::endl;
 	// std::cout << "a[3] = " << a[3] << std::endl;
+	//a[0] is host:post ok?
 	if (a[0] == "0" || reader.contentLength > server.body_size_max)
 		reader.errNbr = 400;
 	else if (a[1] == "0")
 	{
-		// std::cout << "a[1] said not allowed" << std::endl;
+		//a[1] -> method allowed
 		reader.errNbr = 405;
 	}
 	else
 	{
+		//auto index
 		if (a[3] == "0")
 			reader.autoIndex = 0;
 		else
 			reader.autoIndex = 1;
 	}
-	if (cnect.reader.errNbr >= 300)
+	if (a[4] != "")
 	{
+		cnect.reader.errNbr = 300;
 		cnect.IsAfterResponseClose = 1;
+		reader.method = "GET";
+		reader.errFuncCall = 1;
+		reader.URI = a[4];
 		return (1);
 	}
 	if (cnect.reader.method == "GET" || cnect.reader.method == "DELETE")
@@ -307,12 +315,12 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 			return (2);
 		int check2 = check;
 		// std::cout << "fd = " << connect.socket_fd << std::endl;
-		// std::string a = "";
+		std::string a = "";
 		// std::cout << "\n\n--------------------------------------------------------"
 		// << "\nhere have read before = {" << connect.have_read << "}\n"<< std::endl;
-		// a.append(buffer, check);
+		a.append(buffer, check);
 		// std::cout << "++++++++++++++++++++++++" << std::endl;
-		// std::cout << "read() return : \n{" << a << "}" << std::endl;
+		std::cout << a << std::endl;
 		// std::cout << "++++++++++++++++++++++++" << std::endl;
 		// sleep(1);
 		connect.have_read.append(buffer, check);
