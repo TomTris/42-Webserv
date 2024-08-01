@@ -293,7 +293,8 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 {
 	int		check;
 	char	buffer[BUFFERSIZE + 1];
-	if (check_fds(fds, connect.socket_fd) == POLL_IN)
+
+	if (check_fds(fds, connect.socket_fd) == POLLIN)
 	{
 		check = read(connect.socket_fd, buffer, BUFFERSIZE);
 		if (check == -1)
