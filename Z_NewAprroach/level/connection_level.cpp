@@ -67,7 +67,8 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	std::cout << "a[4] = " << a[4] << std::endl;
 	//URI
 	if (*reader.URI.begin() != '/')
-		reader.URI = a[2];
+		reader.URI = "/" + reader.URI;
+	reader.URI = a[2];
 	std::cout << "a[2] = " << reader.URI << std::endl;
 	// std::cout << "a[3] = " << a[3] << std::endl;
 	//a[0] is host:post ok?
@@ -88,7 +89,15 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	}
 	if (a[4] != "")
 	{
-		cnect.reader.errNbr = 300;
+		// std::cout << "a1a1a1a1" << std::endl;
+		// std::cout << "a1a1a1a1" << std::endl;
+		// std::cout << "a1a1a1a1" << std::endl;
+		// std::cout << "a1a1a1a1" << std::endl;
+		// std::cout << "a1a1a1a1" << std::endl;
+		// std::cout << "a1a1a1a1" << std::endl;
+		// std::cout << "a1a1a1a1" << std::endl;
+		// std::cout << "a1a1a1a1" << std::endl;
+		cnect.reader.errNbr = 301;
 		cnect.IsAfterResponseClose = 1;
 		reader.method = "GET";
 		reader.errFuncCall = 1;
