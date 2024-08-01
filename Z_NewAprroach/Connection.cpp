@@ -31,6 +31,7 @@ void Connection::reset()
 	reader.URI = "";
 	reader.writer.fdWritingTo = -1;
 	reader.writer.writeString = "";
+	reader.writer.writingDone = 0;
 	reader.errFuncCall = 0;
 	time_out = clock();
 }

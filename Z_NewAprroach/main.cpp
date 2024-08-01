@@ -35,18 +35,19 @@ int	main(int ac, char **av, char **env)
 			{
 				server_level(servers, fds);
 				poll(fds.data(), fds.size(), 0);
-
+				// std::cout << "00" << std::endl;
 				connection_level(servers, fds);
 				// std::cout << 1 << std::endl;
 				check_fds(fds, 0);
 				usleep(10000);
-				std::cout << 1 << std::endl;
+				// std::cout << 11 << std::endl;
 				// {
 				// 	std::cout << 11 << std::endl;
 				// 	std::cout << "here have read  after2 = {" << servers[0].connections[0].have_read << "}\n--------------------------------------------------------\n\n"<< std::endl;
 				// }
 				// std::cout << 1 << std::endl;
 				poll(fds.data(), fds.size(), 0);
+				// std::cout << 22 << std::endl;
 				// sleep(1);
 				check_fds(fds, 0);
 				read_level(servers, fds);
@@ -56,6 +57,7 @@ int	main(int ac, char **av, char **env)
 				// 	std::cout << "here have read  after2 = {" << servers[0].connections[0].have_read << "}\n--------------------------------------------------------\n\n"<< std::endl;
 				// }
 				poll(fds.data(), fds.size(), 0);
+				// std::cout << 33 << std::endl;
 
 				write_level(servers, fds);
 			}
