@@ -19,7 +19,7 @@ int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
 			return -1;
 		}
 		server.connections.push_back(Connection(new_socket));
-		std::cout << "ACCEEPPTT" << new_socket<< std::endl;
+		std::cout << "ACCEEPPTT" << new_socket <<  std::endl;
 	}
 	else
 		return 1;

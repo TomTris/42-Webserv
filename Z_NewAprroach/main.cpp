@@ -29,43 +29,27 @@ int	main(int ac, char **av)
 			// }
 			// else
 			// {
-				std::cout <<1 << std::endl;
-				poll(fds.data(), fds.size(), 2);
-				// if (errno != 0 && errno != 2)
-				// {
-				// 	perror("ab");
-				// 	sleep(3);
-				// }
+				check_fds(fds, 0);
+				// std::cout << "poll" << std::endl;
+				poll(fds.data(), fds.size(), 1000);
+				// std::cout << "server" << std::endl;
 				server_level(servers, fds);
-				// if (errno != 0 && errno != 2)
-				// {
-				// 	perror("ac");
-				// 	sleep(3);
-				// }
-				// std::cout <<2 << std::endl;
+
+				// std::cout << "connection" << std::endl;
 				connection_level(servers, fds);
-				// if (errno != 0 && errno != 2)
-				// {
-				// 	perror("ae");
-				// 	std::cout << "errno = " << errno << std::endl;
-				// 	sleep(3);
-				// }
-				poll(fds.data(), fds.size(), 2);
-				// std::cout <<3 << std::endl;
+
+				// std::cout << "poll" << std::endl;
+				poll(fds.data(), fds.size(), 1000);
+
+				// std::cout << "read_level" << std::endl;
 				read_level(servers, fds);
-				// if (errno != 0 && errno != 2)
-				// {
-				// 	perror("af");
-				// 	sleep(3);
-				// }
-				poll(fds.data(), fds.size(), 2);
-				// std::cout <<4 << std::endl;
-				// if (errno != 0 && errno != 2)
-				// {
-				// 	perror("aa1111");
-				// 	sleep(3);
-				// }
+
+				// std::cout << "poll" << std::endl;
+				poll(fds.data(), fds.size(), 1000);
+				
+				// std::cout << "write_level" << std::endl;
 				write_level(servers, fds);
+				// std::cout << poll << std::endl;
 				// if (errno != 0 && errno != 2)
 				// {
 				// 	perror("aa");
