@@ -37,7 +37,6 @@ void	del_connect(Server &server, Connection &cnect, int j, std::vector<struct po
 		fd3 = -1;
 	remove_from_poll(fd1, fds);
 	close(fd1);
-	
 	if (fd2 != -1)
 	{
 		remove_from_poll(fd2, fds);
@@ -66,11 +65,11 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	// std::cout << "a[4] = " << a[4] << std::endl;
 	if (reader.method != "GET" && reader.method != "POST" && reader.method != "DELETE")
 		return (reader.errNbr = 405, 1);
+
 	if (reader.URI.length() > 160)
 		return (reader.errNbr = 414, 1);
 	std::vector<std::string> a = get_data(reader.host, reader.method, reader.URI, server);
-	//URI
-	if (*reader.URI.begin() != '/')
+	//URI	if (*reader.URI.begin() != '/')
 		reader.URI = "/" + reader.URI;
 	reader.URI = a[2];
 	// std::cout << "a[2] = " << reader.URI << std::endl;
@@ -117,11 +116,11 @@ int	extract_IsAfterResponseClose(std::string &header_o)
 	std::string	header = header_o;
 	std::string	str = "\r\nConnection: ";
 	ssize_t	start = header.find(str);
-	if (start == std::string::npos)
+	if (start == static_cast<ssize_t>(std::string::npos))
 		return (1);
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
-	if (end == std::string::npos)
+	if (end == static_cast<ssize_t>(std::string::npos))
 		return (1);
 	std::string content = header.substr(start, end);	
 	if (content.find("keep-alive") == std::string::npos
@@ -135,11 +134,11 @@ int	extract_contentLength(std::string &header_o)
 	std::string	header = header_o;
 	std::string	str = "\r\nContent-Length:";
 	ssize_t	start = header.find(str);
-	if (start == std::string::npos)
+	if (start == static_cast<ssize_t>(std::string::npos))
 		return (0);
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
-	if (end == std::string::npos)
+	if (end == static_cast<ssize_t>(std::string::npos))
 		return (0);
 	std::string content = header.substr(start, end);
 	std::stringstream socket_stream(content);
@@ -148,16 +147,16 @@ int	extract_contentLength(std::string &header_o)
 	return (value);
 }
 
-std::string	extract_host(Connection &current_connection, std::string &header_o)
+std::string	extract_host(std::string &header_o)
 {
 	std::string	header = header_o;
 	std::string	str = "\r\nHost:";
 	ssize_t	start = header.find(str);
-	if (start == std::string::npos)
+	if (start == static_cast<ssize_t>(std::string::npos))
 		return ("");
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
-	if (end == std::string::npos)
+	if (end == static_cast<ssize_t>(std::string::npos))
 		return ("");
 	std::string content = header.substr(start, end);
 	std::stringstream socket_stream(content);
@@ -166,18 +165,18 @@ std::string	extract_host(Connection &current_connection, std::string &header_o)
 	return (value);
 }
 
-// int	extract_boundary(Connection &current_connection, std::string &header_o)
+// int	extract_boundary(std::string &header_o)
 // {
 // 	std::string	boundary_delim;
 // 	std::string boundary_prefix = "boundary=";
 // 	std::string header = header_o;
 
 // 	ssize_t	pos1 = header.find(boundary_prefix);
-// 	if (pos1 == std::string::npos)
+// 	if (pos1 == static_cast<ssize_t>(std::string::npos))
 // 		return (0);
 // 	pos1 += boundary_prefix.length();
 // 	ssize_t	pos2 = header.find("\r\n", pos1);
-// 	if (pos2 == std::string::npos)
+// 	if (pos2 == static_cast<ssize_t>(std::string::npos))
 // 		return (0);
 // 	boundary_delim = "--" + header.substr(pos1, pos2 - pos1);
 // 	current_connection.reader.boundary = boundary_delim;
@@ -187,16 +186,16 @@ std::string	extract_host(Connection &current_connection, std::string &header_o)
 // // int extract_cookies();
 // // int extract_authorization
 
-std::string	extract_cookies(Connection &current_connection, std::string &header_o)
+std::string	extract_cookies(std::string &header_o)
 {
 	std::string	header = header_o;
 	std::string	str = "\r\nCookies:";
 	ssize_t	start = header.find(str);
-	if (start == std::string::npos)
+	if (start == static_cast<ssize_t>(std::string::npos))
 		return ("");
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
-	if (end == std::string::npos)
+	if (end == static_cast<ssize_t>(std::string::npos))
 		return ("");
 	return (header.substr(start, end));
 }
@@ -207,7 +206,7 @@ int	header_extract(Connection &cnect, std::string &header_o)
 
 	cnect.IsAfterResponseClose = extract_IsAfterResponseClose(header_o);
 	cnect.reader.contentLength = extract_contentLength(header_o);
-	cnect.reader.host = extract_host(cnect, header_o);
+	cnect.reader.host = extract_host(header_o);
 	// cnect.reader.cookies = extract_cookies(cnect, header_o);
 	// extract_contentType(header_o);
 	//  extract_host(cnect, header_o);
@@ -215,7 +214,7 @@ int	header_extract(Connection &cnect, std::string &header_o)
 	return (1);
 }
 
-int	request_line(Server &server, Connection &cnect)
+int	request_line(Connection &cnect)
 {
 	ssize_t		request_line_end;
 
@@ -264,7 +263,7 @@ int	request_header(Server &server, Connection &cnect)
 		return (1);
 	// sleep(1);
 	ssize_t	header_end = cnect.have_read.find("\r\n\r\n");
-	if (header_end == std::string::npos)
+	if (header_end == static_cast<ssize_t>(std::string::npos))
 	{
 		if (cnect.have_read.length() > 2000)
 			return (cnect.readingHeaderDone = 1, cnect.IsAfterResponseClose = 1, cnect.reader.errNbr = 431);
@@ -275,7 +274,7 @@ int	request_header(Server &server, Connection &cnect)
 	// std::cout << "{" << cnect.have_read.substr(0, header_end) << "}" << std::endl;
 	// if (request_line(server, cnect) == -1)
 	// 	return (1);
-	request_line(server, cnect);
+	request_line(cnect);
 	header_extract(cnect, cnect.have_read);
 	header_end = cnect.have_read.find("\r\n\r\n");
 	cnect.have_read.erase(0, header_end + 4);
@@ -287,7 +286,7 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 	int		check;
 	char	buffer[BUFFERSIZE + 1];
 
-	if (check_fds(fds, connect.socket_fd) == POLLIN)
+	if (check_fds(fds, connect.socket_fd) & POLLIN)
 	{
 		check = read(connect.socket_fd, buffer, BUFFERSIZE);
 		if (check == -1)
@@ -298,14 +297,13 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 		}
 		if (check == 0)
 			return (2);
-		int check2 = check;
 		// std::cout << "fd = " << connect.socket_fd << std::endl;
-		std::string a = "";
+		// std::string a = "";
 		// << "\nhere have read before = {" << connect.have_read << "}\n"<< std::endl;
-		a.append(buffer, check);
+		// a.append(buffer, check);
 		// std::cout << "\n\n--------------------------------------------------------";
 		// std::cout << "++++++++++++++++++++++++" << std::endl;
-		std::cout << a << std::endl;
+		// std::cout << a << std::endl;
 		// std::cout << "++++++++++++++++++++++++" << std::endl;
 		// sleep(1);
 		connect.have_read.append(buffer, check);
@@ -319,11 +317,17 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
 	time_t	now;
-	for (int i = 0; i < servers.size(); i++)
+	int	revents;
+	unsigned int	i = 0;
+	unsigned int	j;
+
+	while (i < servers.size())
 	{
 		// std::cout << "++++++++++" << " < servers[i].connections.size()" << servers[i].connections.size()<< "++++++++" << std::endl;
-		for (int j = 0; j < servers[i].connections.size(); j++)
+		j = 0;
+		while (j < servers[i].connections.size())
 		{
+			revents = check_fds(fds, servers[i].connections[j].socket_fd);
 			// std::cout << "++1111++++++++++++++++" << std::endl;
 			// std::cout << "--a-" << std::endl;
 			// std::cout << "reader.method " << servers[i].connections[j].reader.method << std::endl;
@@ -331,38 +335,38 @@ void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &
 			// std::cout << "reader.errNbr " << servers[i].connections[j].reader.errNbr << std::endl;
 			// std::cout << "cnect.readingHeaderDone" << servers[i].connections[j].readingHeaderDone << std::endl;
 			// std::cout << "---" << std::endl;
-			now = clock();
-			if (servers[i].connections[j].readingHeaderDone == 0
-				&& check_fds(fds, servers[i].connections[j].socket_fd) != POLLIN
-				&& (now - servers[i].connections[j].time_out) / 1000000 >= TIME_OUT)
-			{
-				servers[i].connections[j].readingHeaderDone = 1;
-				servers[i].connections[j].reader.errNbr = 408;
-				servers[i].connections[j].reader.method = "GET";
-			}
-			else if (servers[i].connections[j].reader.cnect_close == 1
-				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.writer.writingDone == 1))
+			// now = clock();
+			// if (servers[i].connections[j].readingHeaderDone == 0
+			// 	&& revents != POLLIN
+			// 	&& (now - servers[i].connections[j].time_out) / 1000000 >= TIME_OUT)
+			// {
+			// 	servers[i].connections[j].readingHeaderDone = 1;
+			// 	servers[i].connections[j].reader.errNbr = 408;
+			// 	servers[i].connections[j].reader.method = "GET";
+			// 	j++;
+			// }
+			// else 
+			if (servers[i].connections[j].reader.cnect_close == 1
+				|| (servers[i].connections[j].IsAfterResponseClose == 1 && servers[i].connections[j].reader.writer.writingDone == 1)
+				|| revents & POLLHUP)
 			{
 				del_connect(servers[i], servers[i].connections[j], j, fds);
-				j--;
 			}
 			else if (servers[i].connections[j].reader.writer.writingDone == 1)
 			{
 				servers[i].connections[j].reset();
+				j++;
 			}
 			else if (servers[i].connections[j].readingHeaderDone == 0)
 			{
-				// std::cout << " aaaaai = " << i << std::endl;
-				// std::cout << " aaaaaj = " << j << std::endl;
 				if (reading_header(servers[i], servers[i].connections[j], fds) == 2)
-				{
 					del_connect(servers[i], servers[i].connections[j], j, fds);
-					j--;
-				}
-				// std::cout << " bbbbbi = " << i << std::endl;
-				// std::cout << " bbbbbj = " << i << std::endl;
-				// sleep(1);
+				else
+					j++;
 			}
+			else
+				j++;
 		}
+		i++;
 	}
 }

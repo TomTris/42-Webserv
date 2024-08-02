@@ -3,7 +3,7 @@
 int count_amount_of_app(std::string path, char c)
 {
     int counter = 0;
-    for (int i = 0; i < path.size(); i++)
+    for (unsigned int i = 0; i < path.size(); i++)
     {
         if (path[i] == c)
         {
@@ -31,7 +31,7 @@ location get_location(std::vector<location>& locations, std::string& path)
 {
     int max = 0;
     int ind = -1;
-    for (int i = 0; i < locations.size(); i++)
+    for (unsigned int i = 0; i < locations.size(); i++)
     {
         if (locations[i].URI.size() > path.size())
             continue;
@@ -130,8 +130,8 @@ std::string get_path_to_file(location& loc, std::string path)
     if (isDirectory(output.c_str()))
     {
         std::vector<std::string> indexes = loc.indexes;
-        bool found = 0;
-        for (int i = 0; i < indexes.size(); i++)
+        // bool found = 0;
+        for (unsigned int i = 0; i < indexes.size(); i++)
         {
             temp = indexes[i];
             if (temp[0] != '/')
@@ -155,7 +155,7 @@ std::string get_path_to_file(location& loc, std::string path)
 
 int getIndexLocation(std::string &host, Server& serv)
 {
-    for (int i = 0; i < serv.server_names.size(); i++)
+    for (unsigned int i = 0; i < serv.server_names.size(); i++)
     {
         if (serv.server_names[i] == host)
             return (i);

@@ -29,7 +29,7 @@ int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
 
 void	server_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 {
-	for (int i = 0; i < servers.size(); i++)
+	for (unsigned int i = 0; i < servers.size(); i++)
 	{
 		if (check_fds(fds, servers[i].serverFd) == POLLIN)
 		{
