@@ -12,7 +12,7 @@ void	load_config(int ac, char **av, std::vector<server_t> &server_config)
 
 int check_if_exists(int host, int port, std::vector<Server> &servers)
 {
-	for (int i = 0; i < servers.size(); i++)
+	for (unsigned int i = 0; i < servers.size(); i++)
 	{
 		if (servers[i].port == port && servers[i].host == host)
 		{
@@ -27,7 +27,7 @@ void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers
 	std::vector<server_t>	server_config;
 	load_config(ac, av, server_config);
 
-	for (int i = 0; i < server_config.size(); i++)
+	for (unsigned int i = 0; i < server_config.size(); i++)
 	{
 		int ans = check_if_exists(server_config[i].host, server_config[i].port, servers);
 		if (ans == -1)
@@ -53,7 +53,7 @@ void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers
 			}
 		}
 	}
-	for (int i = 0; i < servers.size(); i++)
+	for (unsigned int i = 0; i < servers.size(); i++)
 	{
 		if (servers[i].server_names[0] != "")
 			servers[i].server_names[0] = "";

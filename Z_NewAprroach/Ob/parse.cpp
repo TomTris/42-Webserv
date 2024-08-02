@@ -22,7 +22,7 @@ int get_ip_as_number(std::string add, int& err)
 {
     int out = 0;
     int numb = 0;
-    for (int i = 0; i < 3; i++)
+    for (unsigned int i = 0; i < 3; i++)
     {
         if (add.find('.') == 0)
         {
@@ -73,7 +73,7 @@ void handle_URI(std::string& URI)
         ptr += URI.substr(ptr).find('/');
         ptr += 1;
         int len = 0;
-        while (URI.size() > ptr + len && URI[ptr + len] == '/')
+        while (static_cast<int>(URI.size()) > ptr + len && URI[ptr + len] == '/')
             len++;
         URI.erase(ptr, len);
     }
@@ -83,7 +83,7 @@ void handle_URI(std::string& URI)
 
 bool isWhiteSpace(char c)
 {
-    if (c <= 9 && c >= 13)
+    if (c >= 9 && c <= 13)
         return true;
     if (c == ' ')
         return true;
@@ -92,7 +92,7 @@ bool isWhiteSpace(char c)
 
 bool isNumber(std::string& number)
 {
-    for (int i = 0; i < number.size(); i++)
+    for (unsigned int i = 0; i < number.size(); i++)
     {
         if (!(number[i] >= '0' && number[i] <= '9'))
             return false;
@@ -103,7 +103,7 @@ bool isNumber(std::string& number)
 std::string getFistWordAndDelete(std::string& str)
 {
     std::string out = "";
-    int i = 0;
+    unsigned int i = 0;
     for (; i < str.size(); i++)
     {
         if (str[i] == ' ')
@@ -121,7 +121,7 @@ std::string update_spaces(std::string& input)
 {
     std::string output = "";
     int flag = 1;
-    for (int i = 0; i < input.size(); i++)
+    for (unsigned int i = 0; i < input.size(); i++)
     {
         if (isWhiteSpace(input[i]))
         {
@@ -152,8 +152,8 @@ std::string update_spaces(std::string& input)
 bool areParanthesesOk(std::string& output)
 {
     int count = 0;
-    int seen = 0;
-    for (int i = 0; i < output.size(); i++)
+    // int seen = 0;
+    for (unsigned int i = 0; i < output.size(); i++)
     {
         if (output[i] == '{')
         {
@@ -179,7 +179,7 @@ std::vector<std::string> getserver_ts(std::string& output)
     int count = 0;
     int current = 0;
     int prev = 0;
-    for (int i = 0; i < output.size(); i++)
+    for (unsigned int i = 0; i < output.size(); i++)
     {
         if (output[i] == '{')
         {
@@ -201,7 +201,7 @@ std::vector<std::string> getserver_ts(std::string& output)
 
 bool isLocation(std::string& serv)
 {
-    for (int i = 0; i < serv.size(); i++)
+    for (unsigned int i = 0; i < serv.size(); i++)
     {
         if (serv[i] == '{')
             return true;
@@ -221,7 +221,7 @@ void handleHost(std::string &ip, server_t& s, int& err)
         return ;
     }
     int count = 0;
-    for (int i = 0; i < ip.size(); i++)
+    for (unsigned int i = 0; i < ip.size(); i++)
     {
         if (!(ip[i] == '.' || (ip[i] >= '0' && ip[i] <= '9')))
         {
@@ -655,7 +655,7 @@ int parse(std::string path, std::vector<server_t>& s)
     }
     std::string output = "";
     std::string line = "";
-    int cURIy = 0;
+    // int cURIy = 0;
     while (std::getline(inputFile, line))
     {
         line = update_spaces(line);
@@ -670,7 +670,7 @@ int parse(std::string path, std::vector<server_t>& s)
     std::vector<std::string> server_ts = getserver_ts(output);
     // server_t *s1;
     int err = 0;
-    for (int i = 0; i < server_ts.size(); i++)
+    for (unsigned int i = 0; i < server_ts.size(); i++)
     {
         if (server_ts[i].substr(0, 7) != "server{")
         {

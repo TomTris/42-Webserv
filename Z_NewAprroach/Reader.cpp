@@ -23,6 +23,6 @@ Reader::Reader() : writer()
 	dir = NULL;
 	time_out = clock();
 
-	// cookies = "";
+	cookies = "";
 }
 

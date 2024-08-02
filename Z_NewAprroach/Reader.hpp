@@ -31,7 +31,7 @@ class Reader {
 		DIR									*dir;
 		int									errFuncCall;
 
-		// std::string 						cookies;
+		std::string 						cookies;
 };
 
 #endif
