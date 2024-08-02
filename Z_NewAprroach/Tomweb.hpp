@@ -48,7 +48,7 @@
 #define ERROR431 "www/errors/431.html"
 
 #ifndef BUFFERSIZE
-#define BUFFERSIZE 100
+#define BUFFERSIZE 5000
 #endif
 #define TIME_OUT 5
 #include "Connection.hpp"

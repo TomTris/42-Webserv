@@ -4,17 +4,17 @@ int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
 {
 	int		new_socket;
 	size_t	addrlen = sizeof(server.address);
-	std::cout << "NEW CONNECTION COMING" << std::endl;
-	std::cout << "NEW CONNECTION COMING" << std::endl;
-	std::cout << "NEW CONNECTION COMING" << std::endl;
-	std::cout << "NEW CONNECTION COMING" << std::endl;
+	// std::cout << "NEW CONNECTION COMING" << std::endl;
+	// std::cout << "NEW CONNECTION COMING" << std::endl;
+	// std::cout << "NEW CONNECTION COMING" << std::endl;
+	// std::cout << "NEW CONNECTION COMING" << std::endl;
 	if ((new_socket = accept(server.serverFd, (struct sockaddr *)&server.address, (socklen_t*)&addrlen)) < 0)
 	{
 		perror("accept failed");
 		return -1;
 	}
 	int a = check_fds(fds, new_socket);
-	std::cout << " a = " << a << std::endl;
+	// std::cout << " a = " << a << std::endl;
 	if (a == -1)
 	{
 		if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
@@ -23,11 +23,11 @@ int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
 			return -1;
 		}
 		server.connections.push_back(Connection(new_socket));
-		std::cout << "ACCEEPPTT" << std::endl;
+		std::cout << "ACCEEPPTT" << new_socket<< std::endl;
 	}
 	else
 	{
-		std::cout << "BUT I's THE OLD ONE" << std::endl;
+		// std::cout << "BUT I's THE OLD ONE" << std::endl;
 		return 1;
 	}
 	add_to_poll(fds, new_socket, POLLIN);

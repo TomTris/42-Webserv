@@ -57,9 +57,9 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	cnect.readingHeaderDone = 1;
 	cnect.reader.readingDone = 0;
 	cnect.reader.time_out = clock();
-	// std::cout << "reader.host = {" << reader.host << "}" << std::endl;
-	// std::cout << "reader.method = {" << reader.method << "}" << std::endl;
-	// std::cout << "cnect.have rad = " << cnect.have_read << std::endl;
+	std::cout << "reader.host = {" << reader.host << "}" << std::endl;
+	std::cout << "reader.method = {" << reader.method << "}" << std::endl;
+	std::cout << "cnect.have rad = " << cnect.have_read << std::endl;
 	std::cout << "reader.URI = {" << reader.URI << "}" << std::endl;
 	std::vector<std::string> a = get_data(reader.host, reader.method, reader.URI, server);
 	std::cout << "a[0] = " << a[0] << std::endl;
@@ -69,14 +69,20 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	if (*reader.URI.begin() != '/')
 		reader.URI = "/" + reader.URI;
 	reader.URI = a[2];
-	std::cout << "a[2] = " << reader.URI << std::endl;
+	// std::cout << "a[2] = " << reader.URI << std::endl;
 	// std::cout << "a[3] = " << a[3] << std::endl;
 	//a[0] is host:post ok?
+	std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
 	if (a[0] == "0" || reader.contentLength > server.body_size_max)
+	{
 		reader.errNbr = 400;
+		cnect.IsAfterResponseClose = 1;
+		reader.method = "GET";
+		return (1);
+	}
 	else if (a[1] == "0")
 	{
-		//a[1] -> method allowed
+		std::cout << a[1] << "method not allowed" << std::endl;
 		reader.errNbr = 405;
 	}
 	else
@@ -87,6 +93,7 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 		else
 			reader.autoIndex = 1;
 	}
+	std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
 	if (a[4] != "")
 	{
 		// std::cout << "a1a1a1a1" << std::endl;
@@ -104,6 +111,9 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 		reader.URI = a[4];
 		return (1);
 	}
+	std::cout << "cnect.reader.method = " << cnect.reader.method << std::endl;
+	std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
+	// cnect.reader.errNbr = 405;
 	if (cnect.reader.method == "GET" || cnect.reader.method == "DELETE")
 	{
 		if (cnect.reader.contentLength > 0)
@@ -122,8 +132,7 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 		}
 		return (1);
 	}
-	std::cout << "connection level 405" << std::endl;
-	cnect.reader.errNbr = 405;
+	// std::cout << "connection level 405" << std::endl;
 	return (1);
 }
 
@@ -255,7 +264,7 @@ int	request_line(Server &server, Connection &cnect)
 	// std::cerr << "{" << URI << "} URI" << std::endl;
 	if (method != "GET" && method != "POST" && method != "DELETE")
 		return (cnect.reader.errNbr = 405, cnect.readingHeaderDone = 1, 1);
-	if (URI.length() > 60)
+	if (URI.length() > 160)
 		return (cnect.reader.errNbr = 400, cnect.readingHeaderDone = 1, 1); // need to change
 	if (HTTP_version != "HTTP/1.1")
 	{
@@ -325,9 +334,9 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 		int check2 = check;
 		// std::cout << "fd = " << connect.socket_fd << std::endl;
 		std::string a = "";
-		// std::cout << "\n\n--------------------------------------------------------"
 		// << "\nhere have read before = {" << connect.have_read << "}\n"<< std::endl;
 		a.append(buffer, check);
+		// std::cout << "\n\n--------------------------------------------------------";
 		// std::cout << "++++++++++++++++++++++++" << std::endl;
 		std::cout << a << std::endl;
 		// std::cout << "++++++++++++++++++++++++" << std::endl;

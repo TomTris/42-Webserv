@@ -29,7 +29,7 @@ void	remove_from_poll(int fd_rm, std::vector<struct pollfd> &fds)
 void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option)
 {
 	struct pollfd pfd;
-	std::cout << "fd " << fd_add << " is add to " << option << std::endl;
+	// std::cout << "fd " << fd_add << " is add to " << option << std::endl;
 	fds.push_back(pfd);
 	(fds.end() - 1)->fd = fd_add;
 	(fds.end() - 1)->events = option;

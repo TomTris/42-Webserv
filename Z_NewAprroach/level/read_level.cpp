@@ -18,15 +18,15 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	if (reader.errNbr >= 300 && reader.errNbr < 400)
 	{
 		reader.writer.writeString = get_header(reader.errNbr, reader.URI);
-		std::cout << 111111 << std::endl;
-		std::cout << 111111 << std::endl;
-		std::cout << 111111 << std::endl;
-		std::cout << 111111 << std::endl;
-		std::cout << 111111 << std::endl;
-		std::cout << 111111 << std::endl;
-		std::cout << 111111 << std::endl;
-		std::cout << 111111 << std::endl;
-		std::cout << 111111 << std::endl;
+		// std::cout << 111111 << std::endl;
+		// std::cout << 111111 << std::endl;
+		// std::cout << 111111 << std::endl;
+		// std::cout << 111111 << std::endl;
+		// std::cout << 111111 << std::endl;
+		// std::cout << 111111 << std::endl;
+		// std::cout << 111111 << std::endl;
+		// std::cout << 111111 << std::endl;
+		// std::cout << 111111 << std::endl;
 		
 		reader.fdReadingFrom = -1;
 		reader.writer.fdWritingTo = cnect.socket_fd;
@@ -302,10 +302,10 @@ int	read_func(Server &server, Connection &cnect, Reader &reader, std::vector<str
 		cnect.IsAfterResponseClose = 1;
 		return 1;
 	}
-	// std::string a;
+	// std::string a = "";
 	// 	a.append(buffer, check);
 	// 	std::cout << a << std::endl;
-	// std::cout << "=/*+=/*+=/*-+/=*-+" << std::endl;
+	// std::cout << "---------------------------\n" << std::endl;
 		// sleep(4);
 	reader.have_read_2.append(buffer, check);
 	return (1);
@@ -460,6 +460,7 @@ int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct
 	// std::cout << 1111111 << std::endl;
 	// std::cout << 1111111 << std::endl;
 	// std::cout << 1111111 << std::endl;
+	std::cout << "reader.errNbr " << reader.errNbr << std::endl;
 	if (cnect.reader.method == "DELETE" && reader.errNbr < 300)
 		handle_delete(server, cnect, reader, fds);
 	else if (isTimeOut(reader, fds) == 1)
@@ -477,7 +478,7 @@ int	reader(Server &server, Connection &cnect, Reader &reader, std::vector<struct
 			post_open(server, cnect, reader, fds);
 		else
 		{
-			std::cout << "reader here 405" << std::endl;
+			// std::cout << "reader here 405" << std::endl;
 			return (reader.errNbr = 405, 1);
 		}
 	}
