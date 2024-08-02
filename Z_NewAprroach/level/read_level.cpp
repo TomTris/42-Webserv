@@ -15,19 +15,16 @@ int	anotherErr(Server &server, Connection &cnect, Reader &reader, std::vector<st
 
 int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<struct pollfd> &fds)
 {
+	reader.method = "GET";
+	if (reader.errNbr >= 400)
+	{
+		reader.have_read = "";
+		reader.have_read_2 = "";
+		cnect.IsAfterResponseClose = 1;
+	}
 	if (reader.errNbr >= 300 && reader.errNbr < 400)
 	{
 		reader.writer.writeString = get_header(reader.errNbr, reader.URI);
-		// std::cout << 111111 << std::endl;
-		// std::cout << 111111 << std::endl;
-		// std::cout << 111111 << std::endl;
-		// std::cout << 111111 << std::endl;
-		// std::cout << 111111 << std::endl;
-		// std::cout << 111111 << std::endl;
-		// std::cout << 111111 << std::endl;
-		// std::cout << 111111 << std::endl;
-		// std::cout << 111111 << std::endl;
-		
 		reader.fdReadingFrom = -1;
 		reader.writer.fdWritingTo = cnect.socket_fd;
 		change_option_poll(fds, cnect.socket_fd, POLLOUT);
@@ -38,19 +35,9 @@ int	openFuncErr(Server &server, Connection &cnect, Reader &reader, std::vector<s
 	}
 
 	struct stat info;
-	// std::string header = get_header(reader.errNbr);
 	std::string file_name = "./www/errors/" + std::to_string(reader.errNbr) + ".html";
 	int	fd;
-	// std::cout << "reader.method" <<std::endl;
-	// std::cout << reader.errNbr << std::endl;
-	// std::cout << reader.URI << std::endl;
-	reader.method = "GET";
-	if (reader.errNbr >= 400)
-	{
-		reader.have_read = "";
-		reader.have_read_2 = "";
-		cnect.IsAfterResponseClose = 1;
-	}
+	
 	if (stat(file_name.c_str(), &info) == -1)
 	{
 		if (reader.errNbr == 500)

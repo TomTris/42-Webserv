@@ -57,14 +57,18 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	cnect.readingHeaderDone = 1;
 	cnect.reader.readingDone = 0;
 	cnect.reader.time_out = clock();
-	std::cout << "reader.host = {" << reader.host << "}" << std::endl;
-	std::cout << "reader.method = {" << reader.method << "}" << std::endl;
-	std::cout << "cnect.have rad = " << cnect.have_read << std::endl;
-	std::cout << "reader.URI = {" << reader.URI << "}" << std::endl;
+	// std::cout << "reader.host = {" << reader.host << "}" << std::endl;
+	// std::cout << "reader.method = {" << reader.method << "}" << std::endl;
+	// std::cout << "cnect.have rad = " << cnect.have_read << std::endl;
+	// std::cout << "reader.URI = {" << reader.URI << "}" << std::endl;
+	// std::cout << "a[0] = " << a[0] << std::endl;
+	// std::cout << "a[1] = " << a[1] << std::endl;
+	// std::cout << "a[4] = " << a[4] << std::endl;
+	if (reader.method != "GET" && reader.method != "POST" && reader.method != "DELETE")
+		return (reader.errNbr = 405, 1);
+	if (reader.URI.length() > 160)
+		return (reader.errNbr = 414, 1);
 	std::vector<std::string> a = get_data(reader.host, reader.method, reader.URI, server);
-	std::cout << "a[0] = " << a[0] << std::endl;
-	std::cout << "a[1] = " << a[1] << std::endl;
-	std::cout << "a[4] = " << a[4] << std::endl;
 	//URI
 	if (*reader.URI.begin() != '/')
 		reader.URI = "/" + reader.URI;
@@ -72,48 +76,21 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	// std::cout << "a[2] = " << reader.URI << std::endl;
 	// std::cout << "a[3] = " << a[3] << std::endl;
 	//a[0] is host:post ok?
-	std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
-	if (a[0] == "0" || reader.contentLength > server.body_size_max)
-	{
-		reader.errNbr = 400;
-		cnect.IsAfterResponseClose = 1;
-		reader.method = "GET";
-		return (1);
-	}
-	else if (a[1] == "0")
-	{
-		std::cout << a[1] << "method not allowed" << std::endl;
-		reader.errNbr = 405;
-	}
+	// std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
+	if (a[0] == "0")
+		return (reader.errNbr = 400, 1);
+	else if (reader.contentLength > server.body_size_max)
+		return (reader.errNbr = 413, 1);
+	else if (a[1] == "0") //method not allowed
+		return (reader.errNbr = 405, 1);
 	else
 	{
-		//auto index
-		if (a[3] == "0")
+		reader.autoIndex = 1;
+		if (a[3] == "0") //auto index
 			reader.autoIndex = 0;
-		else
-			reader.autoIndex = 1;
 	}
-	std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
 	if (a[4] != "")
-	{
-		// std::cout << "a1a1a1a1" << std::endl;
-		// std::cout << "a1a1a1a1" << std::endl;
-		// std::cout << "a1a1a1a1" << std::endl;
-		// std::cout << "a1a1a1a1" << std::endl;
-		// std::cout << "a1a1a1a1" << std::endl;
-		// std::cout << "a1a1a1a1" << std::endl;
-		// std::cout << "a1a1a1a1" << std::endl;
-		// std::cout << "a1a1a1a1" << std::endl;
-		cnect.reader.errNbr = 301;
-		cnect.IsAfterResponseClose = 1;
-		reader.method = "GET";
-		reader.errFuncCall = 1;
-		reader.URI = a[4];
-		return (1);
-	}
-	std::cout << "cnect.reader.method = " << cnect.reader.method << std::endl;
-	std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
-	// cnect.reader.errNbr = 405;
+		return (reader.URI = a[4], cnect.reader.errNbr = 301, 1);
 	if (cnect.reader.method == "GET" || cnect.reader.method == "DELETE")
 	{
 		if (cnect.reader.contentLength > 0)
@@ -122,7 +99,6 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	}
 	if (cnect.reader.method == "POST" && cnect.reader.errNbr < 300)
 	{
-		// std::cout << "connection level, contentleng = " << cnect.reader.contentLength << std::endl;
 		if (cnect.reader.contentLength < 0)
 			cnect.reader.errNbr = 400;
 		else
@@ -264,8 +240,6 @@ int	request_line(Server &server, Connection &cnect)
 	// std::cerr << "{" << URI << "} URI" << std::endl;
 	if (method != "GET" && method != "POST" && method != "DELETE")
 		return (cnect.reader.errNbr = 405, cnect.readingHeaderDone = 1, 1);
-	if (URI.length() > 160)
-		return (cnect.reader.errNbr = 400, cnect.readingHeaderDone = 1, 1); // need to change
 	if (HTTP_version != "HTTP/1.1")
 	{
 		// std::cout << "HTTP-version = " << HTTP_version << std::endl;
