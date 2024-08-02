@@ -73,9 +73,6 @@ std::string	handle_400(void)
 {
 	std::string http = "HTTP/1.1 400 Bad Request\r\n"
 			"Content-Type: text/html\r\n";
-			// "\r\n<html><body>"
-			// "Bad Request\n"
-			// "</body></html>";
 	return (http);
 }
 
@@ -84,7 +81,6 @@ std::string	handle_401(void)
 {
 	std::string http = "HTTP/1.1 401 Unauthorized\r\n"
 			"Content-Type: text/html\r\n";
-
 	return (http);
 }
 //Forbidden
@@ -92,7 +88,6 @@ std::string	handle_403(void)
 {
 	std::string http = "HTTP/1.1 403 KO\r\n"
 			"Content-Type: text/html\r\n";
-
 	return (http);
 }
 
@@ -100,14 +95,12 @@ std::string	handle_403(void)
 std::string	handle_404(void){
 	std::string http ="HTTP/1.1 404 Not found\r\n"
 			"Content-Type: text/html\r\n";
-
 	return (http);
 }
 
 std::string	handle_405(void)
 {	std::string http = "HTTP/1.1 405 Method not allowed\r\n"
 			"Content-Type: text/html\r\n";
-
 	return (http);
 }
 //Request Timeout
@@ -130,28 +123,30 @@ std::string	handle_411(void)
 {
 	std::string http = "HTTP/1.1 411 Content-Length required\r\n"
 			"Content-Type: text/html\r\n";
-
 	return (http);
 }
 
-std::string	handle_431(void)
-{	std::string http = "HTTP/1.1 411 Header field too big\r\n"
+std::string	handle_413(void)
+{	std::string http = "HTTP/1.1 413 Payload Too Large\r\n"
 			"Content-Type: text/html\r\n";
+	return (http);
+}
 
+std::string	handle_414(void)
+{	std::string http = "HTTP/1.1 414 URI Too Long\r\n"
+			"Content-Type: text/html\r\n";
 	return (http);
 }
 
 std::string	handle_500(void)
 {	std::string http = "HTTP/1.1 500 Internal Server Error\r\n"
 			"Content-Type: text/html\r\n";
-
 	return (http);
 }
 
 std::string	handle_508(void)
 {	std::string http = "HTTP/1.1 508 Loop Detected\r\n"
 			"Content-Type: text/html\r\n";
-
 	return (http);
 }
 
@@ -193,10 +188,14 @@ std::string	get_header(int nbr, std::string str)
 			return handle_409();
 		case 411:
 			return handle_411();
-		case 431:
-			return handle_431();
+		case 413:
+			return handle_411();
+		case 414:
+			return handle_414();
 		case 500:
 			return handle_500();
+		case 508:
+			return handle_508();
 	}	
 	
 	return handle_411();
