@@ -22,5 +22,7 @@ Reader::Reader() : writer()
 	errFuncCall = 0;
 	dir = NULL;
 	time_out = clock();
+
+	// cookies = "";
 }
 

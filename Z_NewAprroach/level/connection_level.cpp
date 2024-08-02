@@ -112,7 +112,6 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	return (1);
 }
 
-
 int	extract_IsAfterResponseClose(std::string &header_o)
 {
 	std::string	header = header_o;
@@ -124,8 +123,7 @@ int	extract_IsAfterResponseClose(std::string &header_o)
 	ssize_t end = header.find("\r\n", start);
 	if (end == std::string::npos)
 		return (1);
-	std::string content = header.substr(start, end);
-	
+	std::string content = header.substr(start, end);	
 	if (content.find("keep-alive") == std::string::npos
 		|| content.find("keep-alive") >= 10)
 		return (1);
@@ -149,26 +147,6 @@ int	extract_contentLength(std::string &header_o)
 	socket_stream >> value;
 	return (value);
 }
-
-// int	extract_contentType(Connection &current_connection, std::string &header_o)
-// {
-// 	std::string	header = header_o;
-// 	std::string	str = "\r\nContent-Type:";
-// 	ssize_t	start = header.find(str);
-// 	if (start == std::string::npos)
-// 		return (0);
-// 	start += str.length();
-// 	ssize_t end = header.find("\r\n", start);
-// 	if (end == std::string::npos)
-// 		return (0);
-// 	std::string content = header.substr(start, end);
-// 	std::cerr << "aaaa: " << content << std::endl;
-// 	std::stringstream socket_stream(content);
-// 	std::string value;
-// 	socket_stream >> value;
-// 	current_connection.reader.contentType = value;
-// 	return (1);
-// }
 
 std::string	extract_host(Connection &current_connection, std::string &header_o)
 {
@@ -209,6 +187,20 @@ std::string	extract_host(Connection &current_connection, std::string &header_o)
 // // int extract_cookies();
 // // int extract_authorization
 
+std::string	extract_cookies(Connection &current_connection, std::string &header_o)
+{
+	std::string	header = header_o;
+	std::string	str = "\r\nCookies:";
+	ssize_t	start = header.find(str);
+	if (start == std::string::npos)
+		return ("");
+	start += str.length();
+	ssize_t end = header.find("\r\n", start);
+	if (end == std::string::npos)
+		return ("");
+	return (header.substr(start, end));
+}
+
 int	header_extract(Connection &cnect, std::string &header_o)
 {
 	std::string host;
@@ -216,6 +208,7 @@ int	header_extract(Connection &cnect, std::string &header_o)
 	cnect.IsAfterResponseClose = extract_IsAfterResponseClose(header_o);
 	cnect.reader.contentLength = extract_contentLength(header_o);
 	cnect.reader.host = extract_host(cnect, header_o);
+	// cnect.reader.cookies = extract_cookies(cnect, header_o);
 	// extract_contentType(header_o);
 	//  extract_host(cnect, header_o);
 	// extract_boundary(cnect, header_o)
