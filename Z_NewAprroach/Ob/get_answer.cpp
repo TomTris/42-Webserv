@@ -167,6 +167,8 @@ int getIndexLocation(std::string &host, Server& serv)
 
 bool isHostOk(std::string &host, Server& serv)
 {
+    if (host == "")
+        return 1;
     if (host.find(':') == std::string::npos)
     {
         return 0;
