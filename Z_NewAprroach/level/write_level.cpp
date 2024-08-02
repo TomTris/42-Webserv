@@ -2,18 +2,10 @@
 
 int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct pollfd> &fds)
 {
-	// std::cout <<22222222<< std::endl;
-	// std::cout <<22222222<< std::endl;
-	// std::cout <<22222222<< std::endl;
-	// std::cout <<22222222<< std::endl;
-	// std::cout <<22222222<< std::endl;
 	if (check_fds(fds, writer.fdWritingTo) == POLLOUT)
 	{
 		if (writer.writeString.length() > 0)
 		{
-			// if (cnect.reader.URI.find("ico") == std::string::npos)
-				// std::cout << "{" << writer.writeString << "}" << std::endl;
-				// sleep(1);
 			if (write(writer.fdWritingTo, writer.writeString.c_str(), writer.writeString.length()) == -1)
 				return (cnect.reader.cnect_close = 1, 1);
 			else
@@ -22,8 +14,6 @@ int	writer(Server &server, Connection &cnect, Writer &writer, std::vector<struct
 				if (cnect.reader.readingDone == 1)
 				{
 					writer.writingDone = 1;
-					// std::cout << "writer.writingDone == " << writer.writingDone << std::endl;
-					// std::cout << "cnect.IsAfterResponseClose " << cnect.IsAfterResponseClose << std::endl;
 					int fd1 = cnect.socket_fd;
 					int	fd2 = cnect.reader.fdReadingFrom;
 					int	fd3 = cnect.reader.writer.fdWritingTo;

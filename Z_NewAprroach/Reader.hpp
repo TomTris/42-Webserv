@@ -30,6 +30,8 @@ class Reader {
 		time_t								time_out;
 		DIR									*dir;
 		int									errFuncCall;
+
+		// std::string 						cookies;
 };
 
 #endif
