@@ -10,9 +10,9 @@ int	connection_accept(Server &server)
 		perror("accept failed");
 		return -1;
 	}
-	int a = check_fds(new_socket);
-	if (a == -1)
-	{
+	// int a = check_fds(new_socket);
+	// if (a == -1)
+	// {
 		if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
 		{
 			perror("fcnl failed");
@@ -20,8 +20,8 @@ int	connection_accept(Server &server)
 		}
 		server.connections.push_back(Connection(new_socket));
 		std::cout << "ACCEEPPTT" << new_socket <<  std::endl;
-		add_to_poll(new_socket, POLLOUT);
-	}
+		add_to_poll(new_socket, POLLIN);
+	// }
 	return 1;
 }
 

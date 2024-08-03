@@ -95,7 +95,7 @@ int	post_open(Connection &cnect, Reader &reader)
 	reader.openFile = 1;
 	
 	add_to_poll(fd, POLLOUT);
-	change_option_poll(cnect.socket_fd, POLLIN); // can be commented out
+	// change_option_poll(cnect.socket_fd, POLLIN); // can be commented out
 	return (1);
 }
 
@@ -150,6 +150,7 @@ int	directory_open(Connection &cnect, Reader &reader)
 	reader.have_read_2 = "";
 	reader.have_read = "";
 	reader.readingDone = 1;
+	reader.openFile = 1;
 	return (1);
 }
 
@@ -211,16 +212,14 @@ int	read_func(Connection &cnect, Reader &reader)
 	int 	size;
 	int		actual_contentLength;
 
-	actual_contentLength = reader.contentLength;
-	if (reader.method == "POST")
-		actual_contentLength = reader.contentLength - reader.have_read.length();
-
-
-	if ((check_fds(reader.fdReadingFrom) != POLLIN))
+	if (!(check_fds(reader.fdReadingFrom) & POLLIN))
 		return 1;
 	if (reader.writer.writeString.length() != 0)
 		return (1);
 
+	actual_contentLength = reader.contentLength;
+	if (reader.method == "POST")
+		actual_contentLength = reader.contentLength - reader.have_read.length();
 	if (actual_contentLength > BUFFERSIZE)
 		size = BUFFERSIZE;
 	else
@@ -230,17 +229,22 @@ int	read_func(Connection &cnect, Reader &reader)
 
 	if (check == -1)
 	{
-		if (reader.errNbr >= 500)
-			return (reader.cnect_close = 1, 1);
-		reader.errNbr = 500;
-		close(reader.fdReadingFrom);
-		remove_from_poll(reader.fdReadingFrom);
-		reader.fdReadingFrom = -1;
-		reader.openFile = 0;
+		// if (reader.errNbr >= 500)
+		// 	return (reader.cnect_close = 1, 1);
+		// reader.errNbr = 500;
+		// close(reader.fdReadingFrom);
+		// remove_from_poll(reader.fdReadingFrom);
+		// reader.fdReadingFrom = -1;
+		// reader.openFile = 0;
+		std::cout << "check in reader = -1 " << std::endl;
+		sleep(1);
 		return 1;
 	}
 	if (check == 0)
 		return (reader.readingDone = 1, cnect.IsAfterResponseClose = 1, 1);
+	// std::string a = "";
+	// a.append(buffer, check);
+	// std::cout << a << std::endl;
 	reader.have_read_2.append(buffer, check);
 	return (1);
 }
@@ -334,15 +338,15 @@ int	reader_post(Connection &cnect, Reader &reader)
 	return (1);
 }
 
-int	isTimeOut(Reader &reader)
-{
-	clock_t now = clock();
+// int	isTimeOut(Reader &reader)
+// {
+// 	clock_t now = clock();
 
-	if ((now - reader.time_out)/ 1000000 > TIME_OUT
-		&& check_fds(reader.fdReadingFrom) != POLLIN)
-		return (reader.readingDone = 1, 1);
-	return (0);
-}
+// 	if ((now - reader.time_out)/ 1000000 > TIME_OUT
+// 		&& check_fds(reader.fdReadingFrom) != POLLIN)
+// 		return (reader.readingDone = 1, 1);
+// 	return (0);
+// }
 
 int	handle_delete(Reader &reader)
 {
@@ -391,7 +395,7 @@ int	reader(Connection &cnect, Reader &reader)
 			openFuncErr(cnect, reader);
 			reader.method = "GET";
 		}
-		else if (reader.method == "GET" || reader.method == "DELETE")
+		else if (reader.method == "GET")
 			openFunc(cnect, reader);
 		else if (reader.method == "POST")
 			post_open(cnect, reader);

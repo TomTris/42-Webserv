@@ -98,7 +98,6 @@ class Server
 };
 
 extern std::vector<struct pollfd>  fds;
-extern std::vector<Server>			servers;
 //Parser
 std::vector<std::string> get_data(std::string host, std::string method, std::string url, Server& serv);
 

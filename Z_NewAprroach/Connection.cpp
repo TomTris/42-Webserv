@@ -16,7 +16,7 @@ Connection::~Connection()
 
 void Connection::reset()
 {
-	IsAfterResponseClose = 1;
+	IsAfterResponseClose = 0;
 	readingHeaderDone = 0;
 	have_read = reader.have_read;
 	reader.have_read = "";
@@ -24,6 +24,7 @@ void Connection::reset()
 	reader.cnect_close = 0;
 	reader.contentLength = 0;
 	reader.errNbr = 200;
+	change_option_poll(socket_fd, POLLIN);
 	if (reader.fdReadingFrom != socket_fd && reader.fdReadingFrom != -1)
 	{
 		remove_from_poll(reader.fdReadingFrom);

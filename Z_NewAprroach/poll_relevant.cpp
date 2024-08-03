@@ -53,7 +53,7 @@ int check_fds(int fd) {
 		return (-1);
     for (unsigned int i = 0; i < fds.size(); i++)
 	{
-        // std::cout << "fds[" << i << "] = " << fds[i].fd << std::endl;
+        // std::cout << "fds[" << i << "] = " << fds[i].fd << " has revents = " << fds[i].revents << std::endl;
 		if (fds[i].fd == fd) {
 			return fds[i].revents;
         }
