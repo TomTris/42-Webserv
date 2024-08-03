@@ -1,9 +1,9 @@
 #include "../Tomweb.hpp"
 
-int	writer(Connection &cnect, Writer &writer, std::vector<struct pollfd> &fds)
+int	writer(Connection &cnect, Writer &writer)
 {
 	// std::cout << "a4-------------" << std::endl;
-	if (check_fds(fds, writer.fdWritingTo) == POLLOUT)
+	if (check_fds(writer.fdWritingTo) == POLLOUT)
 	{
 		// std::cout << "a5-------------" << std::endl;
 		if (writer.writeString.length() > 0)
@@ -32,12 +32,12 @@ int	writer(Connection &cnect, Writer &writer, std::vector<struct pollfd> &fds)
 					int	fd3 = cnect.reader.writer.fdWritingTo;
 					if (fd2 != cnect.socket_fd && fd2 != -1)
 					{
-						remove_from_poll(fd2, fds);
+						remove_from_poll(fd2);
 						close(fd2);
 					}
 					else if (fd3 != cnect.socket_fd && fd3 != -1)
 					{
-						remove_from_poll(fd3, fds);
+						remove_from_poll(fd3);
 						close(fd3);
 					}
 					cnect.reader.fdReadingFrom = -1;
@@ -49,7 +49,7 @@ int	writer(Connection &cnect, Writer &writer, std::vector<struct pollfd> &fds)
 	return (1);
 }
 
-void	write_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
+void	write_level(std::vector<Server> &servers)
 {
 	Connection *cnect;
 	// std::cout << "a1-------------" << std::endl;
@@ -62,7 +62,7 @@ void	write_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
 			cnect = &servers[i].connections[j];
 			if (cnect->readingHeaderDone == 1)
 			{
-				writer(*cnect, (*cnect).reader.writer, fds);
+				writer(*cnect, (*cnect).reader.writer);
 			}
 		}
 	}

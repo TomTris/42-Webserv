@@ -49,17 +49,17 @@ SRC = \
 	level/read_level.cpp\
 	level/write_level.cpp\
 	statusCode.cpp
-SANITIZER_FLAGS = -fsanitize=address,undefined
+# SANITIZER_FLAGS = -fsanitize=address,undefined
 
 OBJS = $(SRC:.cpp=.o)
 
 $(NAME) : all
 
 all: $(OBJS)
-	c++ $(SANITIZER_FLAGS) $(FLAGS) $(OBJS)
+	c++ $(FLAGS) $(OBJS)
 
 %.o: %.cpp
-	$(CXX) $(FLAGS) $(SANITIZER_FLAGS) -c $< -o $@
+	$(CXX) $(FLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJS)

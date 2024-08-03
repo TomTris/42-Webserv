@@ -1,6 +1,6 @@
 #include "../Tomweb.hpp"
 
-void	del_connect(Server &server, Connection &cnect, int j, std::vector<struct pollfd> &fds)
+void	del_connect(Server &server, Connection &cnect, int j)
 {
 	// std::cerr << "CONNECTION " <<  cnect.socket_fd  << " DELETED" << std::endl;
 	// std::cout << "cnect.have_read = " << cnect.have_read << std::endl;
@@ -35,16 +35,16 @@ void	del_connect(Server &server, Connection &cnect, int j, std::vector<struct po
 		fd2 = -1;
 	if (fd3 == fd1)
 		fd3 = -1;
-	remove_from_poll(fd1, fds);
+	remove_from_poll(fd1);
 	close(fd1);
 	if (fd2 != -1)
 	{
-		remove_from_poll(fd2, fds);
+		remove_from_poll(fd2);
 		close(fd2);
 	}
 	if (fd3 != -1)
 	{
-		remove_from_poll(fd3, fds);
+		remove_from_poll(fd3);
 		close(fd3);
 	}
 	server.connections.erase(server.connections.begin() + j);
@@ -295,12 +295,12 @@ int	request_header(Server &server, Connection &cnect)
 	return (reading_done(server, cnect, cnect.reader));
 }
 
-int reading_header(Server &server, Connection &connect, std::vector<struct pollfd> &fds)
+int reading_header(Server &server, Connection &connect)
 {
 	int		check;
 	char	buffer[BUFFERSIZE + 1];
 
-	if (check_fds(fds, connect.socket_fd) == POLLIN)
+	if (check_fds(connect.socket_fd) == POLLIN)
 	{
 		check = read(connect.socket_fd, buffer, BUFFERSIZE);
 		if (check == -1)
@@ -328,61 +328,83 @@ int reading_header(Server &server, Connection &connect, std::vector<struct pollf
 	return (request_header(server, connect));
 }
 
-void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
-{
-	// time_t	now;
-	int	revents;
-	unsigned int	i = 0;
-	unsigned int	j;
-	Connection 		*cnect;
+// void	connection_level(std::vector<Server> &servers)
+// {
+// 	// time_t	now;
+// 	int	revents;
+// 	unsigned int	i = 0;
+// 	unsigned int	j;
+// 	Connection 		*cnect;
 
-	while (i < servers.size())
+// 	while (i < servers.size())
+// 	{
+// 		// std::cout << "++++++++++" << " < servers[i].connections.size()" << servers[i].connections.size()<< "++++++++" << std::endl;
+// 		j = 0;
+// 		while (j < servers[i].connections.size())
+// 		{
+// 			cnect = &servers[i].connections[j];
+// 			revents = check_fds(servers[i].connections[j].socket_fd);
+// 			// std::cout << "++1111++++++++++++++++" << std::endl;
+// 			// std::cout << "--a-" << std::endl;
+// 			// std::cout << "reader.method " << servers[i].connections[j].reader.method << std::endl;
+// 			// std::cout << "reader.URI " << servers[i].connections[j].reader.URI << std::endl;
+// 			// std::cout << "reader.errNbr " << servers[i].connections[j].reader.errNbr << std::endl;
+// 			// std::cout << "cnect.readingHeaderDone" << servers[i].connections[j].readingHeaderDone << std::endl;
+// 			// std::cout << "---" << std::endl;
+// 			// now = time(NULL);
+// 			// if (cnect->readingHeaderDone == 0
+// 			// 	&& revents != POLLIN
+// 			// 	&& difftime(now, cnect->time_out) >= TIME_OUT)
+// 			// {
+// 			// 	cnect->readingHeaderDone = 1;
+// 			// 	cnect->reader.errNbr = 408;
+// 			// 	cnect->reader.method = "GET";
+// 			// 	j++;
+// 			// }
+// 			// else 
+// 			if (cnect->reader.cnect_close == 1
+// 				|| (cnect->IsAfterResponseClose == 1 && cnect->reader.writer.writingDone == 1)
+// 				|| revents & POLLHUP)
+// 			{
+// 				del_connect(servers[i], *cnect, j);
+// 			}
+// 			else if (cnect->reader.writer.writingDone == 1)
+// 			{
+// 				cnect->reset();
+// 				j++;
+// 			}
+// 			else if (cnect->readingHeaderDone == 0)
+// 			{
+// 				if (reading_header(servers[i], *cnect) == 2)
+// 					del_connect(servers[i], *cnect, j);
+// 				else
+// 					j++;
+// 			}
+// 			else
+// 				j++;
+// 		}
+// 		i++;
+// 	}
+// }
+
+#define RESPONSE "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n"
+void	connection_level(std::vector<Server> &servers)
+{
+	unsigned int	j;
+
+	for (unsigned int i = 0; i < servers.size(); i++)
 	{
-		// std::cout << "++++++++++" << " < servers[i].connections.size()" << servers[i].connections.size()<< "++++++++" << std::endl;
 		j = 0;
 		while (j < servers[i].connections.size())
 		{
-			cnect = &servers[i].connections[j];
-			revents = check_fds(fds, servers[i].connections[j].socket_fd);
-			// std::cout << "++1111++++++++++++++++" << std::endl;
-			// std::cout << "--a-" << std::endl;
-			// std::cout << "reader.method " << servers[i].connections[j].reader.method << std::endl;
-			// std::cout << "reader.URI " << servers[i].connections[j].reader.URI << std::endl;
-			// std::cout << "reader.errNbr " << servers[i].connections[j].reader.errNbr << std::endl;
-			// std::cout << "cnect.readingHeaderDone" << servers[i].connections[j].readingHeaderDone << std::endl;
-			// std::cout << "---" << std::endl;
-			// now = time(NULL);
-			// if (cnect->readingHeaderDone == 0
-			// 	&& revents != POLLIN
-			// 	&& difftime(now, cnect->time_out) >= TIME_OUT)
-			// {
-			// 	cnect->readingHeaderDone = 1;
-			// 	cnect->reader.errNbr = 408;
-			// 	cnect->reader.method = "GET";
-			// 	j++;
-			// }
-			// else 
-			if (cnect->reader.cnect_close == 1
-				|| (cnect->IsAfterResponseClose == 1 && cnect->reader.writer.writingDone == 1)
-				|| revents & POLLHUP)
+			if (check_fds(servers[i].connections[j].socket_fd) == POLLOUT)
 			{
-				del_connect(servers[i], *cnect, j, fds);
-			}
-			else if (cnect->reader.writer.writingDone == 1)
-			{
-				cnect->reset();
-				j++;
-			}
-			else if (cnect->readingHeaderDone == 0)
-			{
-				if (reading_header(servers[i], *cnect, fds) == 2)
-					del_connect(servers[i], *cnect, j, fds);
-				else
-					j++;
+				write(servers[i].connections[j].socket_fd, RESPONSE, strlen(RESPONSE));
+				close(servers[i].connections[j].socket_fd);
+				remove_from_poll(servers[i].connections[j].socket_fd);
 			}
 			else
 				j++;
 		}
-		i++;
 	}
 }

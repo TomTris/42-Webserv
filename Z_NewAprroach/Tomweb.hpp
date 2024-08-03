@@ -97,6 +97,8 @@ class Server
         std::string return_default(int numb);
 };
 
+extern std::vector<struct pollfd>  fds;
+extern std::vector<Server>			servers;
 //Parser
 std::vector<std::string> get_data(std::string host, std::string method, std::string url, Server& serv);
 
@@ -119,26 +121,25 @@ void set_bytes_to_zero(void *start, int len);
 
 //----------------poll_revelant------------------//
 
-void	add_servers_to_pool(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+void	add_servers_to_pool(std::vector<Server> &servers);
 
-void	remove_from_poll(int fd_rm, std::vector<struct pollfd> &fds);
-void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option);
-void    poll_reset(std::vector<struct pollfd> &fds);
-void	change_option_poll(std::vector<struct pollfd> &fds, int fd, int option);
+void	remove_from_poll(int fd_rm);
+void	add_to_poll(int fd_add, int option);
+void	change_option_poll(int fd, int option);
 
-int 	connection_accept(Server &server, std::vector<struct pollfd> &fds);
-int     check_fds(std::vector<struct pollfd> &fds, int fd);
+int 	connection_accept(Server &server);
+int     check_fds(int fd);
 
 //--------------server_level-----------//
-void	server_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+void	server_level(std::vector<Server> &servers);
 //------------Connection-level-------//
-void	connection_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+void	connection_level(std::vector<Server> &servers);
 
 //----reader-----//
-void	read_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+void	read_level(std::vector<Server> &servers);
 
 //----writer----//
-void	write_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds);
+void	write_level(std::vector<Server> &servers);
 //--Statuscode---//
 std::string	get_header(int nbr, std::string str);
 #endif
