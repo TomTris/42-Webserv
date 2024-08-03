@@ -2,31 +2,25 @@
 
 int	writer(Connection &cnect, Writer &writer)
 {
-	// std::cout << "a4-------------" << std::endl;
-	if (check_fds(writer.fdWritingTo) == POLLOUT)
+	if (check_fds(writer.fdWritingTo) & POLLOUT)
 	{
-		// std::cout << "a5-------------" << std::endl;
 		if (writer.writeString.length() > 0)
 		{
-			
-			// std::cout << "a6-------------" << std::endl;
-			// std::cout << "writer.fdWritingTo = " << std::endl;
-			// std::cout << writer.fdWritingTo << std::endl;
-			// std::cout << " +++ +++ +++ " << std::endl;
-			// std::cout << "writer.writeString = " << writer.writeString << std::endl;
 			ssize_t bytesWritten = write(writer.fdWritingTo, writer.writeString.c_str(), writer.writeString.length());
-			// std::cout << "bytesWritten = " << bytesWritten << std::endl;
 			if (bytesWritten == -1)
 			{
 				std::cerr << "Error writing to file descriptor: " << std::strerror(errno) << std::endl;
-				return (cnect.reader.cnect_close = 1, 1);
+				sleep(1);
+				return (1);
+				// return (cnect.reader.cnect_close = 1, 1);
 			}
 			else
 			{
-				// std::cout << "a7-------------" << std::endl;
 				writer.writeString = "";
 				if (cnect.reader.readingDone == 1)
 				{
+					std::cout << cnect.socket_fd << std::endl;
+					std::cout << "123" << std::endl;
 					writer.writingDone = 1;
 					int	fd2 = cnect.reader.fdReadingFrom;
 					int	fd3 = cnect.reader.writer.fdWritingTo;
