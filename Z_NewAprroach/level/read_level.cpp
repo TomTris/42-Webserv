@@ -125,7 +125,7 @@ int	directory_open(Connection &cnect, Reader &reader)
 	{
 		a = "";
 		b= "";
-		a = reader.URI + entry->d_name;
+		a = reader.URI + "/" + entry->d_name;
 		stat(a.c_str() , &info);
 		b += "<li><a href=\"";
 		b += entry->d_name;
