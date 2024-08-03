@@ -1,6 +1,6 @@
 #include "../Tomweb.hpp"
 
-int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
+int	connection_accept(Server &server)
 {
 	int		new_socket;
 	size_t	addrlen = sizeof(server.address);
@@ -10,7 +10,7 @@ int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
 		perror("accept failed");
 		return -1;
 	}
-	int a = check_fds(fds, new_socket);
+	int a = check_fds(new_socket);
 	if (a == -1)
 	{
 		if (fcntl(new_socket, F_SETFL, O_NONBLOCK) < 0)
@@ -20,20 +20,18 @@ int	connection_accept(Server &server, std::vector<struct pollfd> &fds)
 		}
 		server.connections.push_back(Connection(new_socket));
 		std::cout << "ACCEEPPTT" << new_socket <<  std::endl;
+		add_to_poll(new_socket, POLLOUT);
 	}
-	else
-		return 1;
-	add_to_poll(fds, new_socket, POLLIN);
-	return (new_socket);
+	return 1;
 }
 
-void	server_level(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
+void	server_level(std::vector<Server> &servers)
 {
 	for (unsigned int i = 0; i < servers.size(); i++)
 	{
-		if (check_fds(fds, servers[i].serverFd) == POLLIN)
+		if (check_fds(servers[i].serverFd) == POLLIN)
 		{
-			connection_accept(servers[i], fds);
+			connection_accept(servers[i]);
 		}
 	}
 }

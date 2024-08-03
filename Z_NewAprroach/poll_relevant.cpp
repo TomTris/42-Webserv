@@ -1,17 +1,17 @@
 #include "Tomweb.hpp"
 #include <poll.h>
 
-void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option);
-void	add_servers_to_pool(std::vector<Server> &servers, std::vector<struct pollfd> &fds)
+void	add_to_poll(int fd_add, int option);
+void	add_servers_to_pool(std::vector<Server> &servers)
 {
 
 	for (unsigned int i = 0; i < servers.size(); i++)
 	{
-		add_to_poll(fds, servers[i].serverFd, POLLIN);
+		add_to_poll(servers[i].serverFd, POLLIN);
 	}
 }
 
-void	remove_from_poll(int fd_rm, std::vector<struct pollfd> &fds)
+void	remove_from_poll(int fd_rm)
 {
 	if (fd_rm < 0)
 		return ;
@@ -25,7 +25,7 @@ void	remove_from_poll(int fd_rm, std::vector<struct pollfd> &fds)
 	}
 }
 
-void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option)
+void	add_to_poll(int fd_add, int option)
 {
 	struct pollfd pfd;
 	// std::cout << "fd " << fd_add << " is add to " << option << std::endl;
@@ -35,7 +35,7 @@ void	add_to_poll(std::vector<struct pollfd> &fds, int fd_add, int option)
 	(fds.end() - 1)->revents = 0;
 }
 
-void	change_option_poll(std::vector<struct pollfd> &fds, int fd, int option)
+void	change_option_poll(int fd, int option)
 {
 	// std::cout << "fd = " << fd << std::endl;
 	for (unsigned int i = 0; i < fds.size(); i++)
@@ -48,15 +48,7 @@ void	change_option_poll(std::vector<struct pollfd> &fds, int fd, int option)
     }
 }
 
-void poll_reset(std::vector<struct pollfd> &fds)
-{
-	for (unsigned int i = 0; i < fds.size(); i++)
-	{
-		fds[i].revents = 0;
-	}
-}
-
-int check_fds(std::vector<struct pollfd> &fds, int fd) {
+int check_fds(int fd) {
 	if (fd == -1)
 		return (-1);
     for (unsigned int i = 0; i < fds.size(); i++)

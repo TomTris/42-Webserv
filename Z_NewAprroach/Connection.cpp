@@ -1,6 +1,6 @@
 #include "Connection.hpp"
 #include <unistd.h>
-
+#include "Tomweb.hpp"
 Connection::Connection(int fd) : socket_fd(fd), reader()
 {
 	// std::cerr << "new Connect, socket, fd = " << socket_fd << ", " << fd << std::endl;
@@ -25,7 +25,10 @@ void Connection::reset()
 	reader.contentLength = 0;
 	reader.errNbr = 200;
 	if (reader.fdReadingFrom != socket_fd && reader.fdReadingFrom != -1)
+	{
+		remove_from_poll(reader.fdReadingFrom);
 		close(reader.fdReadingFrom);
+	}
 	reader.fdReadingFrom = -1;
 	reader.method = "";
 	reader.openFile = 0;
@@ -33,7 +36,10 @@ void Connection::reset()
 	reader.readingDone = 0;
 	reader.URI = "";
 	if (reader.writer.fdWritingTo != socket_fd && reader.writer.fdWritingTo != -1)
+	{
+		remove_from_poll(reader.writer.fdWritingTo);
 		close(reader.writer.fdWritingTo);
+	}
 	reader.writer.fdWritingTo = -1;
 	reader.writer.writeString = "";
 	reader.writer.writingDone = 0;

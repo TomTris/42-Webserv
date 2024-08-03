@@ -27,7 +27,7 @@ Server::Server(server_t& s): err(0)
         this->err = 1;
         throw std::runtime_error("bind");
     }
-    if (listen(this->serverFd, 10) < 0)
+    if (listen(this->serverFd, 128) < 0)
     {
         close(this->serverFd);
         this->err = 1;

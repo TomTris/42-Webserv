@@ -1,12 +1,12 @@
 #include "Tomweb.hpp"
 #include <signal.h>
+
+std::vector<struct pollfd>  fds;
 int	main(int ac, char **av)
 {
-	std::vector<Server>			servers;
-	std::vector<struct pollfd>  fds;
-	// int							activity;
 	int							re_try;
-	// signal()
+
+	std::vector<Server>			servers;
 	re_try = 1000;
 	signal(SIGPIPE, SIG_IGN);
 	if (BUFFERSIZE > 10000)
@@ -16,7 +16,7 @@ int	main(int ac, char **av)
 	try
 	{
 		load_config_n_socket_create(ac, av, servers);
-		add_servers_to_pool(servers, fds);
+		add_servers_to_pool(servers);
 		std::cout << "ok " << std::endl;
 		while(1)
 		{
@@ -29,26 +29,26 @@ int	main(int ac, char **av)
 			// }
 			// else
 			// {
-				check_fds(fds, 0);
+				// check_fds(0);
 				// std::cout << "poll" << std::endl;
 				poll(fds.data(), fds.size(), 1000);
 				// std::cout << "server" << std::endl;
-				server_level(servers, fds);
+				server_level(servers);
 
 				// std::cout << "connection" << std::endl;
-				connection_level(servers, fds);
+				connection_level(servers);
 
 				// std::cout << "poll" << std::endl;
-				poll(fds.data(), fds.size(), 1000);
+				// poll(fds.data(), fds.size(), 1000);
 
 				// std::cout << "read_level" << std::endl;
-				read_level(servers, fds);
+				// read_level(servers);
 
 				// std::cout << "poll" << std::endl;
-				poll(fds.data(), fds.size(), 1000);
+				// poll(fds.data(), fds.size(), 1000);
 				
 				// std::cout << "write_level" << std::endl;
-				write_level(servers, fds);
+				// write_level(servers);
 				// std::cout << poll << std::endl;
 				// if (errno != 0 && errno != 2)
 				// {
