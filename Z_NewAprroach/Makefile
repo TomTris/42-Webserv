@@ -56,7 +56,7 @@ OBJS = $(SRC:.cpp=.o)
 $(NAME) : all
 
 all: $(OBJS)
-	c++ $(FLAGS) $(OBJS) && valgrind ./a.out
+	c++ $(FLAGS) $(OBJS) -o b.out && valgrind ./b.out
 
 %.o: %.cpp
 	$(CXX) $(FLAGS) -c $< -o $@

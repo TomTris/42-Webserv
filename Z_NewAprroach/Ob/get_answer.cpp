@@ -115,6 +115,7 @@ bool isDirectory(const char *path) {
 
 std::string get_path_to_file(location& loc, std::string path)
 {
+    int seen = 0;
     std::string similar = loc.URI;
     std::string rooted = loc.root;
     std::string temp =  path.substr(similar.size());
@@ -127,6 +128,7 @@ std::string get_path_to_file(location& loc, std::string path)
         rooted = rooted.substr(1);
     }
     std::string output = rooted + temp;
+    std::string saved = output;
     if (isDirectory(output.c_str()))
     {
         std::vector<std::string> indexes = loc.indexes;
@@ -139,8 +141,10 @@ std::string get_path_to_file(location& loc, std::string path)
                 temp = "/" + temp;
             }
             output = rooted + temp;
+            
             if (access(output.c_str(), F_OK) == 0)
             {
+                seen = 1;
                 break;
             }
         }
@@ -150,7 +154,9 @@ std::string get_path_to_file(location& loc, std::string path)
     {
         output = output.substr(1);
     }
-    return output;
+    if (seen)
+        return output;
+    return saved;
 }
 
 int getIndexLocation(std::string &host, Server& serv)
@@ -215,13 +221,16 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
     location loc;
     try
     {
+        for (unsigned int i = 0; i < locations.size(); i++)
+            std::cout << locations[i].autoindex << std::endl;
         loc = get_location(locations, url);
+        std::cout << loc.URI << "asdsfjdsiofpsdfijsd" << std::endl;
     }
     catch (const std::runtime_error&e) 
     {
         output.push_back("1");
         output.push_back(url);
-        output.push_back("1");
+        output.push_back(loc.autoindex ? "1" : "0");
         output.push_back("");
         return (output);
     }
@@ -241,6 +250,7 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
     while (path.back() == '/' && path.size() != 1)
         path.pop_back();
     output.push_back(path);
+    std::cout << loc.autoindex << "\n\n\n\n\n\n\n\n\n\n" << std::endl;
     if (loc.autoindex)
     {
         output.push_back("1");
