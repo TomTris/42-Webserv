@@ -444,10 +444,14 @@ int	open_a_fileCGI(Reader &reader)
 
 	while (i < 4294967290)
 	{
+		std::cout << "a, " << i << std::endl;
 		cgi_file = path + std::to_string(i);
-		if (!access(cgi_file.c_str(), F_OK))
+		if (access(cgi_file.c_str(), F_OK) == -1)
 		{
-			fd = open(path.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0777);
+			fd = open(cgi_file.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0777);
+			std::cout << "cgi_file = " << cgi_file << std::endl;
+			if (fd == -1)
+				return (perror("open"), -1);
 			reader.pid = fork();
 			if (reader.pid == -1)
 				return (close(fd), -1);
@@ -456,21 +460,26 @@ int	open_a_fileCGI(Reader &reader)
 			close(fd);
 			reader.file_name1 = cgi_file;
 			reader.openFile = 1;
+			std::cout << "open succeed" << std::endl;
 			return (1);
 		}
+		i++;
 	}
 	return (-1);
 }
 
 int	readCGIFunc(Reader &reader)
 {
+	std::cout << 1<< std::endl;
 	if (reader.openFile == 0)
 		if (open_a_fileCGI(reader) == -1)
-			return (reader.readCGI = 0, reader.errNbr = 500, 1);
+			return (reader.readCGI = 0, reader.errNbr = 400, 1);
+	std::cout << 2<< std::endl;
 	int	status;
 
 	if (waitpid(reader.pid, &status, WNOHANG) == 0)
 		return (1);
+	std::cout << "waitpid done" << std::endl;
 	reader.readCGI = 0;
 	reader.openFile = 0;
 	if (WIFEXITED(status))

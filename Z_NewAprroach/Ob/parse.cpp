@@ -420,12 +420,11 @@ void handleCgiPath(std::string& path, location& loc, int &err)
     temp = path;
     if (temp[0] != '/' || access(temp.c_str(), F_OK) != 0)
     {
-        throw std::runtime_error("cgi_path wrong syntaxes");
+        throw std::runtime_error("cgi_path wrong path");
         err = 1;
         return ;
     }
-    if (find(loc.cgi_path.begin(), loc.cgi_path.end(), temp) == loc.cgi_path.end())
-        loc.cgi_path.push_back(temp);
+    loc.cgi_path.push_back(temp);
 }
 
 void handleCgiEx(std::string& exec, location& loc, int &err)
@@ -451,8 +450,8 @@ void handleCgiEx(std::string& exec, location& loc, int &err)
         err = 1;
         return ; 
     }
-    if (find(loc.cgi_ex.begin(), loc.cgi_ex.end(), temp) == loc.cgi_ex.end())
-        loc.cgi_ex.push_back(temp);
+    // if (find(loc.cgi_ex.begin(), loc.cgi_ex.end(), temp) == loc.cgi_ex.end())
+    loc.cgi_ex.push_back(temp);
 }
 
 void handleReturn(std::string& cURIoc, location& loc, int &err)
@@ -478,7 +477,6 @@ void handleParamLocation(std::string& cURIoc, location& loc, int &err)
         err  = 1;
         return ;
     }
-    loc.autoindex = true;
     std::string param = cURIoc.substr(0, cURIoc.find(';'));
     cURIoc = cURIoc.substr(cURIoc.find(';') + 1, cURIoc.size());
     if (param.find(' ') == std::string::npos)
@@ -558,6 +556,7 @@ void handleLocation(std::string& Location, server_t& s, int& err)
     currentLoc = currentLoc.substr(currentLoc.find('{') + 1, currentLoc.size());
     int i = 0;
     location loc;
+    loc.autoindex = true;
     loc.root = "";
     loc.URI = check;
     handle_URI(loc.URI);
