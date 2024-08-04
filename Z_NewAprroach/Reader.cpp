@@ -19,10 +19,13 @@ Reader::Reader() : writer()
 	
 	have_read = "";
 	have_read_2 = "";
-	errFuncCall = 0;
-	dir = NULL;
 	time_out = time(NULL);
+	dir = NULL;
+	errFuncCall = 0;
 
 	cookies = "";
+	readCGI = 0;
+	pid = -1;
+	file_name1 = "";
 }
 

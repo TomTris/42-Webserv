@@ -33,6 +33,7 @@
 #include <cstring>
 #include <cerrno>
 #include <algorithm>
+#include <sys/wait.h>
 
 #define ERROR200 "www/errors/200.html"
 #define ERROR204 "www/errors/204.html"

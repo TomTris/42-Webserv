@@ -18,6 +18,18 @@ int	open500(Connection &cnect, Reader &reader)
 	return (anotherErr(cnect, reader, 500));
 }
 
+int	handle_30x(Connection &cnect, Reader &reader)
+{
+	reader.writer.writeString = get_header(reader.errNbr, reader.URI);
+	reader.fdReadingFrom = -1;
+	reader.writer.fdWritingTo = cnect.socket_fd;
+	change_option_poll(cnect.socket_fd, POLLOUT);
+	reader.readingDone = 1;
+	reader.contentLength = 0;
+	reader.openFile = 1;
+	return (2);
+}
+
 int	openFuncErr(Connection &cnect, Reader &reader)
 {
 	reader.method = "GET";
@@ -29,16 +41,7 @@ int	openFuncErr(Connection &cnect, Reader &reader)
 		cnect.IsAfterResponseClose = 1;
 	}
 	if (reader.errNbr >= 300 && reader.errNbr < 400)
-	{
-		reader.writer.writeString = get_header(reader.errNbr, reader.URI);
-		reader.fdReadingFrom = -1;
-		reader.writer.fdWritingTo = cnect.socket_fd;
-		change_option_poll(cnect.socket_fd, POLLOUT);
-		reader.readingDone = 1;
-		reader.contentLength = 0;
-		reader.openFile = 1;
-		return (2);
-	}
+		return (handle_30x(cnect, reader));
 
 	struct stat info;
 	int	fd;
@@ -237,7 +240,7 @@ int	read_func(Connection &cnect, Reader &reader)
 		// reader.fdReadingFrom = -1;
 		// reader.openFile = 0;
 		std::cout << "check in reader = -1 " << std::endl;
-		sleep(1);
+		// sleep(1);
 		return 1;
 	}
 	if (check == 0)
@@ -415,6 +418,79 @@ int	reader(Connection &cnect, Reader &reader)
 	return 1;
 }
 
+int	child_process(Reader &reader, int fd)
+{
+	dup2(fd, STDOUT_FILENO);
+	
+	char a1[] = "./a.out";
+	char a2[200] = {0};
+	setenv("cookies", reader.cookies.c_str(), 1);
+	std::strcpy(a2, reader.URI.substr(0, reader.URI.find("a.out") + 5).c_str());
+	char *a[3];
+	a[0] = a1;
+	a[1] = a2;
+	a[2] = NULL;
+	execve(a[0], a, NULL);
+	perror("execve");
+	close(fd);
+	exit(EXIT_FAILURE);
+}
+int	open_a_fileCGI(Reader &reader)
+{
+	unsigned int	i = 0;
+	std::string		path = "./Ob/CGIFile/";
+	std::string		cgi_file;
+	int	fd;
+
+	while (i < 4294967290)
+	{
+		cgi_file = path + std::to_string(i);
+		if (!access(cgi_file.c_str(), F_OK))
+		{
+			fd = open(path.c_str(), O_CREAT | O_TRUNC | O_RDWR, 0777);
+			reader.pid = fork();
+			if (reader.pid == -1)
+				return (close(fd), -1);
+			if (reader.pid == 0)
+				return (child_process(reader, fd));
+			close(fd);
+			reader.file_name1 = cgi_file;
+			reader.openFile = 1;
+			return (1);
+		}
+	}
+	return (-1);
+}
+
+int	readCGIFunc(Reader &reader)
+{
+	if (reader.openFile == 0)
+		if (open_a_fileCGI(reader) == -1)
+			return (reader.readCGI = 0, reader.errNbr = 500, 1);
+	int	status;
+
+	if (waitpid(reader.pid, &status, WNOHANG) == 0)
+		return (1);
+	reader.readCGI = 0;
+	reader.openFile = 0;
+	if (WIFEXITED(status))
+	{
+		if (WEXITSTATUS(status) == 0)
+		{
+			reader.errNbr = 200;
+			reader.method = "GET";
+			reader.URI = reader.file_name1;
+			reader.pid = -1;
+			return (1);
+		}
+		reader.errNbr = 400;
+		reader.pid = -1;
+		return (1);
+	}
+	reader.errNbr = 500;
+	return (1);
+}
+
 void	read_level(std::vector<Server> &servers)
 {
 	Connection *cnect;
@@ -426,7 +502,10 @@ void	read_level(std::vector<Server> &servers)
 			cnect = &servers[i].connections[j];
 			if (cnect->readingHeaderDone == 1 && cnect->reader.readingDone == 0)
 			{
-				reader(*cnect, cnect->reader);
+				if (cnect->reader.readCGI == 1)
+					readCGIFunc(cnect->reader);
+				else
+					reader(*cnect, cnect->reader);
 			}
 		}
 	}

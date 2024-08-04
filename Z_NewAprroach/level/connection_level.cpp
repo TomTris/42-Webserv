@@ -19,11 +19,12 @@ void	del_connect(Server &server, Connection &cnect, int j)
 	// std::cout << "cnect.reader.openFile = " << cnect.reader.openFile << std::endl;
 	// std::cout << "cnect.reader.post = " << cnect.reader.post << std::endl;
 	// std::cout << "cnect.reader.URI = " << cnect.reader.URI << std::endl;
+	// std::cout << "cnect.reader.readingDone = " << cnect.reader.readingDone << std::endl;
 	// std::cout << "cnect.reader.writer.fdWritingTo = " << cnect.reader.writer.fdWritingTo << std::endl;
 	// std::cout << "cnect.reader.writer.writeString = " << cnect.reader.writer.writeString << std::endl;
 	// std::cout << "--------------------------- " << std::endl;
 	// std::cout << "cnect.reader.cnect_close = " << cnect.reader.cnect_close << std::endl;
-	// std::cout << "cnect.reader.readingDone = " << cnect.reader.readingDone << std::endl;
+	// std::cout << "cnect.reader.writer.writingDone = " << cnect.reader.writer.writingDone << std::endl;
 	// std::cout << "cnect.readingHeaderDone = " << cnect.readingHeaderDone << std::endl;
 	// std::cout << "cnect.reader.writer.writingDone = " << cnect.reader.writer.writingDone << std::endl;
 	// std::cout << "------------------------------------------------------------------------------------------------------------ " << std::endl;
@@ -47,7 +48,14 @@ void	del_connect(Server &server, Connection &cnect, int j)
 		remove_from_poll(fd3);
 		close(fd3);
 	}
-	server.connections.erase(server.connections.begin() + j);
+	std::cout << "server.connections.size() before = " << server.connections.size() << std::endl;
+	// sleep(1);
+	std::cout << " j = " << j << std::endl;
+	if (server.connections.size() == 1)
+		server.connections.clear();
+	else
+		server.connections.erase(server.connections.begin() + j);
+	std::cout << "server.connections.size() after = " << server.connections.size() << std::endl;
 	// sleep(1);
 }
 
@@ -100,22 +108,17 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	if (a[4] != "")
 		return (reader.URI = a[4], cnect.reader.errNbr = 301, 1);
 	if (cnect.reader.method == "GET" || cnect.reader.method == "DELETE")
-	{
 		if (cnect.reader.contentLength > 0)
-			cnect.reader.errNbr = 400;
-		return (1);
-	}
+			return (cnect.reader.errNbr = 400, 1);
 	if (cnect.reader.method == "POST" && cnect.reader.errNbr < 300)
 	{
 		if (cnect.reader.contentLength < 0)
-			cnect.reader.errNbr = 400;
-		else
-		{
-			cnect.reader.have_read = cnect.have_read;
-			cnect.have_read = "";
-		}
-		return (1);
+			return (cnect.reader.errNbr = 400, 1);
+		cnect.reader.have_read = cnect.have_read;
+		cnect.have_read = "";
 	}
+	if (cnect.reader.URI.find(".cgi") != std::string::npos)
+		cnect.reader.readCGI = 1;
 	return (1);
 }
 
@@ -214,10 +217,10 @@ int	request_line(Connection &cnect)
 		return (cnect.reader.errNbr = 400, cnect.readingHeaderDone = 1, 1);
 	if (method != "GET" && method != "POST" && method != "DELETE")
 		return (cnect.reader.errNbr = 405, cnect.readingHeaderDone = 1, 1);
-	if (HTTP_version != "HTTP/1.1")
-	{
-		return (cnect.reader.errNbr = 400, cnect.readingHeaderDone = 1, 1); // need to change
-	}
+	// if (HTTP_version != "HTTP/1.1")
+	// {
+	// 	return (cnect.reader.errNbr = 400, cnect.readingHeaderDone = 1, 1); // need to change
+	// }
 	cnect.reader.method = method;
 	cnect.reader.URI = URI;
 	return (1);
@@ -255,12 +258,16 @@ int reading_header(Server &server, Connection &connect)
 		if (check == -1)
 		{
 			std::cout << "reader in connection = -1" << std::endl;
-			sleep(1);
-			return (1);
+			// sleep(1);
+			// return (1);
+			return (2);
 			// return (connect.reader.errNbr = 500, connect.readingHeaderDone = 1, 1);
 		}
 		if (check == 0)
+		{
+			std::cout << "return 2" << std::endl;
 			return (2);
+		}
 		// std::string a = "";
 		// a.append(buffer, check);
 		// std::cout << a << std::endl;
@@ -272,7 +279,7 @@ int reading_header(Server &server, Connection &connect)
 void	connection_level(std::vector<Server> &servers)
 {
 	// time_t	now;
-	int	revents;
+	// int	revents;
 	unsigned int	j;
 	Connection 		*cnect;
 
@@ -282,11 +289,12 @@ void	connection_level(std::vector<Server> &servers)
 		while (j < servers[i].connections.size())
 		{
 			cnect = &servers[i].connections[j];
-			revents = check_fds(servers[i].connections[j].socket_fd);
+			// revents = check_fds(servers[i].connections[j].socket_fd);
 			if (cnect->reader.cnect_close == 1
-				|| (cnect->IsAfterResponseClose == 1 && cnect->reader.writer.writingDone == 1)
-				|| revents & POLLHUP)
+				|| (cnect->IsAfterResponseClose == 1 && cnect->reader.writer.writingDone == 1))
+				// || revents & POLLHUP)
 			{
+				std::cout << "Maybe revents = POLLHUP" << std::endl;
 				del_connect(servers[i], *cnect, j);
 			}
 			else if (cnect->reader.writer.writingDone == 1 )
