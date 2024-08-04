@@ -68,20 +68,20 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	// std::cout << "reader.method = {" << reader.method << "}" << std::endl;
 	// std::cout << "cnect.have rad = " << cnect.have_read << std::endl;
 	// std::cout << "reader.URI = {" << reader.URI << "}" << std::endl;
-	// std::cout << "a[0] = " << a[0] << std::endl;
-	// std::cout << "a[1] = " << a[1] << std::endl;
-	// std::cout << "a[4] = " << a[4] << std::endl;
 	if (reader.method != "GET" && reader.method != "POST" && reader.method != "DELETE")
 		return (reader.errNbr = 405, 1);
 
 	if (reader.URI.length() > 160)
 		return (reader.errNbr = 414, 1);
 	std::vector<std::string> a = get_data(reader.host, reader.method, reader.URI, server);
+	std::cout << "a[0] = " << a[0] << std::endl;
+	std::cout << "a[1] = " << a[1] << std::endl;
+	std::cout << "a[2] = " << a[2] << std::endl;
+	std::cout << "a[3] = " << a[3] << std::endl;
+	std::cout << "a[4] = " << a[4] << std::endl;
 	//URI	if (*reader.URI.begin() != '/')
 		reader.URI = "/" + reader.URI;
 	reader.URI = a[2];
-	// std::cout << "a[2] = " << reader.URI << std::endl;
-	// std::cout << "a[3] = " << a[3] << std::endl;
 	//a[0] is host:post ok?
 	// std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
 	std::cout << reader.method << std::endl;
@@ -119,6 +119,8 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	}
 	if (cnect.reader.URI.find(".cgi") != std::string::npos)
 		cnect.reader.readCGI = 1;
+	std::cout << "cnect.reader.URI = " << cnect.reader.URI << std::endl;
+	std::cout << "cnect.reader.readCGI = " << cnect.reader.readCGI << std::endl;
 	return (1);
 }
 
@@ -197,7 +199,7 @@ int	header_extract(Connection &cnect, std::string &header_o)
 	cnect.IsAfterResponseClose = extract_IsAfterResponseClose(header_o);
 	cnect.reader.contentLength = extract_contentLength(header_o);
 	cnect.reader.host = extract_host(header_o);
-	// cnect.reader.cookies = extract_cookies(cnect, header_o);
+	cnect.reader.cookies = extract_cookies(header_o);
 	return (1);
 }
 
