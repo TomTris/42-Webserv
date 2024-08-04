@@ -5,7 +5,7 @@ int	connection_accept(Server &server)
 	int		new_socket;
 	size_t	addrlen = sizeof(server.address);
 
-	if ((new_socket = accept(server.serverFd, (struct sockaddr *)&server.address, (socklen_t*)&addrlen)) < 0)
+	if ((new_socket = accept(server.serverFd, (struct sockaddr *)&server.address, (socklen_t*)&addrlen)) <= 0)
 	{
 		perror("accept failed");
 		return -1;
@@ -18,8 +18,11 @@ int	connection_accept(Server &server)
 			perror("fcnl failed");
 			return -1;
 		}
-		server.connections.push_back(Connection(new_socket));
-		std::cout << "ACCEEPPTT" << new_socket <<  std::endl;
+		std::cout << "news ocket = " << new_socket << std::endl;
+		Connection a(new_socket);
+		server.connections.push_back(a);
+		std::cout << "news ocket = " << new_socket << std::endl;
+		std::cout << "ACCEEPPTT " << new_socket <<  std::endl;
 		add_to_poll(new_socket, POLLIN);
 	// }
 	return 1;

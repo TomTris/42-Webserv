@@ -29,10 +29,13 @@ void	add_to_poll(int fd_add, int option)
 {
 	struct pollfd pfd;
 	// std::cout << "fd " << fd_add << " is add to " << option << std::endl;
+	pfd.fd = fd_add;
+	pfd.events = option;
+	pfd.revents = 0;
 	fds.push_back(pfd);
-	(fds.end() - 1)->fd = fd_add;
-	(fds.end() - 1)->events = option;
-	(fds.end() - 1)->revents = 0;
+	// (fds.end() - 1)->fd = fd_add;
+	// (fds.end() - 1)->events = option;
+	// (fds.end() - 1)->revents = 0;
 }
 
 void	change_option_poll(int fd, int option)

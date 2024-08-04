@@ -32,6 +32,9 @@ class Reader {
 		int									errFuncCall;
 
 		std::string 						cookies;
+		int									readCGI;
+		pid_t								pid;
+		std::string							file_name1;
 };
 
 #endif

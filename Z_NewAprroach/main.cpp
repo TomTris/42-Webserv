@@ -6,6 +6,8 @@ int	main(int ac, char **av)
 {
 	std::vector<Server>			servers;
 	signal(SIGPIPE, SIG_IGN);
+	signal(SIGTERM, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
 
 	if (BUFFERSIZE > 10000)
 		return (std::cerr << "Too big BUFFERSIZE" << std::endl, 1);
