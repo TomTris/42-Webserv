@@ -1,7 +1,8 @@
-sessionID = "10"
+sessionID = "99"
 
 name = ""
 age = 0
+cookie_exists = False
 
 # Open and read the file
 with open('cookizzz', 'r') as file:
@@ -13,9 +14,13 @@ with open('cookizzz', 'r') as file:
         if len(parts) == 3 and parts[0] == sessionID:
             name = parts[1]
             age_str = parts[2]
-            # print("cookie exists !!!!!valid")
+            cookie_exists = True
             break  # Exit loop once we find a match
-
+        else:
+            cookie_exists = False
+            name = "Everyone!"
+            age = "not set yet"
+            age_str = 0
 
 # HTML start
 print("<html>")
