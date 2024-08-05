@@ -1,4 +1,4 @@
-sessionID = "abc123"
+sessionID = "10"
 
 name = ""
 age = 0
@@ -16,8 +16,6 @@ with open('cookizzz', 'r') as file:
             # print("cookie exists !!!!!valid")
             break  # Exit loop once we find a match
 
-# Output HTML
-print("Content-Type: text/html\n")
 
 # HTML start
 print("<html>")
