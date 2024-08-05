@@ -1,5 +1,6 @@
 import os
 from urllib.parse import parse_qs, urlparse
+import cgi_age_cookie
 
 def check_cookie_and_url_in_env():
     # Check for 'cookie' environment variable
@@ -107,8 +108,12 @@ if cookie and not cookie_found_db:
     cookie_line = parse_cookies_and_params()
     filename = append_cookie_to_file(cookie_line)
     print("the cookie does not exist in the DB but it has been added!")
+    html_response = cgi_age_cookie.process_session("99")
+    print(html_response)
 else:
     print("the cookie does exist in the DB")
+    html_response = cgi_age_cookie.process_session("959")
+    print(html_response)
 
 #########################################
 #########################################
