@@ -76,12 +76,14 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 
 	if (reader.URI.length() > 160)
 		return (reader.errNbr = 414, 1);
+
 	std::vector<std::string> a = get_data(reader.host, reader.method, reader.URI, server);
 	// std::cout << "a[0] = " << a[0] << std::endl;
 	// std::cout << "a[1] = " << a[1] << std::endl;
 	// std::cout << "a[2] = " << a[2] << std::endl;
 	// std::cout << "a[3] = " << a[3] << std::endl;
 	// std::cout << "a[4] = " << a[4] << std::endl;
+	std::cout << "a[5] = " << a[5] << std::endl;
 	//URI	if (*reader.URI.begin() != '/')
 		reader.URI = "/" + reader.URI;
 	reader.URI = a[2];

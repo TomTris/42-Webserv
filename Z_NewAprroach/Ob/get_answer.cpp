@@ -192,6 +192,22 @@ bool isHostOk(std::string &host, Server& serv)
     return 1;
 }
 
+std::string get_ex(std::string url)
+{
+    int i = (int)url.size() - 2;
+    std::cout << i << std::endl;
+    for (; i >= -1; i--)
+    {
+        if (i == -1 || url[i] == '\\')
+            return "";
+        if (url[i] == '.')
+            break;
+    }
+    std::string a = url.substr(i);
+    a.pop_back();
+    return (a);
+}
+
 // # 1. host (like: localhost:8081 -> localhost is servername) std::string
 // # 2. Method std::string
 // # 3. URL std::string
@@ -203,16 +219,18 @@ bool isHostOk(std::string &host, Server& serv)
 std::vector<std::string> get_data(std::string host, std::string method, std::string url, Server& serv)
 {
     std::vector<std::string> output;
-
     handle_URI(url);
     if (url.back() != '/')
         url.push_back('/');
+    std::string ex = get_ex(url);
     if (!isHostOk(host, serv))
     {
         output.push_back("0");
         output.push_back("0");
         output.push_back("0");
         output.push_back("0");
+        output.push_back("");
+        output.push_back("");
         output.push_back("");
         return (output);
     }
@@ -231,6 +249,8 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
         output.push_back(url);
         output.push_back(loc.autoindex ? "1" : "0");
         output.push_back("");
+        output.push_back("");
+        output.push_back("");
         return (output);
     }
     if (isAllowed(loc, method))
@@ -242,6 +262,8 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
         output.push_back("0");
         output.push_back("0");
         output.push_back("0");
+        output.push_back("");
+        output.push_back("");
         output.push_back("");
         return (output);
     }
@@ -258,5 +280,19 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
         output.push_back("0");
     }
     output.push_back(loc.returning);
+    int seen = 0;
+    for (unsigned int i = 0; i < loc.cgi_ex.size(); i++)
+    {
+        if (loc.cgi_ex[i] == ex)
+        {
+            output.push_back(loc.cgi_path[i]);
+            output.push_back(loc.cgi_ex[i]);
+            seen = 1;
+            break;
+        }
+    }
+    if (!seen)
+        output.push_back("");
+        output.push_back("");
     return (output);
 }
