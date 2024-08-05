@@ -414,8 +414,8 @@ void handleCgiPath(std::string& path, location& loc, int &err)
             err = 1;
             return ;
         }
-        if (find(loc.cgi_path.begin(), loc.cgi_path.end(), temp) == loc.cgi_path.end())
-            loc.cgi_path.push_back(temp);
+        // if (find(loc.cgi_path.begin(), loc.cgi_path.end(), temp) == loc.cgi_path.end())
+        loc.cgi_path.push_back(temp);
     }
     temp = path;
     if (temp[0] != '/' || access(temp.c_str(), F_OK) != 0)
@@ -427,6 +427,19 @@ void handleCgiPath(std::string& path, location& loc, int &err)
     loc.cgi_path.push_back(temp);
 }
 
+int counte_app(std::string& str)
+{
+    int counter = 0;
+    for (unsigned int i = 0; i < str.size(); i++)
+    {
+        if (str[i] == '.')
+        {
+            counter++;
+        }
+    }
+    return counter;
+}
+
 void handleCgiEx(std::string& exec, location& loc, int &err)
 {
     std::string temp; 
@@ -434,17 +447,17 @@ void handleCgiEx(std::string& exec, location& loc, int &err)
     {
         temp = exec.substr(0, exec.find(' '));
         exec = exec.substr(exec.find(' ') + 1, exec.size());
-        if (temp[0] != '.')
+        if (temp[0] != '.' || counte_app(temp) != 1)
         {
             throw std::runtime_error("cgi_ex wrong syntaxes");
             err = 1;
             return ;
         }
-        if (find(loc.cgi_ex.begin(), loc.cgi_ex.end(), temp) == loc.cgi_ex.end())
-            loc.cgi_ex.push_back(temp);
+        // if (find(loc.cgi_ex.begin(), loc.cgi_ex.end(), temp) == loc.cgi_ex.end())
+        loc.cgi_ex.push_back(temp);
     }
     temp = exec;
-    if (temp[0] != '.')
+    if (temp[0] != '.' || counte_app(temp) != 1)
     {
         throw std::runtime_error("cgi_ex wrong syntaxes");
         err = 1;
