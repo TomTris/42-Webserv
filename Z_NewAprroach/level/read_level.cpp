@@ -432,12 +432,16 @@ int	reader(Server & server, Connection &cnect, Reader &reader)
 
 int	child_process(Reader &reader, int fd, std::string URI_name, std::string cookies)
 {
-	dup2(fd, STDOUT_FILENO);
 	setenv("cookies", cookies.c_str(), 1);
 	setenv("URL", reader.URI.c_str(), 1);
 	setenv("Method", reader.method.c_str(), 1);
 
-	char a1[] = "./a.out";
+	if (URI_name.find("&") != std::string::npos)
+		URI_name = URI_name.substr(0, URI_name.find("&"));
+	URI_name = "." + URI_name;
+	char a1[200] = {0};
+	std::strcpy(a1, URI_name.c_str());
+	std::cout << a1 << std::endl;
 	char a2[200] = {0};
 	(void) URI_name;
 	std::strcpy(a2, cookies.c_str());
@@ -446,6 +450,7 @@ int	child_process(Reader &reader, int fd, std::string URI_name, std::string cook
 	a[1] = a2;
 	a[2] = NULL;
 
+	dup2(fd, STDOUT_FILENO);
 	execve(a[0], a, NULL);
 	perror("execve");
 	close(fd);
@@ -484,7 +489,7 @@ int	open_a_fileCGI(Reader &reader)
 	if (!access(URI_name.c_str(), F_OK))
 		return (reader.readCGI = 0, reader.errNbr = 404, -1);
 //find a file to write into, check cookies, set it then.
-	while (i < 4294967290)
+	while (i < 42949)
 	{
 		cgi_file = path + std::to_string(i);
 		if (access(cgi_file.c_str(), F_OK) == -1)
