@@ -19,8 +19,8 @@ int	writer(Connection &cnect, Writer &writer)
 				writer.writeString = "";
 				if (cnect.reader.readingDone == 1)
 				{
-					std::cout << cnect.socket_fd << std::endl;
-					std::cout << "123" << std::endl;
+					// std::cout << cnect.socket_fd << std::endl;
+					// std::cout << "123" << std::endl;
 					writer.writingDone = 1;
 					int	fd2 = cnect.reader.fdReadingFrom;
 					int	fd3 = cnect.reader.writer.fdWritingTo;

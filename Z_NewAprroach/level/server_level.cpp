@@ -18,10 +18,10 @@ int	connection_accept(Server &server)
 			perror("fcnl failed");
 			return -1;
 		}
-		std::cout << "news ocket = " << new_socket << std::endl;
+		// std::cout << "news ocket = " << new_socket << std::endl;
 		Connection a(new_socket);
 		server.connections.push_back(a);
-		std::cout << "news ocket = " << new_socket << std::endl;
+		// std::cout << "news ocket = " << new_socket << std::endl;
 		std::cout << "ACCEEPPTT " << new_socket <<  std::endl;
 		add_to_poll(new_socket, POLLIN);
 	// }

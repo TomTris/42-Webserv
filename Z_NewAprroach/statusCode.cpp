@@ -154,7 +154,7 @@ std::string handle_301(std::string str)
 {
 	std::string http = "HTTP/1.1 301 Moved Permanently\r\n"
 		"Location: " + str + "\r\n"
-		"Content-Length: 0\r\n\r\n";
+		"Content-Length: 0\r\n";
 	return (http);
 }
 std::string	get_header(int nbr, std::string str)

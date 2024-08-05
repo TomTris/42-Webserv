@@ -64,7 +64,9 @@ void Connection::reset()
 	time_out = time(NULL);
 	reader.time_out = time(NULL);
 	
-	reader.cookies = "";
+	reader.cookies = 0;
+	if (reader.pid != -1)
+		kill(reader.pid, SIGTERM);
 	reader.pid = -1;
 	reader.readCGI = 0;
 	if (reader.file_name1 != "")

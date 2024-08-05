@@ -1,13 +1,13 @@
 #include "Tomweb.hpp"
 
-int	main(void)
+int	main(int ac, char **av)
 {
 	std::cout
 	<<
 	"<!DOCTYPE>\n"
 	"<html>\n"
 	"	<header>\n"
-	"		<p>HIHIHIHIHIHI CGI TEST</p>\n"
+	"		<p>" + std::string(av[1]) + "HIHIHIHIHIHI CGI TEST</p>\n"
 	"	</header>\n"
 	"</html>\n"
 	<< std::endl;

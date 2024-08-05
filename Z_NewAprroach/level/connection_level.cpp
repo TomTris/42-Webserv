@@ -48,14 +48,17 @@ void	del_connect(Server &server, Connection &cnect, int j)
 		remove_from_poll(fd3);
 		close(fd3);
 	}
-	std::cout << "server.connections.size() before = " << server.connections.size() << std::endl;
+	// std::cout << "server.connections.size() before = " << server.connections.size() << std::endl;
 	// sleep(1);
-	std::cout << " j = " << j << std::endl;
+	if (server.connections[j].reader.file_name1 != "")
+		std::remove(server.connections[j].reader.file_name1.c_str());
+	if (server.connections[j].reader.pid != -1)
+		kill(server.connections[j].reader.pid, SIGTERM);
 	if (server.connections.size() == 1)
 		server.connections.clear();
 	else
 		server.connections.erase(server.connections.begin() + j);
-	std::cout << "server.connections.size() after = " << server.connections.size() << std::endl;
+	// std::cout << "server.connections.size() after = " << server.connections.size() << std::endl;
 	// sleep(1);
 }
 
@@ -63,7 +66,7 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 {
 	cnect.readingHeaderDone = 1;
 	cnect.reader.readingDone = 0;
-	cnect.reader.time_out = clock();
+	cnect.reader.time_out = time(0);
 	// std::cout << "reader.host = {" << reader.host << "}" << std::endl;
 	// std::cout << "reader.method = {" << reader.method << "}" << std::endl;
 	// std::cout << "cnect.have rad = " << cnect.have_read << std::endl;
@@ -74,18 +77,18 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 	if (reader.URI.length() > 160)
 		return (reader.errNbr = 414, 1);
 	std::vector<std::string> a = get_data(reader.host, reader.method, reader.URI, server);
-	std::cout << "a[0] = " << a[0] << std::endl;
-	std::cout << "a[1] = " << a[1] << std::endl;
-	std::cout << "a[2] = " << a[2] << std::endl;
-	std::cout << "a[3] = " << a[3] << std::endl;
-	std::cout << "a[4] = " << a[4] << std::endl;
+	// std::cout << "a[0] = " << a[0] << std::endl;
+	// std::cout << "a[1] = " << a[1] << std::endl;
+	// std::cout << "a[2] = " << a[2] << std::endl;
+	// std::cout << "a[3] = " << a[3] << std::endl;
+	// std::cout << "a[4] = " << a[4] << std::endl;
 	//URI	if (*reader.URI.begin() != '/')
 		reader.URI = "/" + reader.URI;
 	reader.URI = a[2];
 	//a[0] is host:post ok?
 	// std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
-	std::cout << reader.method << std::endl;
-	std::cout << a[0] << std::endl;
+	// std::cout << reader.method << std::endl;
+	// std::cout << a[0] << std::endl;
 	if (a[0] == "0")
 	{
 		std::cout << 1 << std::endl;
@@ -117,8 +120,10 @@ int	reading_done(Server &server, Connection &cnect, Reader &reader)
 		cnect.reader.have_read = cnect.have_read;
 		cnect.have_read = "";
 	}
-	if (cnect.reader.URI.find(".cgi") != std::string::npos)
+	std::cout << "cnect.reader.URI = " <<  cnect.reader.URI << std::endl;
+	if (cnect.reader.URI.find("/cgi-bin/") == 0)
 		cnect.reader.readCGI = 1;
+	std::cout << "cnect.reader.URI.find(/cgi-bin/) = " << cnect.reader.URI.find("/cgi-bin/") << std::endl;
 	std::cout << "cnect.reader.URI = " << cnect.reader.URI << std::endl;
 	std::cout << "cnect.reader.readCGI = " << cnect.reader.readCGI << std::endl;
 	return (1);
@@ -178,18 +183,23 @@ std::string	extract_host(std::string &header_o)
 	return (value);
 }
 
-std::string	extract_cookies(std::string &header_o)
+unsigned int	extract_cookies(std::string &header_o)
 {
 	std::string	header = header_o;
-	std::string	str = "\r\nCookies:";
+	std::string	str = "\r\nCookies: sessionId=";
+
 	ssize_t	start = header.find(str);
 	if (start == static_cast<ssize_t>(std::string::npos))
-		return ("");
+		return (0);
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
 	if (end == static_cast<ssize_t>(std::string::npos))
-		return ("");
-	return (header.substr(start, end));
+		return (0);
+	std::stringstream socket_stream(header.substr(start, end));
+	unsigned int ret;
+	socket_stream >> ret;
+	std::cout << "cookies = " << ret << std::endl;
+	return (ret);
 }
 
 int	header_extract(Connection &cnect, std::string &header_o)
@@ -270,9 +280,9 @@ int reading_header(Server &server, Connection &connect)
 			std::cout << "return 2" << std::endl;
 			return (2);
 		}
-		// std::string a = "";
-		// a.append(buffer, check);
-		// std::cout << a << std::endl;
+		std::string a = "";
+		a.append(buffer, check);
+		std::cout << a << std::endl;
 		connect.have_read.append(buffer, check);
 	}
 	return (request_header(server, connect));
@@ -280,8 +290,8 @@ int reading_header(Server &server, Connection &connect)
 
 void	connection_level(std::vector<Server> &servers)
 {
-	// time_t	now;
-	// int	revents;
+	time_t	now;
+	int	revents;
 	unsigned int	j;
 	Connection 		*cnect;
 
@@ -291,10 +301,11 @@ void	connection_level(std::vector<Server> &servers)
 		while (j < servers[i].connections.size())
 		{
 			cnect = &servers[i].connections[j];
-			// revents = check_fds(servers[i].connections[j].socket_fd);
+			revents = check_fds(servers[i].connections[j].socket_fd);
+			now = time(0);
 			if (cnect->reader.cnect_close == 1
-				|| (cnect->IsAfterResponseClose == 1 && cnect->reader.writer.writingDone == 1))
-				// || revents & POLLHUP)
+				|| (cnect->IsAfterResponseClose == 1 && cnect->reader.writer.writingDone == 1)
+				|| revents & POLLHUP)
 			{
 				std::cout << "Maybe revents = POLLHUP" << std::endl;
 				del_connect(servers[i], *cnect, j);
@@ -303,6 +314,12 @@ void	connection_level(std::vector<Server> &servers)
 			{
 				cnect->reset();
 				j++;
+			}
+			else if (cnect->readingHeaderDone == 0
+				&& revents != POLLIN
+				&& difftime(now, cnect->time_out) >= 10)
+			{
+				del_connect(servers[i], *cnect, j);
 			}
 			else if (cnect->readingHeaderDone == 0)
 			{

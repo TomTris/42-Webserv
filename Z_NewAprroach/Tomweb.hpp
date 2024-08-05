@@ -34,9 +34,11 @@
 #include <cerrno>
 #include <algorithm>
 #include <sys/wait.h>
+#include <signal.h>
 
 #define ERROR200 "www/errors/200.html"
 #define ERROR204 "www/errors/204.html"
+
 #define ERROR400 "www/errors/400.html"
 #define ERROR401 "www/errors/401.html"
 #define ERROR402 "www/errors/402.html"
@@ -45,13 +47,17 @@
 #define ERROR405 "www/errors/405.html"
 #define ERROR408 "www/errors/408.html"
 #define ERROR409 "www/errors/409.html"
+
 #define ERROR411 "www/errors/411.html"
-#define ERROR431 "www/errors/431.html"
+#define ERROR413 "www/errors/413.html"
+#define ERROR414 "www/errors/414.html"
+
+#define ERROR500 "www/errors/500.html"
+#define ERROR508 "www/errors/508.html"
 
 #ifndef BUFFERSIZE
 #define BUFFERSIZE 5000
 #endif
-#define TIME_OUT 5
 #include "Connection.hpp"
 struct location
 {
@@ -94,6 +100,7 @@ class Server
         int                                             body_size_max;
         int                                             port;
         int                                             host;
+        static unsigned int                             cookies_nbr;
         std::string get_error_page(int numb);
         std::string return_default(int numb);
 };

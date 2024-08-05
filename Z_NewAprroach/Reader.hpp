@@ -31,7 +31,7 @@ class Reader {
 		DIR									*dir;
 		int									errFuncCall;
 
-		std::string 						cookies;
+		unsigned int 						cookies;
 		int									readCGI;
 		pid_t								pid;
 		std::string							file_name1;

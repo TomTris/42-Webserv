@@ -45,6 +45,7 @@ std::string Server::return_default(int numb)
     std::map<int, std::string> mp;
     mp[200] = ERROR200;
     mp[204] = ERROR204;
+
     mp[400] = ERROR400;
     mp[401] = ERROR401;
     mp[402] = ERROR402;
@@ -53,8 +54,13 @@ std::string Server::return_default(int numb)
     mp[405] = ERROR405;
     mp[408] = ERROR408;
     mp[409] = ERROR409;
+    
     mp[411] = ERROR411;
-    mp[431] = ERROR431;
+    mp[413] = ERROR413;
+    mp[414] = ERROR414;
+
+    mp[500] = ERROR500;
+    mp[508] = ERROR508;
     return (mp[numb]);
 }
 

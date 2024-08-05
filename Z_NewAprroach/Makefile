@@ -32,7 +32,7 @@
 
 # re: fclean all
 
-NAME = a.out
+NAME = b.out
 FLAGS = -Wall -Werror -Wextra
 SRC = \
 	Ob/Class_Server.cpp\
@@ -57,6 +57,7 @@ $(NAME) : all
 
 all: $(OBJS)
 	c++ $(FLAGS) $(OBJS) -o b.out && valgrind ./b.out
+# c++ $(FLAGS) $(OBJS) -o b.out && ./b.out
 
 %.o: %.cpp
 	$(CXX) $(FLAGS) -c $< -o $@

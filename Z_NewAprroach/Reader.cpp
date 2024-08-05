@@ -22,8 +22,8 @@ Reader::Reader() : writer()
 	time_out = time(NULL);
 	dir = NULL;
 	errFuncCall = 0;
-
-	cookies = "";
+	
+	cookies = 0;
 	readCGI = 0;
 	pid = -1;
 	file_name1 = "";

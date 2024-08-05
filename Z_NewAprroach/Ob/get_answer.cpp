@@ -224,7 +224,6 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
         for (unsigned int i = 0; i < locations.size(); i++)
             std::cout << locations[i].autoindex << std::endl;
         loc = get_location(locations, url);
-        std::cout << loc.URI << "asdsfjdsiofpsdfijsd" << std::endl;
     }
     catch (const std::runtime_error&e) 
     {
@@ -250,7 +249,6 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
     while (path.back() == '/' && path.size() != 1)
         path.pop_back();
     output.push_back(path);
-    std::cout << loc.autoindex << "\n\n\n\n\n\n\n\n\n\n" << std::endl;
     if (loc.autoindex)
     {
         output.push_back("1");
