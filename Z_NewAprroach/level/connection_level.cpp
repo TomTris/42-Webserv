@@ -2,10 +2,11 @@
 
 void	del_connect(Server &server, Connection &cnect, int j)
 {
-	std::cerr << "CONNECTION " <<  cnect.socket_fd  << " DELETED" << std::endl;
+	std::cerr << "DELETED " <<  cnect.socket_fd << std::endl;
 
 	cnect.reset();
 	close(cnect.socket_fd);
+	remove_from_poll(cnect.socket_fd);
 	if (server.connections.size() == 1)
 		server.connections.clear();
 	else
@@ -58,7 +59,6 @@ int	reading_done_precheck(Connection &cnect, Reader &reader)
 	{
 		reader.query_string = reader.URI.substr(reader.URI.find("?") + 1);
 		reader.URI = reader.URI.substr(0, reader.URI.find("?"));
-		// reader.CGI_path = reader.URI;
 	}
 	return (0);
 }
@@ -77,8 +77,6 @@ int	reading_done_last_check(Connection &cnect)
 	}
 	if (cnect.reader.URI.find("/cgi-bin/") == 0)
 		cnect.reader.readCGI = 1;
-	std::cout << "cnect.reader.readCGI = " << cnect.reader.readCGI  <<std::endl;
-	std::cout << cnect.reader.URI << std::endl;
 	if (cnect.reader.readCGI == 1
 		&& (cnect.reader.method != "GET" && cnect.reader.method != "POST"))
 		return (cnect.reader.errNbr = 400, 1);
@@ -98,9 +96,14 @@ int	request_line(Connection &cnect)
 	ssize_t		request_line_end;
 
 	while (cnect.have_read.length() > 0 && cnect.have_read.find("\r\n") == 0)
-		cnect.have_read.erase(0, 2);
+	{
+		if (cnect.have_read.length() == 2)
+			cnect.have_read = "";	
+		else
+			cnect.have_read.erase(0, 2);
+	}
 	if (cnect.have_read.length() == 0)
-		return 1;
+		return 0;
 	cnect.reader.request_line_done = 1;
 	request_line_end = cnect.have_read.find("\r\n");
 
@@ -127,7 +130,8 @@ int	request_line(Connection &cnect)
 int	request_header(Server &server, Connection &cnect)
 {
 	if (cnect.reader.request_line_done == 0 && cnect.have_read.find("\r\n") != std::string::npos)
-		request_line(cnect);
+		if (request_line(cnect) == 0)
+			return (0);
 	ssize_t	header_end = cnect.have_read.find("\r\n\r\n");
 	if (header_end == static_cast<ssize_t>(std::string::npos))
 	{
@@ -154,7 +158,6 @@ int reading_header(Server &server, Connection &connect)
 		if (check == 0)
 			return (printf("returns 2\n") ,2);
 		std::cout << buffer << std::endl;
-		// std::string a = ""; a.append(buffer, check); std::cout << a << std::endl;
 		connect.have_read.append(buffer, check);
 	}
 	return (request_header(server, connect));
@@ -179,7 +182,7 @@ void	connection_level(std::vector<Server> &servers)
 				|| (cnect->IsAfterResponseClose == 1 && cnect->reader.writer.writingDone == 1)
 				|| revents & POLLHUP)
 			{
-				std::cout << "Maybe revents = POLLHUP" << std::endl;
+				// std::cout << "Maybe revents = POLLHUP" << std::endl;
 				del_connect(servers[i], *cnect, j);
 			}
 			else if (cnect->reader.writer.writingDone == 1 )
@@ -227,28 +230,3 @@ void	connection_level(std::vector<Server> &servers)
 // 		}
 // 	}
 // }
-// std::cout << "cnect.have_read = " << cnect.have_read << std::endl;
-	// std::cout << "cnect.IsAfterResponseClose = " << cnect.IsAfterResponseClose << std::endl;
-	
-	// std::cout << "cnect.socket_fd = " << cnect.socket_fd << std::endl;
-	// std::cout << "cnect.reader.autoIndex = " << cnect.reader.autoIndex << std::endl;
-	// std::cout << "cnect.reader.contentLength = " << cnect.reader.contentLength << std::endl;
-	// std::cout << "cnect.reader.errFuncCall = " << cnect.reader.errFuncCall << std::endl;
-	// std::cout << "cnect.reader.errNbr = " << cnect.reader.errNbr << std::endl;
-	// std::cout << "cnect.reader.fdReadingFrom = " << cnect.reader.fdReadingFrom << std::endl;
-	// std::cout << "cnect.reader.have_read = " << cnect.reader.have_read << std::endl;
-	// std::cout << "cnect.reader.have_read_2 = " << cnect.reader.have_read_2 << std::endl;
-	// std::cout << "cnect.reader.host = " << cnect.reader.host << std::endl;
-	// std::cout << "cnect.reader.method = " << cnect.reader.method << std::endl;
-	// std::cout << "cnect.reader.openFile = " << cnect.reader.openFile << std::endl;
-	// std::cout << "cnect.reader.post = " << cnect.reader.post << std::endl;
-	// std::cout << "cnect.reader.URI = " << cnect.reader.URI << std::endl;
-	// std::cout << "cnect.reader.readingDone = " << cnect.reader.readingDone << std::endl;
-	// std::cout << "cnect.reader.writer.fdWritingTo = " << cnect.reader.writer.fdWritingTo << std::endl;
-	// std::cout << "cnect.reader.writer.writeString = " << cnect.reader.writer.writeString << std::endl;
-	// std::cout << "--------------------------- " << std::endl;
-	// std::cout << "cnect.reader.cnect_close = " << cnect.reader.cnect_close << std::endl;
-	// std::cout << "cnect.reader.writer.writingDone = " << cnect.reader.writer.writingDone << std::endl;
-	// std::cout << "cnect.readingHeaderDone = " << cnect.readingHeaderDone << std::endl;
-	// std::cout << "cnect.reader.writer.writingDone = " << cnect.reader.writer.writingDone << std::endl;
-	// std::cout << "------------------------------------------------------------------------------------------------------------ " << std::endl;

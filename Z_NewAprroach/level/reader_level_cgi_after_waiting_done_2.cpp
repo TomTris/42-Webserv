@@ -65,7 +65,7 @@ int	extract_contentLength_cgi(std::string &header)
 		return (-1);
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
-	std::string content = header.substr(start, end);
+	std::string content = header.substr(start, end - start);
 	std::stringstream socket_stream(content);
 	int value;
 	socket_stream >> value;
@@ -76,7 +76,7 @@ int	cgi_handle_file_header(Reader &reader)
 {
 	if (reader.have_read_2.find("\r\n\r\n") == std::string::npos)
 		return (0);
-	
+
 	int	statusCode;
 	std::string header = reader.have_read_2.substr(0, reader.have_read_2.find("\r\n\r\n"));
 
@@ -88,12 +88,24 @@ int	cgi_handle_file_header(Reader &reader)
 		int	end = header.find("\r\n", start);
 		std::stringstream ss(header.substr(start, end));
 		ss >> statusCode;
-		reader.writer.writeString = getHeader(statusCode);
+		reader.writer.writeString = getHeader(statusCode) + "\r\n";
 		header.erase(0, end);
 	}
 	else
-		reader.writer.writeString = getHeader(200);
+		reader.writer.writeString = getHeader(200) + "\r\n";
 	reader.contentLength = extract_contentLength_cgi(header);
+	if (reader.contentLength != -1)
+	{
+		reader.contentLength -= (reader.have_read_2.length() - reader.have_read_2.find("\r\n\r\n") - 4);
+		if (reader.contentLength < 0)
+		{
+			if (reader.have_read_2.length() + reader.contentLength >= 0)
+				reader.have_read_2 = reader.have_read_2.substr(0, reader.have_read_2.length() + reader.contentLength);
+			//else
+				// CGi is crazy
+			reader.contentLength = 0;
+		}
+	}
 	reader.cgi_header_done = 1;
 	return (1);
 }
@@ -141,7 +153,7 @@ int	read_func_cgi_get(Reader &reader)
 	
 	check = read(reader.fdReadingFrom, buffer, sizeof(buffer) - 1);
 	if (check == -1)
-		return (printf("check in reader = -1\n"), 1);
+		return (printf("check in reader = -1 read_func_cgi_get\n"), 1);
 	if (check == 0)
 		return (reader.cnect_close = 1, 0);
 	reader.have_read_2.append(buffer, check);

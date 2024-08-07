@@ -2,10 +2,13 @@
 
 int	writer(Connection &cnect, Writer &writer)
 {
+	// std::cout << cnect.socket_fd << std::endl;
 	if (check_fds(writer.fdWritingTo) & POLLOUT)
 	{
+		// std::cout << "huha" << cnect.socket_fd << std::endl;
 		if (writer.writeString.length() > 0)
 		{
+			// std::cout << "is writing: {" << writer.writeString << "}" << std::endl;
 			ssize_t bytesWritten = write(writer.fdWritingTo, writer.writeString.c_str(), writer.writeString.length());
 			if (bytesWritten == -1)
 			{

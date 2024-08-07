@@ -6,7 +6,7 @@ import cgitb
 
 cgitb.enable()
 
-print("Content-Type: text/html\n")
+print("Content-Type: text/html\r\n\r\n")
 
 # HTML start
 print("<html>")

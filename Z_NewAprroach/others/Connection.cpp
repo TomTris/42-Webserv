@@ -74,8 +74,8 @@ void Connection::reset()
 	change_option_poll(socket_fd, POLLIN);
 	if (reader.fdReadingFrom != socket_fd && reader.fdReadingFrom != -1)
 	{
-		remove_from_poll(reader.fdReadingFrom);
 		close(reader.fdReadingFrom);
+		remove_from_poll(reader.fdReadingFrom);
 	}
 	reader.fdReadingFrom = -1;
 	reader.errFuncCall = 0;
@@ -97,8 +97,8 @@ void Connection::reset()
 	
 	if (reader.writer.fdWritingTo != socket_fd && reader.writer.fdWritingTo != -1)
 	{
-		remove_from_poll(reader.writer.fdWritingTo);
 		close(reader.writer.fdWritingTo);
+		remove_from_poll(reader.writer.fdWritingTo);
 	}
 	
 	reader.writer.fdWritingTo = -1;

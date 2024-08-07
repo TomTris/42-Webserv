@@ -56,7 +56,7 @@
 #define ERROR508 "www/errors/508.html"
 
 #ifndef BUFFERSIZE
-#define BUFFERSIZE 5000
+#define BUFFERSIZE 500
 #endif
 #include "others/Connection.hpp"
 struct location
@@ -100,7 +100,6 @@ class Server
         int                                             body_size_max;
         int                                             port;
         int                                             host;
-        static unsigned int                             cookies_nbr;
         std::string get_error_page(int numb);
         std::string return_default(int numb);
 };

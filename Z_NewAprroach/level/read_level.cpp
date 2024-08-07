@@ -217,7 +217,7 @@ int	read_func(Connection &cnect, Reader &reader)
 	
 	check = read(reader.fdReadingFrom, buffer, sizeof(buffer) - 1);
 	if (check == -1)
-		return (printf("check in reader = -1\n"), 1);
+		return (printf("check in reader = -1 normal read_func \n"), 1);
 	if (check == 0)
 		return (reader.readingDone = 1, cnect.IsAfterResponseClose = 1, 1);
 	reader.have_read_2.append(buffer, check);

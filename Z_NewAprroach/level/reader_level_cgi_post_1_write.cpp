@@ -25,7 +25,6 @@ int	cgi_post_write_to_file(Connection &cnect, Reader &reader)
 		remove_from_poll(reader.writer.fdWritingTo);
 		reader.openFile = 0;
 		reader.writer.fdWritingTo = -1;
-		reader.method = "GET";
 		reader.errNbr = 200;
 		reader.post = 3;
 	}
@@ -48,10 +47,11 @@ int	read_func_cgi_post1(Connection &cnect, Reader &reader)
 	
 	int		check;
 	char	buffer[BUFFERSIZE];
-	
+	if (check_fds(reader.fdReadingFrom) != POLLIN)
+		return (0);
 	check = read(reader.fdReadingFrom, buffer, sizeof(buffer) - 1);
 	if (check == -1)
-		return (printf("check in reader = -1\n"), 1);
+		return (printf("check in reader = -1 read_func_cgi_post1\n"), 1);
 	if (check == 0)
 		return (reader.fdReadingFrom = -1, cnect.IsAfterResponseClose = 1, reader.eof = 1, 0);
 	reader.have_read_2.append(buffer, check);
@@ -74,16 +74,23 @@ int	cgi_open_post(Connection &cnect, Reader &reader)
 		return (reader.errNbr = 500, reader.readCGI = 0, perror("open"), -1);
 	reader.fdReadingFrom = cnect.socket_fd;
 	reader.writer.fdWritingTo = fd;
+	reader.openFile = 1;
 	add_to_poll(fd, POLLOUT);
 	return (1);
 }
 
 int	CGI_post_1(Connection &cnect, Reader &reader)
 {
+	usleep(500000);
 	if (reader.openFile == 0)
+	{
 		if (cgi_open_post(cnect, reader) == -1)
 			return (-1);
-	read_func_cgi_post1(cnect, reader);
-	cgi_post_write_to_file(cnect, reader);
+	}
+	else
+	{
+		read_func_cgi_post1(cnect, reader);
+		cgi_post_write_to_file(cnect, reader);
+	}
 	return (1);
 }
