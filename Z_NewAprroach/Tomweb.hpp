@@ -58,7 +58,7 @@
 #ifndef BUFFERSIZE
 #define BUFFERSIZE 5000
 #endif
-#include "Connection.hpp"
+#include "others/Connection.hpp"
 struct location
 {
     std::string URI;
@@ -141,6 +141,7 @@ int     check_fds(int fd);
 void	server_level(std::vector<Server> &servers);
 //------------Connection-level-------//
 void	connection_level(std::vector<Server> &servers);
+int 	header_extract(Connection &cnect, std::string &header_o);
 
 //----reader-----//
 void	read_level(std::vector<Server> &servers);
@@ -149,4 +150,14 @@ void	read_level(std::vector<Server> &servers);
 void	write_level(std::vector<Server> &servers);
 //--Statuscode---//
 std::string	get_header(int nbr, std::string str);
+
+
+
+//----CGI----//
+int CGI_get(Connection &cnect, Reader &reader);
+int CGI_post_1(Connection &cnect, Reader &reader);
+int CGI_post_2(Connection &cnect, Reader &reader);
+int	CGI_after_waiting(Reader &reader);
+int readCGIFunc(Connection &cnect, Reader &reader);
+
 #endif

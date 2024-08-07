@@ -1,4 +1,4 @@
-#include "Tomweb.hpp"
+#include "../Tomweb.hpp"
 
 void	load_config(int ac, char **av, std::vector<server_t> &server_config)
 {

@@ -1,55 +1,31 @@
-# NAME = a.out
-# FLAGS = -Wall -Werror -Wextra
-# SRC = \
-# 	Ob/Class_Server.cpp\
-# 	Ob/get_answer.cpp\
-# 	Ob/parse.cpp\
-# 	main.cpp\
-# 	socket_create.cpp\
-# 	Connection.cpp\
-# 	Reader.cpp\
-# 	Writer.cpp\
-# 	poll_relevant.cpp\
-# 	level/server_level.cpp\
-# 	level/connection_level.cpp\
-# 	level/read_level.cpp\
-# 	level/write_level.cpp\
-# 	statusCode.cpp
-
-
-# OBJS = $(SRC:.cpp=.o)
-
-# $(NAME) : all
-
-# all: $(OBJS)
-# 	c++ $(FLAGS) $(OBJS)
-
-# clean:
-# 	rm -f $(OBJS)
-
-# fclean: clean
-# 	rm -f $(NAME)
-
-# re: fclean all
-
 NAME = b.out
 FLAGS = -Wall -Werror -Wextra
 SRC = \
 	Ob/Class_Server.cpp\
 	Ob/get_answer.cpp\
 	Ob/parse.cpp\
+	\
 	main.cpp\
-	socket_create.cpp\
-	Connection.cpp\
-	Reader.cpp\
-	Writer.cpp\
-	poll_relevant.cpp\
+	\
+	others/socket_create.cpp\
+	others/Connection.cpp\
+	others/poll_relevant.cpp\
+	others/statusCode.cpp\
+	\
 	level/server_level.cpp\
+	\
 	level/connection_level.cpp\
+	level/connection_level_extract.cpp\
+	\
+	level/reader_level_cgi_after_waiting_done_2.cpp\
+	level/reader_level_cgi_get_before_waiting_done.cpp\
+	level/reader_level_cgi_post_1_write.cpp\
+	level/reader_level_cgi_post_2_before_waiting_done.cpp\
 	level/read_level.cpp\
-	level/write_level.cpp\
-	statusCode.cpp
-SANITIZER_FLAGS = -fsanitize=address,undefined
+	\
+	level/write_level.cpp
+
+# SANITIZER_FLAGS = -fsanitize=address,undefined
 
 OBJS = $(SRC:.cpp=.o)
 

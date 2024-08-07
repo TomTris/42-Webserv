@@ -1,4 +1,4 @@
-#include "Tomweb.hpp"
+#include "../Tomweb.hpp"
 
 std::string handle_200(std::string str)
 {
@@ -64,7 +64,7 @@ std::string handle_200(std::string str)
 //Request proccessed successfull
 std::string	handle_204(void)
 {
-	std::string http = 	"HTTP/1.1 204 KO\r\n"
+	std::string http = 	"HTTP/1.1 204 OK\r\n"
 			"Content-Type: text/html\r\n";
 	return (http);
 }
@@ -86,7 +86,7 @@ std::string	handle_401(void)
 //Forbidden
 std::string	handle_403(void)
 {
-	std::string http = "HTTP/1.1 403 KO\r\n"
+	std::string http = "HTTP/1.1 403 Forbidden\r\n"
 			"Content-Type: text/html\r\n";
 	return (http);
 }
