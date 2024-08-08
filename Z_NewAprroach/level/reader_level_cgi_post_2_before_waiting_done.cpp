@@ -46,14 +46,14 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 		if (reader.CGI_path.find("/") != std::string::npos)
 		{
 			if (chdir(reader.CGI_path.substr(0, reader.CGI_path.find("/")).c_str()) == -1)
-				return (perror("chdir"), exit(EXIT_FAILURE), 1);
+				return (perror("chdir"), exit(EXIT_FAILURE), -99);
 			reader.CGI_path.erase(0, reader.CGI_path.find("/") + 1);
 		}
 		else
 			break ;
 	}
 	//python3 or sh or bla bla
-	reader.CGI_path = "." + reader.CGI_path;
+	reader.CGI_path = "./" + reader.CGI_path;
 
 	char *a[4];
 	char a0[200];

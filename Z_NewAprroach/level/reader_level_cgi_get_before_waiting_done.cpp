@@ -74,9 +74,11 @@ int	child_process(Connection &cnect, Reader &reader)
 	env[6] = env6;
 	env[7] = NULL;
 		
+	while (*(reader.CGI_path.end() - 1) == '/' && reader.CGI_path.length() > 1)
+		reader.CGI_path.erase(reader.CGI_path.end() -1);
 	while (1)
 	{
-		while (*reader.CGI_path.begin() == '/')
+		while (*reader.CGI_path.begin() == '/' && reader.CGI_path.length() > 1)
 		{
 			if (reader.CGI_path.length() > 1)
 				reader.CGI_path.erase(reader.CGI_path.begin());
@@ -86,7 +88,7 @@ int	child_process(Connection &cnect, Reader &reader)
 				break ;
 			}
 		}
-		if (reader.CGI_path.find("/") != std::string::npos)
+		if (reader.CGI_path.find("/") != std::string::npos && reader.CGI_path.length() > 1)
 		{
 			if (chdir(reader.CGI_path.substr(0, reader.CGI_path.find("/")).c_str()) == -1)
 				return (perror("chdir"), exit(EXIT_FAILURE), 1);
@@ -96,6 +98,9 @@ int	child_process(Connection &cnect, Reader &reader)
 			break ;
 	}
 	reader.CGI_path = "./" + reader.CGI_path;
+	int fd1 = open("123", O_CREAT | O_RDWR, 0644);
+	write(fd1, reader.CGI_path.c_str(), reader.CGI_path.length());
+	close(fd1);
 	char a0[reader.CGI_path.length() + 1];
 	std::strcpy(a0, reader.CGI_path.c_str());
 	char *a[2];
@@ -115,6 +120,7 @@ int	child_create(Connection &cnect, Reader &reader)
 		return (reader.readCGI = 0, reader.errNbr = 404, -1);
 
 //find a file to write into
+	std::cout << "reader.CGI_path = " << reader.CGI_path << std::endl;
 	reader.pid = fork();
 	if (reader.pid == -1)
 		return (reader.errNbr = 500, reader.readCGI = 0, perror("fork"), -1);

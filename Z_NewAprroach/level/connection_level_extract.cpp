@@ -51,21 +51,19 @@ std::string	extract_host(std::string &header_o)
 	return (value);
 }
 
-unsigned int	extract_cookies(std::string &header_o)
+std::string	extract_cookies(std::string &header)
 {
-	std::string	header = header_o;
-	std::string	str = "\r\nCookies:";
+	std::string	str = "\r\nCookie: ";
 
 	ssize_t	start = header.find(str);
 	if (start == static_cast<ssize_t>(std::string::npos))
-		return (0);
+		return ("");
 	start += str.length();
 	ssize_t end = header.find("\r\n", start);
 	if (end == static_cast<ssize_t>(std::string::npos))
-		return (0);
-	std::stringstream socket_stream(header.substr(start, end - start));
-	unsigned int ret;
-	socket_stream >> ret;
+		return ("");
+	std::string ret;
+	ret = header.substr(start, end);
 	return (ret);
 }
 
