@@ -157,7 +157,7 @@ int reading_header(Server &server, Connection &connect)
 			return (printf("reader in connection = -1\n"),1);
 		if (check == 0)
 			return (printf("returns 2\n") ,2);
-		// std::cout << buffer << std::endl;
+		std::cout << buffer << std::endl;
 		connect.have_read.append(buffer, check);
 	}
 	return (request_header(server, connect));

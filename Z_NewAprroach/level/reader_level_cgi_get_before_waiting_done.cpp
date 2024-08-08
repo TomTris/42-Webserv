@@ -50,16 +50,30 @@ int	child_process(Connection &cnect, Reader &reader)
 		return (reader.errNbr = 500, reader.readCGI = 0, perror("open"), -1);
 	if (dup2(fd, STDOUT_FILENO) == -1)
 		exit(EXIT_FAILURE);
-	if (setenv("REQUEST_METHOD", reader.method.c_str(), 1) != 0
-		|| setenv("QUERY_STRING", reader.query_string.c_str(), 1)!= 0
-		|| setenv("CONTENT_TYPE", reader.content_type.c_str(), 1)!= 0
-		|| setenv("CONTENT_LENGTH", "0", 1)!= 0
-		|| setenv("HTTP_COOKIE", reader.cookies.c_str(), 1)!= 0
-		|| setenv("SCRIPT_NAME", reader.CGI_path.c_str(), 1)!= 0
-		|| setenv("REMOTE_ADD", "127.0.0.1", 1) != 0)
-		exit(EXIT_FAILURE);
-		//server name
-		//server port
+	std::string aREQUEST_METHOD = "REQUEST_METHOD=" + reader.method;
+	std::string aQUERY_STRING = "QUERY_STRING=" + reader.query_string;
+	std::string aCONTENT_TYPE = "CONTENT_TYPE=" + reader.content_type;
+	std::string aCONTENT_LENGTH = "CONTENT_LENGTH=0";
+	std::string aHTTP_COOKIE = "HTTP_COOKIE=" + reader.cookies;
+	std::string aSCRIPT_NAME = "SCRIPT_NAME=" + reader.CGI_path;
+	std::string aREMOTE_ADD = "REMOTE_ADDR=127.0.0.1";//server name //server port
+	char *env[8];
+	char env0[aREQUEST_METHOD.size() + 1]; std::strncpy(env0, aREQUEST_METHOD.c_str(), aREQUEST_METHOD.size()); env0[aREQUEST_METHOD.size()] = 0;
+	char env1[aQUERY_STRING.size() + 1]; std::strncpy(env1, aQUERY_STRING.c_str(), aQUERY_STRING.size()); env1[aQUERY_STRING.size()] = 0;
+	char env2[aCONTENT_TYPE.size() + 1]; std::strncpy(env2, aCONTENT_TYPE.c_str(), aCONTENT_TYPE.size()); env2[aCONTENT_TYPE.size()] = 0;
+	char env3[aCONTENT_LENGTH.size() + 1]; std::strncpy(env3, aCONTENT_LENGTH.c_str(), aCONTENT_LENGTH.size()); env3[aCONTENT_LENGTH.size()] = 0;
+	char env4[aHTTP_COOKIE.size() + 1]; std::strncpy(env4, aHTTP_COOKIE.c_str(), aHTTP_COOKIE.size()); env4[aHTTP_COOKIE.size()] = 0;
+	char env5[aSCRIPT_NAME.size() + 1]; std::strncpy(env5, aSCRIPT_NAME.c_str(), aSCRIPT_NAME.size()); env5[aSCRIPT_NAME.size()] = 0;
+	char env6[aREMOTE_ADD.size() + 1]; std::strncpy(env6, aREMOTE_ADD.c_str(), aREMOTE_ADD.size()); env6[aREMOTE_ADD.size()] = 0;
+	env[0] = env0;
+	env[1] = env1;
+	env[2] = env2;
+	env[3] = env3;
+	env[4] = env4;
+	env[5] = env5;
+	env[6] = env6;
+	env[7] = NULL;
+		
 	reader.CGI_path = "." + reader.CGI_path;
 	char a0[reader.CGI_path.length() + 1];
 	std::strcpy(a0, reader.CGI_path.c_str());
@@ -67,7 +81,7 @@ int	child_process(Connection &cnect, Reader &reader)
 	a[0] = a0;
 	a[1] = NULL;
 	std::cerr << "execve " << reader.CGI_path << std::endl;
-	execve(a0, a, NULL);
+	execve(a0, a, env);
 	perror("execve");
 	close(fd);
 	exit(EXIT_FAILURE);

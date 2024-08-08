@@ -15,6 +15,7 @@ int	open500(Server & server, Connection &cnect, Reader &reader)
 {
 	if (reader.errNbr == 500)
 		return (reader.cnect_close = 1, 1);
+	reader.errNbr = 500;
 	return (anotherErr(server, cnect, reader, 500));
 }
 
