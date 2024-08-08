@@ -74,7 +74,28 @@ int	child_process(Connection &cnect, Reader &reader)
 	env[6] = env6;
 	env[7] = NULL;
 		
-	reader.CGI_path = "." + reader.CGI_path;
+	while (1)
+	{
+		while (*reader.CGI_path.begin() == '/')
+		{
+			if (reader.CGI_path.length() > 1)
+				reader.CGI_path.erase(reader.CGI_path.begin());
+			else
+			{
+				reader.CGI_path.clear();
+				break ;
+			}
+		}
+		if (reader.CGI_path.find("/") != std::string::npos)
+		{
+			if (chdir(reader.CGI_path.substr(0, reader.CGI_path.find("/")).c_str()) == -1)
+				return (perror("chdir"), exit(EXIT_FAILURE), 1);
+			reader.CGI_path.erase(0, reader.CGI_path.find("/") + 1);
+		}
+		else
+			break ;
+	}
+	reader.CGI_path = "./" + reader.CGI_path;
 	char a0[reader.CGI_path.length() + 1];
 	std::strcpy(a0, reader.CGI_path.c_str());
 	char *a[2];

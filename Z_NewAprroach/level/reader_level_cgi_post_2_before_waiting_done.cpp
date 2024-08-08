@@ -31,6 +31,27 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 	env[6] = env6;
 	env[7] = NULL;
 
+	while (1)
+	{
+		while (*reader.CGI_path.begin() == '/')
+		{
+			if (reader.CGI_path.length() > 1)
+				reader.CGI_path.erase(reader.CGI_path.begin());
+			else
+			{
+				reader.CGI_path.clear();
+				break ;
+			}
+		}
+		if (reader.CGI_path.find("/") != std::string::npos)
+		{
+			if (chdir(reader.CGI_path.substr(0, reader.CGI_path.find("/")).c_str()) == -1)
+				return (perror("chdir"), exit(EXIT_FAILURE), 1);
+			reader.CGI_path.erase(0, reader.CGI_path.find("/") + 1);
+		}
+		else
+			break ;
+	}
 	//python3 or sh or bla bla
 	reader.CGI_path = "." + reader.CGI_path;
 

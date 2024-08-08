@@ -5,7 +5,7 @@ Content-Type: text/html
 <head><meta charset="UTF-8"><title>Form Response</title></head>
 <body>
 <h1>Form Data Received</h1>
-<p>Name: qdq</p>
-<p>Age: 12</p>
+<p>Name: </p>
+<p>Age: </p>
 </body>
 </html>

@@ -75,10 +75,11 @@ int	reading_done_last_check(Connection &cnect)
 		cnect.reader.have_read_2 = cnect.have_read;
 		cnect.have_read = "";
 	}
-	if (cnect.reader.URI.find("/cgi-bin/") == 0)
+	if (cnect.reader.URI.find("/cgi-bin/") == 0 && cnect.reader.URI.find("/cgi-bin/database"))
 		cnect.reader.readCGI = 1;
 	if (cnect.reader.readCGI == 1
-		&& (cnect.reader.method != "GET" && cnect.reader.method != "POST"))
+		&& (cnect.reader.method != "GET"
+		&& cnect.reader.method != "POST"))
 		return (cnect.reader.errNbr = 400, 1);
 	return (1);
 }
