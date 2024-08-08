@@ -9,7 +9,7 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 	if (setenv("REQUEST_METHOD", reader.method.c_str(), 1) != 0
 		|| setenv("QUERY_STRING", reader.query_string.c_str(), 1) != 0
 		|| setenv("CONTENT_TYPE", reader.content_type.c_str(), 1) != 0
-		|| setenv("CONTENT_LENGTH", "0", 1) != 0
+		|| setenv("CONTENT_LENGTH", std::to_string(reader.contentLengthCGI).c_str(), 1) != 0
 		|| setenv("HTTP_COOKIE", reader.cookies.c_str(), 1) != 0
 		|| setenv("SCRIPT_NAME", reader.CGI_path.c_str(), 1) != 0
 		|| setenv("REMOTE_ADD", "127.0.0.1", 1) != 0)
@@ -171,7 +171,7 @@ int	CGI_post_2(Connection &cnect, Reader &reader)
 	// std::cout << "reader.post = " << reader.post << std::endl;
 	if (reader.post == 3)
 		CGI_post_wait_open(cnect, reader);
-	if (reader.post == 4)
+	else if (reader.post == 4)
 		CGI_after_waiting(reader);
 	return (1);
 }
@@ -180,7 +180,7 @@ int readCGIFunc(Connection &cnect, Reader &reader)
 {
 	if (reader.method == "GET")
 	{
-		std::cout << "CGI Method GET" << std::endl;
+		// std::cout << "CGI Method GET" << std::endl;
 		if (reader.waitingDone == 0)
 			return (CGI_get(cnect, reader));
 		return (CGI_after_waiting(reader));

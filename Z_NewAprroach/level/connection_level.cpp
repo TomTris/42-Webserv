@@ -157,7 +157,7 @@ int reading_header(Server &server, Connection &connect)
 			return (printf("reader in connection = -1\n"),1);
 		if (check == 0)
 			return (printf("returns 2\n") ,2);
-		std::cout << buffer << std::endl;
+		// std::cout << buffer << std::endl;
 		connect.have_read.append(buffer, check);
 	}
 	return (request_header(server, connect));
@@ -190,12 +190,15 @@ void	connection_level(std::vector<Server> &servers)
 				cnect->reset();
 				j++;
 			}
-			// else if (cnect->readingHeaderDone == 0
-			// 	&& revents != POLLIN
-			// 	&& difftime(now, cnect->time_out) >= 10)
-			// {
-			// 	del_connect(servers[i], *cnect, j);
-			// }
+			else if (cnect->readingHeaderDone == 0
+				&& revents != POLLIN
+				&& difftime(now, cnect->time_out) >= 15)
+			{
+				cnect->readingHeaderDone = 1;
+				cnect->reader.errNbr = 408;
+				j++;
+				// del_connect(servers[i], *cnect, j);
+			}
 			else if (cnect->readingHeaderDone == 0)
 			{
 				if (reading_header(servers[i], *cnect) == 2)

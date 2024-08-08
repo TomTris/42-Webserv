@@ -1,36 +1,35 @@
-#!/usr/bin python3
+#!/usr/bin/env python3
 
 import cgi
 import cgitb
+from urllib.parse import unquote
 
-
+# Enable debugging
 cgitb.enable()
 
+# Function to parse URL-encoded form data
+def parse_form_data():
+    form = cgi.FieldStorage()
+    data = {}
+    for key in form.keys():
+        value = form.getvalue(key)
+        if value:
+            data[key] = unquote(value)
+    return data
+
+# Output HTTP headers
 print("Content-Type: text/html\r\n\r\n")
 
-# HTML start
-print("<html>")
-print("<head>")
-print("<title>POST Request Processing</title>")
-print("</head>")
+# Parse form data
+data = parse_form_data()
+
+# Generate response
+print("<!DOCTYPE html>")
+print("<html lang=\"en\">")
+print("<head><meta charset=\"UTF-8\"><title>Form Response</title></head>")
 print("<body>")
-
-# Retrieve form data
-form = cgi.FieldStorage()
-name = form.getvalue("name")
-age = form.getvalue("age")
-
-# Process and respond to the POST request
-if name and age:
-    try:
-        age = int(age)
-        print(f"<h2>Hello, {name}!</h2>")
-        print(f"<p>You are {age} years old.</p>")
-    except ValueError:
-        print("<p style='color:red;'>Invalid input. Age must be a number.</p>")
-else:
-    print("<p style='color:red;'>Please enter both name and age.</p>")
-
-# HTML end
+print("<h1>Form Data Received</h1>")
+print(f"<p>Name: {data.get('name', 'Not provided')}</p>")
+print(f"<p>Age: {data.get('age', 'Not provided')}</p>")
 print("</body>")
 print("</html>")

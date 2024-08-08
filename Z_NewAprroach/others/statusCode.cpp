@@ -144,6 +144,18 @@ std::string	handle_500(void)
 	return (http);
 }
 
+std::string	handle_502(void)
+{	std::string http = "HTTP/1.1 502 Bad Gateway\r\n"
+			"Content-Type: text/html\r\n";
+	return (http);
+}
+
+std::string	handle_504(void)
+{	std::string http = "HTTP/1.1 504 Gateway Timeout\r\n"
+			"Content-Type: text/html\r\n";
+	return (http);
+}
+
 std::string	handle_508(void)
 {	std::string http = "HTTP/1.1 508 Loop Detected\r\n"
 			"Content-Type: text/html\r\n";
@@ -193,6 +205,10 @@ std::string	get_header(int nbr, std::string str)
 		case 414:
 			return handle_414();
 		case 500:
+			return handle_500();
+		case 502:
+			return handle_500();
+		case 504:
 			return handle_500();
 		case 508:
 			return handle_508();

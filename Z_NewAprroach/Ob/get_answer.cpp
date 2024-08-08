@@ -195,7 +195,6 @@ bool isHostOk(std::string &host, Server& serv)
 std::string get_ex(std::string url)
 {
     int i = (int)url.size() - 2;
-
     for (; i >= -1; i--)
     {
         if (i == -1 || url[i] == '\\')
@@ -239,8 +238,6 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
     location loc;
     try
     {
-        // for (unsigned int i = 0; i < locations.size(); i++)
-        //     std::cout << locations[i].autoindex << std::endl;
         loc = get_location(locations, url);
     }
     catch (const std::runtime_error&e) 
@@ -292,7 +289,9 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
         }
     }
     if (!seen)
+    {
         output.push_back("");
         output.push_back("");
+    }
     return (output);
 }

@@ -86,6 +86,7 @@ int	child_create(Connection &cnect, Reader &reader)
 	reader.childCreated = 1;
 	if (reader.pid == 0)
 		child_process(cnect, reader);
+	reader.time_out = time(0);
 	return (1);
 }
 
@@ -94,15 +95,27 @@ int CGI_get(Connection &cnect, Reader &reader)
 	if (reader.childCreated == 0)
 		if (child_create(cnect, reader) == -1)
 			return (-1);
+	
 	if (reader.waitingDone == 0)
 	{
 		int status;
 		if (wait_done(reader, &status) == 0)
+		{
+			clock_t now = time(0);
+			if (difftime(now, reader.time_out) > 5)
+			{
+				kill(reader.pid, SIGTERM);
+				reader.pid = -1;
+				reader.time_out = time(0);
+				return (reader.errNbr = 504, reader.readCGI = 0, -1);
+			}
 			return (1);
+		}
 		if (after_waiting(reader, status) == -1)
 			return (-1);
 		if (cgi_open_get(cnect, reader) == -1)
 			return (-1);
+		reader.time_out = time(0);
 	}
 	return (1);
 }

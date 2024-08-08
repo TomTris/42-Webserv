@@ -60,6 +60,8 @@ std::string Server::return_default(int numb)
     mp[414] = ERROR414;
 
     mp[500] = ERROR500;
+    mp[502] = ERROR502;
+    mp[504] = ERROR504;
     mp[508] = ERROR508;
     return (mp[numb]);
 }

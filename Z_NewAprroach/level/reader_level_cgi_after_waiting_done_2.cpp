@@ -99,7 +99,7 @@ int	cgi_handle_file_header(Reader &reader)
 		reader.contentLength -= (reader.have_read_2.length() - reader.have_read_2.find("\r\n\r\n") - 4);
 		if (reader.contentLength < 0)
 		{
-			if (reader.have_read_2.length() + reader.contentLength >= 0)
+			if (static_cast<int>(reader.have_read_2.length()) + reader.contentLength >= 0)
 				reader.have_read_2 = reader.have_read_2.substr(0, reader.have_read_2.length() + reader.contentLength);
 			//else
 				// CGi is crazy
@@ -162,6 +162,9 @@ int	read_func_cgi_get(Reader &reader)
 
 int	CGI_after_waiting(Reader &reader)
 {
+	clock_t now = time(0);
+	if (difftime(now, reader.time_out) > 15 && check_fds(reader.writer.fdWritingTo) != POLLOUT)
+		return (reader.cnect_close = 1, 1);
 	if (read_func_cgi_get(reader) == -1)
 		return (-1);
 	if (reader.cgi_header_done == 0)

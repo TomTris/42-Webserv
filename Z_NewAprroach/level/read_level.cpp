@@ -313,21 +313,20 @@ int	handle_delete(Reader &reader)
 	return (reader.errNbr = 500, 0);
 }
 
-int	isTimeOut(Connection &cnect, Reader &reader)
+int	isTimeOut(Reader &reader)
 {
 	clock_t now = time(0);
 
-	if (cnect.readingHeaderDone == 1)
-	{
-		if (difftime(now, reader.time_out) > 10)
-			return (cnect.reader.cnect_close = 1, 1);
-	}
+	if (reader.errNbr < 300 && difftime(now, reader.time_out) > 15 && check_fds(reader.fdReadingFrom) != POLLIN)
+		return (reader.errNbr = 408, 1);
+	if (reader.errNbr > 300 && difftime(now, reader.time_out) > 15 && check_fds(reader.writer.fdWritingTo) != POLLOUT)
+		return (reader.cnect_close = 1, 1);
 	return (0);
 }
 
 int	reader(Server & server, Connection &cnect, Reader &reader)
 {
-	if (isTimeOut(cnect, reader) == 1)
+	if (isTimeOut(reader) == 1)
 		return (1);
 	if (cnect.reader.method == "DELETE" && reader.errNbr < 300)
 		handle_delete(reader);
@@ -336,7 +335,6 @@ int	reader(Server & server, Connection &cnect, Reader &reader)
 		if (reader.errNbr >= 300)
 		{
 			openFuncErr(server, cnect, reader);
-			reader.method = "GET";
 		}
 		else if (reader.method == "GET")
 			openFunc(server, cnect, reader);

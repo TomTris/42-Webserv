@@ -76,12 +76,13 @@ int	cgi_open_post(Connection &cnect, Reader &reader)
 	reader.writer.fdWritingTo = fd;
 	reader.openFile = 1;
 	add_to_poll(fd, POLLOUT);
+	reader.time_out = time(0);
 	return (1);
 }
 
 int	CGI_post_1(Connection &cnect, Reader &reader)
 {
-	usleep(500000);
+	// usleep(200000);
 	if (reader.openFile == 0)
 	{
 		if (cgi_open_post(cnect, reader) == -1)
@@ -89,8 +90,16 @@ int	CGI_post_1(Connection &cnect, Reader &reader)
 	}
 	else
 	{
+		clock_t now = time(0);
+		int	revents = check_fds(reader.fdReadingFrom);
+		if (difftime(now, reader.time_out) > 10 && revents != POLLIN)
+			return (reader.errNbr = 408, reader.readCGI = 0, -1);
+		if (revents == POLLIN)
+			reader.time_out = time(0);
 		read_func_cgi_post1(cnect, reader);
 		cgi_post_write_to_file(cnect, reader);
+		if (difftime(now, reader.time_out) > 10 && reader.post < 2)
+			return (reader.errNbr = 408, reader.readCGI = 0, -1);
 	}
 	return (1);
 }

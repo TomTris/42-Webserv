@@ -53,6 +53,8 @@
 #define ERROR414 "www/errors/414.html"
 
 #define ERROR500 "www/errors/500.html"
+#define ERROR502 "www/errors/502.html"
+#define ERROR504 "www/errors/504.html"
 #define ERROR508 "www/errors/508.html"
 
 #ifndef BUFFERSIZE

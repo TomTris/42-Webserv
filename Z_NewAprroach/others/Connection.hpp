@@ -49,6 +49,7 @@ class Reader {
 		std::string							CGI_method;
 		std::string							content_type;
 		std::string							cgi_ex;
+		int									contentLengthCGI;
 		int									cgi_header_done;
 		int									eof;
 };
