@@ -10,9 +10,11 @@ int	writer(Connection &cnect, Writer &writer)
 		{
 			// std::cout << "is writing: {" << writer.writeString << "}" << std::endl;
 			ssize_t bytesWritten = write(writer.fdWritingTo, writer.writeString.c_str(), writer.writeString.length());
+			revents_to_0(writer.fdWritingTo);
 			if (bytesWritten == -1)
 			{
 				std::cerr << "Error writing to file descriptor: " << std::strerror(errno) << std::endl;
+				cnect.reader.cnect_close = 1;
 				return (1);
 			}
 			else

@@ -150,8 +150,9 @@ int	read_func_cgi_get(Reader &reader)
 	char	buffer[BUFFERSIZE];
 	
 	check = read(reader.fdReadingFrom, buffer, sizeof(buffer) - 1);
+	revents_to_0(reader.fdReadingFrom);
 	if (check == -1)
-		return (printf("check in reader = -1 read_func_cgi_get\n"), 1);
+		return (std::cerr << "check in reader = -1 read_func_cgi_get" << std::endl, reader.cnect_close = 1, 1);
 	if (check == 0)
 		return (reader.cnect_close = 1, 0);
 	reader.have_read_2.append(buffer, check);

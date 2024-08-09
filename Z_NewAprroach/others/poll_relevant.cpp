@@ -39,20 +39,37 @@ void	change_option_poll(int fd, int option)
 	for (unsigned int i = 0; i < fds.size(); i++)
 	{
 		if (fds[i].fd == fd) {
-            fds[i].events = option;
+			fds[i].events = option;
 			return ;
-        }
-    }
+		}
+	}
 }
 
-int check_fds(int fd) {
+void revents_to_0(int fd)
+{
+	if (fd == -1)
+		return ;
+	// for (unsigned int i = 0; i < fds.size(); i++)
+	// {
+	// 	if (fds[i].fd == fd)
+	// 	{
+	// 		fds[i].revents = 0;
+	// 		return ;
+	// 	}
+	// }
+}
+
+int check_fds(int fd)
+{
 	if (fd == -1)
 		return (-1);
-    for (unsigned int i = 0; i < fds.size(); i++)
+	for (unsigned int i = 0; i < fds.size(); i++)
 	{
-		if (fds[i].fd == fd) {
+		if (fds[i].fd == fd)
+		{
 			return fds[i].revents;
-        }
-    }
-    return -1;
+		}
+	}
+	return -1;
 }
+

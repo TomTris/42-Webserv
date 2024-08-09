@@ -137,6 +137,7 @@ void	change_option_poll(int fd, int option);
 
 int 	connection_accept(Server &server);
 int     check_fds(int fd);
+void    revents_to_0(int fd);
 
 //--------------server_level-----------//
 void	server_level(std::vector<Server> &servers);

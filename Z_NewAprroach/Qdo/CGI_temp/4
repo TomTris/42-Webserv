@@ -1,12 +1,12 @@
-Set-Cookie: obritt_cgi=9;
 Content-Type: text/html
 
 <!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Form Response</title></head>
+<html>
+<head>
+    <title>CGI Test</title>
+</head>
 <body>
-<h1>Form Data Received</h1>
-<p>Name: Obritt</p>
-<p>Age: 13</p>
+    <p> Your Cookies is:obritt_cgi=10</p>
 </body>
 </html>
+
