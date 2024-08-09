@@ -191,8 +191,8 @@ std::map<std::string, std::string> parse_form_data(std::string& name)
 		std::string value = url_decode(form_data.substr(eq_pos + 1));
 		data[key] = value;
 	}
-
-	add_to_base(data, name);
+	if (!(s_method == "GET" && (std::string)query == ""))
+		add_to_base(data, name);
 	return data;
 }
 

@@ -1,12 +1,12 @@
+Set-Cookie: obritt_cgi=6;
 Content-Type: text/html
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><title>Form Response</title></head>
 <body>
 <h1>Form Data Received</h1>
-<p>Name: qQ</p>
-<p>Age: 1/</p>
+<p>Name: a</p>
+<p>Age: a</p>
 </body>
 </html>
