@@ -1,4 +1,4 @@
-Set-Cookie: obritt_cgi=9;
+Set-Cookie: obritt_cgi_py=1
 Content-Type: text/html
 
 <!DOCTYPE html>
@@ -6,7 +6,7 @@ Content-Type: text/html
 <head><meta charset="UTF-8"><title>Form Response</title></head>
 <body>
 <h1>Form Data Received</h1>
-<p>Name: Obritt</p>
-<p>Age: 13</p>
+<p>Name: asd</p>
+<p>Age: 123</p>
 </body>
 </html>
