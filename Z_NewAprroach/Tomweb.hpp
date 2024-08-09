@@ -58,7 +58,7 @@
 #define ERROR508 "www/errors/508.html"
 
 #ifndef BUFFERSIZE
-#define BUFFERSIZE 500
+#define BUFFERSIZE 10000
 #endif
 #include "others/Connection.hpp"
 struct location

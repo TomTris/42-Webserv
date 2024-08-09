@@ -10,7 +10,6 @@ Connection::Connection(int fd) : socket_fd(fd), reader()
 	have_read = "";
 	time_out = time(NULL);
 	
-	reader.errNbr = 200;
 	reader.openFile = 0;
 	reader.readingDone = 0;
 

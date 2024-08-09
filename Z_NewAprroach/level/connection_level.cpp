@@ -23,7 +23,6 @@ int	get_data_from_parsing(Server &server, Connection &cnect, Reader &reader)
 		return (reader.errNbr = 405, 1);
 	
 	reader.URI = a[2];
-	// std::cout << a[2] << std::endl;
 	if (*reader.URI.begin() != '/')
 		reader.URI = '/' + reader.URI;
 	reader.CGI_path = reader.URI;
@@ -50,6 +49,13 @@ int	reading_done_precheck(Connection &cnect, Reader &reader)
 	cnect.reader.readingDone = 0;
 	cnect.reader.time_out = time(0);
 
+	std::cout << "{"<<reader.URI<<"}" << std::endl;
+	if (reader.URI.find("?") != std::string::npos)
+	{
+		reader.query_string = reader.URI.substr(reader.URI.find("?") + 1);
+		reader.URI = reader.URI.substr(0, reader.URI.find("?"));
+		std::cerr << "cnect.reader.URI = " << cnect.reader.URI << "\n query = " << cnect.reader.query_string << std::endl;
+	}
 	if (reader.method != "GET" && reader.method != "POST" && reader.method != "DELETE")
 		return (reader.errNbr = 405, 1);
 	if (reader.URI.length() > 500)
@@ -59,11 +65,6 @@ int	reading_done_precheck(Connection &cnect, Reader &reader)
 	reader.URI.append("/");
 	
 	reader.query_string = "";
-	if (reader.URI.find("?") != std::string::npos)
-	{
-		reader.query_string = reader.URI.substr(reader.URI.find("?") + 1);
-		reader.URI = reader.URI.substr(0, reader.URI.find("?"));
-	}
 	return (0);
 }
 
@@ -162,7 +163,6 @@ int reading_header(Server &server, Connection &connect)
 		if (check == -1 || check == 0)
 			return (std::cerr << "cnect level, check = " << check << std::endl, 2);
 		connect.have_read.append(buffer, check);
-		// std::cout << buffer << std::endl;
 	}
 	return (request_header(server, connect));
 }

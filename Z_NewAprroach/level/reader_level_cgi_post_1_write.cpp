@@ -70,6 +70,7 @@ int	cgi_open_post(Connection &cnect, Reader &reader)
 
 //find a file to write into
 	cgi_file = path + std::to_string(cnect.socket_fd);
+	std::cout << "cgi_file = " <<  cgi_file << std::endl;
 	fd = open(cgi_file.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0666);
 	if (fd == -1)
 		return (reader.errNbr = 500, reader.readCGI = 0, perror("open"), -1);

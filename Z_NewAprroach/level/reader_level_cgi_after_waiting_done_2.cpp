@@ -1,58 +1,9 @@
 #include "../Tomweb.hpp"
 
-std::string	getHeader(int nbr)
+std::string	getHeader()
 {
-	std::string http = "HTTP/1.1 " + std::to_string(nbr) + " ";
-	switch (nbr)
-	{
-		case 200:
-			return (http += "OK", http);
-		case 204:
-			return (http += "OK", http);
-		case 301:
-			return (http += "Moved Permanently", http);
-		case 302:
-			return (http += "Found", http);
-		case 303:
-			return (http += "See Other", http);
-		case 304:
-			return (http += "Not Modified", http);
-		case 307:
-			return (http += "Temporary Redirect", http);
-		case 308:
-			return (http += "Permanent Redirect", http);
-
-		case 400:
-			return (http += "Bad Request", http);
-		case 401:
-			return (http += "Unauthorized", http);
-		case 403:
-			return (http += "Forbidden", http);
-		case 404:
-			return (http += "Not found", http);
-		case 405:
-			return (http += "Method not allowed", http);
-
-		case 408:
-			return (http += "Request Timeout", http);
-		case 409:
-			return (http += "Conflict", http);
-		case 411:
-			return (http += "Content-Length required", http);
-		case 413:
-			return (http += "Payload Too Large", http);
-		case 414:
-			return (http += "URI Too Long", http);
-		case 500:
-			return (http += "Internal Server Error", http);
-		case 502:
-			return (http += "Bad Gateway Timeout", http);
-		case 504:
-			return (http += "Gateway Timeout", http);
-		case 508:
-			return (http += "Loop Detected", http);
-	}
-	return (http += "Bad Request", http);
+	std::string http = "HTTP/1.1 " + std::to_string(200) + " ";
+	return (http += "OK", http);
 }
 
 //Content-Length == -1 => not set
@@ -76,42 +27,53 @@ int	cgi_handle_file_header(Reader &reader)
 {
 	if (reader.have_read_2.find("\r\n\r\n") == std::string::npos)
 		return (0);
+	std::cout << reader.have_read_2 << std::endl;
+	std::string header = reader.have_read_2.substr(0, reader.have_read_2.find("\r\n\r\n") + 4);
+	reader.have_read_2.erase(0, reader.have_read_2.find("\r\n\r\n") + 4);
+	std::string str = "Status: ";
 
-	int	statusCode;
-	std::string header = reader.have_read_2.substr(0, reader.have_read_2.find("\r\n\r\n"));
-
-	if (header.find("Status:") != std::string::npos)
+	if (header.find(str) == 0)
 	{
-		std::string str = "Status";
 		int	start = header.find(str);
 		start += str.length();
 		int	end = header.find("\r\n", start);
-		std::stringstream ss(header.substr(start, end - start));
-		ss >> statusCode;
-		reader.writer.writeString = getHeader(statusCode) + "\r\n";
+		reader.writer.writeString = "HTTP/1.1 " + header.substr(start, end - start);
 		header.erase(0, end);
 	}
 	else
-		reader.writer.writeString = getHeader(200) + "\r\n";
+		reader.writer.writeString = getHeader();
+
+	ssize_t header_end = header.find("\r\n\r\n");
+	reader.writer.writeString += header.substr(0, header_end + 4);
+	header.erase(0, header_end + 4);
 	reader.contentLength = extract_contentLength_cgi(header);
 	if (reader.contentLength != -1)
 	{
-		reader.contentLength -= (reader.have_read_2.length() - reader.have_read_2.find("\r\n\r\n") - 4);
-		if (reader.contentLength < 0)
+		if (static_cast<unsigned int>(reader.contentLength) >= reader.have_read_2.size())
 		{
-			if (static_cast<int>(reader.have_read_2.length()) + reader.contentLength >= 0)
-				reader.have_read_2 = reader.have_read_2.substr(0, reader.have_read_2.length() + reader.contentLength);
+			reader.contentLength -= reader.have_read_2.size();
+			reader.writer.writeString += reader.have_read_2;
+			reader.have_read_2 = "";
+		}
+		else
+		{
+			reader.writer.writeString += reader.have_read_2.substr(0, reader.contentLength);
+			reader.have_read_2.erase(0, reader.contentLength);
 			reader.contentLength = 0;
 		}
 	}
 	reader.cgi_header_done = 1;
+	if (reader.contentLength == 0)
+		reader.readingDone = 1;
 	return (1);
 }
 
 int	cgi_handle_body(Reader &reader)
 {
 	if (reader.contentLength == 0)
+	{
 		return (1);
+	}
 	if (reader.contentLength == -1)
 	{
 		reader.writer.writeString += reader.have_read_2;
@@ -168,7 +130,7 @@ int	CGI_after_waiting(Reader &reader)
 		return (-1);
 	if (reader.cgi_header_done == 0)
 		cgi_handle_file_header(reader);
-	if (reader.cgi_header_done == 1)
+	if (reader.cgi_header_done == 1 && reader.readingDone == 0)
 		cgi_handle_body(reader);
 	if (reader.fdReadingFrom == -1 && reader.contentLength != 0)
 		return (reader.errNbr = 502, reader.readCGI = 0, perror("fork"), -1);

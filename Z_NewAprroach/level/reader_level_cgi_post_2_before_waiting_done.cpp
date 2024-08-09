@@ -9,6 +9,7 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 	
 	std::string aREQUEST_METHOD = "REQUEST_METHOD=" + reader.method;
 	std::string aQUERY_STRING = "QUERY_STRING=" + reader.query_string;
+	std::cerr << "{" << aQUERY_STRING << "}" << std::endl;
 	std::string aCONTENT_TYPE = "CONTENT_TYPE=" + reader.content_type;
 	std::string aCONTENT_LENGTH = "CONTENT_LENGTH=" + std::to_string(reader.contentLengthCGI);
 	std::string aHTTP_COOKIE = "HTTP_COOKIE=" + reader.cookies;
@@ -75,6 +76,7 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 	}
 	// std::cerr << "aHTTP_COOKIE = {" << aHTTP_COOKIE << "}" << std::endl;
 	// std::cerr << "reader.cookies = {" << reader.cookies << "}" << std::endl;
+	std::cerr << "execv post " << std::endl;
 	execve(a[0], a, env);
 	perror("perror execve");
 	close(fdw);

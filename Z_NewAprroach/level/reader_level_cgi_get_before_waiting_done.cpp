@@ -52,6 +52,7 @@ int	child_process(Connection &cnect, Reader &reader)
 		exit(EXIT_FAILURE);
 	std::string aREQUEST_METHOD = "REQUEST_METHOD=" + reader.method;
 	std::string aQUERY_STRING = "QUERY_STRING=" + reader.query_string;
+	std::cerr << "{" << aQUERY_STRING << "}" << std::endl;
 	std::string aCONTENT_TYPE = "CONTENT_TYPE=" + reader.content_type;
 	std::string aCONTENT_LENGTH = "CONTENT_LENGTH=0";
 	std::string aHTTP_COOKIE = "HTTP_COOKIE=" + reader.cookies;
@@ -95,22 +96,7 @@ int	child_process(Connection &cnect, Reader &reader)
 		else
 			break ;
 	}
-
-	// int fd1 = open("123", O_CREAT | O_RDWR, 0644);
-	// write(fd1, reader.CGI_path.c_str(), reader.CGI_path.length());
-	// close(fd1);
-	// char a0[reader.CGI_path.length() + 1];
-	// std::strcpy(a0, reader.CGI_path.c_str());
-	// char *a[2];
-	// a[0] = a0;
-	// a[1] = NULL;
-	// std::cerr << "execve " << reader.CGI_path << std::endl;
-	// execve(a0, a, env);
-	// perror("execve");
-	// close(fd);
-	// exit(EXIT_FAILURE);
 	
-
 	char *a[4];
 	char a0[200];
 	char a1[200];
@@ -130,6 +116,7 @@ int	child_process(Connection &cnect, Reader &reader)
 	}
 	// std::cerr << "aHTTP_COOKIE = {" << aHTTP_COOKIE << "}" << std::endl;
 	// std::cerr << "reader.cookies = {" << reader.cookies << "}" << std::endl;
+	std::cerr << "execv get " << std::endl;
 	execve(a[0], a, env);
 	perror("perror execve");
 	exit(EXIT_FAILURE);
