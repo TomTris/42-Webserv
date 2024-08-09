@@ -82,29 +82,6 @@ std::string get_path_of_standart_error(int errorNumb)
     return mp[errorNumb];
 }
 
-std::string get_error_page(Server& serv, int errorNumb)
-{
-    std::map<int, std::string>::iterator it = serv.errorPages.find(errorNumb);
-    if (it == serv.errorPages.end())
-    {
-        return get_path_of_standart_error(errorNumb);
-    }
-    else
-    {
-        std::string path = it->second;
-        if (path[0] == '/')
-            path = path.substr(1);
-        if (checkIfFileExistsAndNotDirectory(path))
-        {
-            return path;
-        } 
-        else
-        {
-            return get_path_of_standart_error(errorNumb);
-        }
-    }
-}
-
 bool isDirectory(const char *path) {
     struct stat path_stat;
     if (stat(path, &path_stat) != 0) {

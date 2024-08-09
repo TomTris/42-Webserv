@@ -2,7 +2,7 @@
 
 Server::Server(server_t& s): err(0)
 {
-    this->errorPages = s.errorpages;
+    this->errorPages.push_back(s.errorpages);
     this->serverFd = socket(AF_INET, SOCK_STREAM, 0);
     if (this->serverFd < 0)
     {
@@ -14,7 +14,7 @@ Server::Server(server_t& s): err(0)
     this->address.sin_addr.s_addr = INADDR_ANY;
     this->locations.push_back(s.locations);
     this->server_names.push_back(s.servername);
-    this->body_size_max = s.client_max_body_size;
+    this->body_size_max.push_back(s.client_max_body_size);
     int opt = 1;
 	if (setsockopt(this->serverFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)) < 0) {
 		close(this->serverFd);
@@ -65,16 +65,35 @@ std::string Server::return_default(int numb)
     mp[508] = ERROR508;
     return (mp[numb]);
 }
-
-
-std::string Server::get_error_page(int numb)
+int Server::get_index(std::string& host)
 {
-    if (this->errorPages.find(numb) == this->errorPages.end())
+    if (host.find(":") != std::string::npos)
+    {
+        host = host.substr(0, host.find(":"));
+    }
+    for (unsigned int i = 0; i < this->server_names.size(); i++)
+    {
+        if (host == this->server_names[i])
+            return i;
+    }
+    return (0);
+}   
+
+std::string Server::get_error_page(int numb, std::string host)
+{
+    int ind = this->get_index(host);
+
+    if (this->errorPages[ind].find(numb) == this->errorPages[ind].end())
         return (return_default(numb));
-    std::string err = this->errorPages[numb];
+    std::string err = this->errorPages[ind][numb];
     if (checkIfFileExistsAndNotDirectory(err))
     {
         return (err);
     }
     return (return_default(numb));
+}
+
+int Server::get_body_size_max(std::string host)
+{
+    return (this->body_size_max[this->get_index(host)]);
 }

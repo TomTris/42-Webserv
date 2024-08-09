@@ -96,14 +96,16 @@ class Server
         std::vector<Connection>                         connections;
         std::vector<std::string>                        server_names;
         struct sockaddr_in                              address;
-        std::map<int, std::string>                      errorPages;
+        std::vector<std::map<int, std::string> >         errorPages;
         int                                             err;
         int                                             serverFd;
-        int                                             body_size_max;
+        std::vector<int>                                body_size_max;
         int                                             port;
         int                                             host;
-        std::string get_error_page(int numb);
+        std::string get_error_page(int numb, std::string host);
         std::string return_default(int numb);
+        int get_body_size_max(std::string host);
+        int get_index(std::string& host);
 };
 
 extern std::vector<struct pollfd>  fds;
@@ -118,7 +120,6 @@ location get_location(std::vector<location>& locations, std::string& path);
 std::vector<std::string> get_allowed(location& loc);
 bool isAllowed(location& loc, std::string& method);
 std::string get_path_of_standart_error(int errorNumb);
-std::string get_error_page(Server& serv, int errorNumb);
 std::string get_path_to_file(location& loc, std::string path);
 bool isDirectory(const char *path);
 long long my_atoi(std::string numb);

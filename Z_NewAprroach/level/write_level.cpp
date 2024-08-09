@@ -8,12 +8,12 @@ int	writer(Connection &cnect, Writer &writer)
 		// std::cout << "huha" << cnect.socket_fd << std::endl;
 		if (writer.writeString.length() > 0)
 		{
-			// std::cout << "is writing: {" << writer.writeString << "}" << std::endl;
+			// std::cerr << "is writing: {" << writer.writeString << "}" << std::endl;
 			ssize_t bytesWritten = write(writer.fdWritingTo, writer.writeString.c_str(), writer.writeString.length());
 			revents_to_0(writer.fdWritingTo);
 			if (bytesWritten == -1)
 			{
-				std::cerr << "Error writing to file descriptor: " << std::strerror(errno) << std::endl;
+				// std::cerr << "Error writing to file descriptor: " << std::strerror(errno) << std::endl;
 				cnect.reader.cnect_close = 1;
 				return (1);
 			}

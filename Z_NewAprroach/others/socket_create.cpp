@@ -45,11 +45,15 @@ void	load_config_n_socket_create(int ac, char **av, std::vector<Server> &servers
 			{
 				servers[ans].locations.insert(servers[ans].locations.begin(), server_config[i].locations);
 				servers[ans].server_names.insert(servers[ans].server_names.begin(), server_name);
+				servers[ans].body_size_max.insert(servers[ans].body_size_max.begin(), server_config[i].client_max_body_size);
+				servers[ans].errorPages.insert(servers[ans].errorPages.begin(), server_config[i].errorpages);
 			}
 			else
 			{
 				servers[ans].locations.push_back(server_config[i].locations);
 				servers[ans].server_names.push_back(server_name);
+				servers[ans].body_size_max.push_back(server_config[i].client_max_body_size);
+				servers[ans].errorPages.push_back(server_config[i].errorpages);
 			}
 		}
 	}

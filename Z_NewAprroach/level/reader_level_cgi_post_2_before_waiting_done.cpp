@@ -73,8 +73,8 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 		a[1] = a1;
 		a[2] = NULL;
 	}
-	std::cerr << "aHTTP_COOKIE = {" << aHTTP_COOKIE << "}" << std::endl;
-	std::cerr << "reader.cookies = {" << reader.cookies << "}" << std::endl;
+	// std::cerr << "aHTTP_COOKIE = {" << aHTTP_COOKIE << "}" << std::endl;
+	// std::cerr << "reader.cookies = {" << reader.cookies << "}" << std::endl;
 	execve(a[0], a, env);
 	perror("perror execve");
 	close(fdw);

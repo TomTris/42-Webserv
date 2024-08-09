@@ -17,7 +17,7 @@ int	get_data_from_parsing(Server &server, Connection &cnect, Reader &reader)
 
 	if (a[0] == "0") //host:post
 		return (reader.errNbr = 400, 1);
-	else if (reader.contentLength > server.body_size_max)
+	else if (reader.contentLength > server.get_body_size_max(reader.host))
 		return (reader.errNbr = 413, 1);
 	else if (a[1] == "0") //method not allowed
 		return (reader.errNbr = 405, 1);
@@ -33,7 +33,12 @@ int	get_data_from_parsing(Server &server, Connection &cnect, Reader &reader)
 		reader.autoIndex = 0;
 
 	if (a[4] != "") //redirect
-		return (reader.URI = a[4], cnect.reader.errNbr = 301, 1);
+	{
+		reader.URI = a[4];
+		if (reader.query_string != "")
+			reader.URI += "?" + reader.query_string;
+		return (cnect.reader.errNbr = 301, 1);
+	}
 
 	cnect.reader.cgi_ex = a[5];
 	return (0);

@@ -128,8 +128,8 @@ int	child_process(Connection &cnect, Reader &reader)
 		a[1] = a1;
 		a[2] = NULL;
 	}
-	std::cerr << "aHTTP_COOKIE = {" << aHTTP_COOKIE << "}" << std::endl;
-	std::cerr << "reader.cookies = {" << reader.cookies << "}" << std::endl;
+	// std::cerr << "aHTTP_COOKIE = {" << aHTTP_COOKIE << "}" << std::endl;
+	// std::cerr << "reader.cookies = {" << reader.cookies << "}" << std::endl;
 	execve(a[0], a, env);
 	perror("perror execve");
 	exit(EXIT_FAILURE);

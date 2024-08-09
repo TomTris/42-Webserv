@@ -327,7 +327,7 @@ void handleMaxBody(std::string& body, server_t& s, int& err)
 
 void add_to_loc(std::string& temp, location& loc, int &err)
 {
-    std::string possibles[4] = {"PUT", "GET", "DELETE", "POST"};
+    std::string possibles[4] = {"GET", "GET", "DELETE", "POST"};
 
     int i = 0;
     for (; i < 4; i++)

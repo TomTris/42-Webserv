@@ -46,7 +46,7 @@ int	openFuncErr(Server & server, Connection &cnect, Reader &reader)
 
 	struct stat info;
 	int	fd;
-	std::string file_name = server.get_error_page(reader.errNbr);
+	std::string file_name = server.get_error_page(reader.errNbr, reader.host);
 	if (stat(file_name.c_str(), &info) == -1)
 		return (open500(server, cnect, reader));
 	if (!S_ISREG(info.st_mode))
