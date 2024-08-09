@@ -76,6 +76,5 @@ int	header_extract(Connection &cnect, std::string &header_o)
 	cnect.reader.contentLengthCGI = cnect.reader.contentLength;
 	cnect.reader.host = extract_host(header_o);
 	cnect.reader.cookies = extract_cookies(header_o);
-	std::cout << "Extract cookies = {" << cnect.reader.cookies << "}" << std::endl;
 	return (1);
 }

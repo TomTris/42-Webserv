@@ -86,7 +86,7 @@ int	cgi_handle_file_header(Reader &reader)
 		int	start = header.find(str);
 		start += str.length();
 		int	end = header.find("\r\n", start);
-		std::stringstream ss(header.substr(start, end));
+		std::stringstream ss(header.substr(start, end - start));
 		ss >> statusCode;
 		reader.writer.writeString = getHeader(statusCode) + "\r\n";
 		header.erase(0, end);
@@ -101,8 +101,6 @@ int	cgi_handle_file_header(Reader &reader)
 		{
 			if (static_cast<int>(reader.have_read_2.length()) + reader.contentLength >= 0)
 				reader.have_read_2 = reader.have_read_2.substr(0, reader.have_read_2.length() + reader.contentLength);
-			//else
-				// CGi is crazy
 			reader.contentLength = 0;
 		}
 	}

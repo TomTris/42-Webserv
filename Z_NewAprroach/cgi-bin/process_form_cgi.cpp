@@ -219,32 +219,9 @@ int main() {
 
 	std::map<std::string, std::string> data;
 	std::string name = "obritt_cgi";
-	// done(data);
-	// std::string a(cookies);
-	// if (a.find("./cgi-bin/process_form_cgi.out=8; cgi-bin/process_form_cgi.out=13; obritt_cgi=") != 0)
-	// 	exit(1);
-	// Parse form data
-	// setenv("QUERY_STRING", "name=qdo&age=1", 1);
 	data = parse_form_data(name);
-	char *cookies = getenv("HTTP_COOKIE");
 	// std::cerr << data["name"] << ", " << data["age"] << std::endl;
-	// done(data);
-	std::cout << "Set-Cookie: " + data["NAME"] + "=" + data["VALUE"] + "\r\n";
-	std::cout << "Content-Type: text/html\r\n\r\n";
-	std::cout << "<!DOCTYPE html>\r\n";
-	std::cout << "<html lang=\"en\">\r\n";
-	std::cout << "<head><meta charset=\"UTF-8\"><title>Form Response</title></head>\r\n";
-	std::cout << "<body>\r\n";
-	std::cout << "<h1>" << "beginning: " <<  cookies  << "</h1>\r\n";
-	std::cout << "<h1>" << "after: " << data["NAME"] << "=" << data["VALUE"]  << "</h1>\r\n";
-	std::cout << "<h1>Form Data Received</h1>\r\n";
-	std::cout << "<p>Name: " << data["name"] << "</p>\r\n";
-	std::cout << "<p>Age: " << data["age"] << "</p>\r\n";
-	// std::cout << getenv("HTTP_COOKIE") << "\r\n";
-	std::cout << "</body>\r\n";
-	std::cout << "</html>\r\n";
-	exit(0);
-
+	done(data);
 	return 0;
 }
 

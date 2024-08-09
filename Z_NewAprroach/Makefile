@@ -1,4 +1,4 @@
-NAME = b.out
+NAME = webserv
 FLAGS = -Wall -Werror -Wextra
 SRC = \
 	Ob/Class_Server.cpp\
@@ -23,17 +23,14 @@ SRC = \
 	level/reader_level_cgi_post_2_before_waiting_done.cpp\
 	level/read_level.cpp\
 	\
-	level/write_level.cpp
-
-# SANITIZER_FLAGS = -fsanitize=address,undefined
+	level/write_level.cpp	
 
 OBJS = $(SRC:.cpp=.o)
 
 $(NAME) : all
 
 all: $(OBJS)
-# c++ $(FLAGS) $(OBJS) -o b.out && valgrind ./b.out
-	c++ $(FLAGS) $(OBJS) -o b.out && ./b.out
+	c++ $(FLAGS) $(OBJS) -o $(NAME)
 
 %.o: %.cpp
 	$(CXX) $(FLAGS) -c $< -o $@
