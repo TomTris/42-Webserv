@@ -95,19 +95,43 @@ int	child_process(Connection &cnect, Reader &reader)
 		else
 			break ;
 	}
+
+	// int fd1 = open("123", O_CREAT | O_RDWR, 0644);
+	// write(fd1, reader.CGI_path.c_str(), reader.CGI_path.length());
+	// close(fd1);
+	// char a0[reader.CGI_path.length() + 1];
+	// std::strcpy(a0, reader.CGI_path.c_str());
+	// char *a[2];
+	// a[0] = a0;
+	// a[1] = NULL;
+	// std::cerr << "execve " << reader.CGI_path << std::endl;
+	// execve(a0, a, env);
+	// perror("execve");
+	// close(fd);
+	// exit(EXIT_FAILURE);
 	
-	int fd1 = open("123", O_CREAT | O_RDWR, 0644);
-	write(fd1, reader.CGI_path.c_str(), reader.CGI_path.length());
-	close(fd1);
-	char a0[reader.CGI_path.length() + 1];
-	std::strcpy(a0, reader.CGI_path.c_str());
-	char *a[2];
-	a[0] = a0;
-	a[1] = NULL;
-	std::cerr << "execve " << reader.CGI_path << std::endl;
-	execve(a0, a, env);
-	perror("execve");
-	close(fd);
+
+	char *a[4];
+	char a0[200];
+	char a1[200];
+	if (reader.CGI_path.find(".out") != std::string::npos)
+	{
+		std::strcpy(a0, reader.CGI_path.c_str());
+		a[0] = a0;
+		a[1] = NULL;
+	}
+	if (reader.CGI_path.find(".py") != std::string::npos)
+	{
+		std::strcpy(a0, "/usr/bin/python3");
+		std::strcpy(a1, reader.CGI_path.c_str());
+		a[0] = a0;
+		a[1] = a1;
+		a[2] = NULL;
+	}
+	std::cerr << "aHTTP_COOKIE = {" << aHTTP_COOKIE << "}" << std::endl;
+	std::cerr << "reader.cookies = {" << reader.cookies << "}" << std::endl;
+	execve(a[0], a, env);
+	perror("perror execve");
 	exit(EXIT_FAILURE);
 }
 

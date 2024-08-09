@@ -18,13 +18,15 @@ std::string handle_200(std::string str)
 	if (str.find(".txt") == str.length() - 4)
 		return (http += "Content-Type: text/plain\r\n", http);
 	if (str.find(".jpg") == str.length() - 4)
-		return (http += "Content-Type: image/jpeg\r\n", http);
+		return (http += "Content-Type: image/jpg\r\n", http);
 	if (str.find(".mp3") == str.length() - 4)
 		return (http += "Content-Type: audio/mpeg\r\n", http);
 	if (str.find(".doc") == str.length() - 4)
 		return (http += "Content-Type: application/msword\r\n", http);
 	if (str.length() >= 5)
 	{
+		if (str.find(".jpeg") == str.length() - 5)
+			return (http += "Content-Type: image/jpeg\r\n", http);
 		if (str.find(".webp") == str.length() - 4)
 			return (http += "Content-Type: image/webp\r\n", http);
 		if (str.find(".webm") == str.length() - 4)

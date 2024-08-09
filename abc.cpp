@@ -1,10 +1,40 @@
-#include "Z_NewAprroach/Tomweb.hpp"
+#include "Tomweb.hpp"
 
-int	main()
+int	main(int ac, char **av)
 {
-	std::string method = "REQUEST_METHOD";
-	if (setenv("REQUEST_METHOD", "GET", 1) != 0)
-		exit(1);
-	char *method1 = getenv("REQUEST_METHOD");
-	std::cout << method1 << std::endl;
+	std::string ret =
+	"Content-Type: text/html\r\n\r\n"
+    "<!DOCTYPE html>\n"
+    "<html>\n"
+    "<head>\n"
+    "    <title>CGI Test</title>\n"
+    "</head>\n"
+    "<body>\n"
+    "    <p> Your Cookies is:" + (std::string) getenv("HTTP_COOKIE") + "</p>\n"
+    "</body>\n"
+    "</html>\n";
+	std::cout << ret << std::endl;
+	return (0);
 }
+
+// int main(int ac, char **av)
+// {
+//     std::string line;
+//     std::string ret = "Content-Type: text/html\r\n\r\n"
+//     "<!DOCTYPE html>\n"
+//     "<html>\n"
+//     "<head>\n";
+
+//     while (1)
+//     {
+//         std::getline(std::cin, line);
+//         ret.append(line);
+//         if (std::cin.eof())
+//             break ;
+//         ret.append("\n");
+//     }
+//     std::cout << ret;
+//     std::cout << "</head>\n";
+//     std::cout << "</html>" << std::ends;
+//     return (0);
+// }
