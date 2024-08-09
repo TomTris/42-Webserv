@@ -1,4 +1,12 @@
-Status: 301 Moved Permanently
-Location: https://www.youtube.com/watch?v=IeYJbDboFdw
-Content-Length: 0
+Set-Cookie: =
+Content-Type: text/html
 
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Form Response</title></head>
+<body>
+<h1>Form Data Received</h1>
+<p>Name: </p>
+<p>Age: </p>
+</body>
+</html>

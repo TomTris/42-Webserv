@@ -2,9 +2,6 @@
 
 int	main()
 {
-	char *a;
-	a = (char *)malloc(2);
-	free(a);
-	free(a);
-	return (1);
+	while(1)
+		sleep(10);
 }

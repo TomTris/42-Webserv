@@ -26,17 +26,26 @@ SRC = \
 	level/write_level.cpp	
 
 OBJS = $(SRC:.cpp=.o)
+CGI_SRC = \
+	cgi-bin/process_form_cgi.cpp\
+	cgi-bin/getCgiWithCookie.cpp\
+	cgi-bin/infinitiv.cpp
+
+CGI_OBJS = $(CGI_SRC:.cpp=.out)
 
 $(NAME) : all
 
-all: $(OBJS)
+all: $(OBJS) $(CGI_OBJS)
 	c++ $(FLAGS) $(OBJS) -o $(NAME)
+
+%.out: %.cpp
+	$(CXX) $(FLAGS) -o $@ $<
 
 %.o: %.cpp
 	$(CXX) $(FLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(CGI_OBJS)
 
 fclean: clean
 	rm -f $(NAME)

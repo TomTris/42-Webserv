@@ -9,12 +9,11 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 	
 	std::string aREQUEST_METHOD = "REQUEST_METHOD=" + reader.method;
 	std::string aQUERY_STRING = "QUERY_STRING=" + reader.query_string;
-	std::cerr << "{" << aQUERY_STRING << "}" << std::endl;
 	std::string aCONTENT_TYPE = "CONTENT_TYPE=" + reader.content_type;
 	std::string aCONTENT_LENGTH = "CONTENT_LENGTH=" + std::to_string(reader.contentLengthCGI);
 	std::string aHTTP_COOKIE = "HTTP_COOKIE=" + reader.cookies;
 	std::string aSCRIPT_NAME = "SCRIPT_NAME=" + reader.CGI_path;
-	std::string aREMOTE_ADD = "REMOTE_ADDR=127.0.0.1";//server name //server port
+	std::string aREMOTE_ADD = "REMOTE_ADDR=127.0.0.1";
 	char *env[8];
 	char env0[aREQUEST_METHOD.size() + 1]; std::strncpy(env0, aREQUEST_METHOD.c_str(), aREQUEST_METHOD.size()); env0[aREQUEST_METHOD.size()] = 0;
 	char env1[aQUERY_STRING.size() + 1]; std::strncpy(env1, aQUERY_STRING.c_str(), aQUERY_STRING.size()); env1[aQUERY_STRING.size()] = 0;
@@ -32,8 +31,6 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 	env[6] = env6;
 	env[7] = NULL;
 
-	// reader.CGI_path = "." + reader.CGI_path;
-	// char buf[200];
 	while (1)
 	{
 		while (*reader.CGI_path.begin() == '/')
@@ -55,7 +52,6 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 		else
 			break ;
 	}
-	// //python3 or sh or bla bla
 
 	char *a[4];
 	char a0[200];
@@ -74,9 +70,6 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 		a[1] = a1;
 		a[2] = NULL;
 	}
-	// std::cerr << "aHTTP_COOKIE = {" << aHTTP_COOKIE << "}" << std::endl;
-	// std::cerr << "reader.cookies = {" << reader.cookies << "}" << std::endl;
-	std::cerr << "execv post " << std::endl;
 	execve(a[0], a, env);
 	perror("perror execve");
 	close(fdw);
@@ -191,7 +184,6 @@ int	CGI_post_wait_open(Connection &cnect, Reader &reader)
 	std::string		cgi_file;
 	int				fd;
 
-//find a file to write into
 	cgi_file = path + std::to_string(cnect.socket_fd);
 	fd = open(cgi_file.c_str(), O_RDONLY);
 	if (fd == -1)
@@ -206,7 +198,6 @@ int	CGI_post_wait_open(Connection &cnect, Reader &reader)
 
 int	CGI_post_2(Connection &cnect, Reader &reader)
 {
-	// std::cout << "reader.post = " << reader.post << std::endl;
 	if (reader.post == 3)
 		CGI_post_wait_open(cnect, reader);
 	else if (reader.post == 4)
@@ -218,27 +209,11 @@ int readCGIFunc(Connection &cnect, Reader &reader)
 {
 	if (reader.method == "GET")
 	{
-		// std::cout << "CGI Method GET" << std::endl;
 		if (reader.waitingDone == 0)
 			return (CGI_get(cnect, reader));
 		return (CGI_after_waiting(reader));
 	}
-	// std::cout << "CGI Method POST" << std::endl;
 	if (reader.post < 3)
 		return (CGI_post_1(cnect, reader));
 	return (CGI_post_2(cnect, reader));
 }
-
-// cnect.socket_fd = 1;
-// Get request fork,
-// Child: dup2output set env "GET", execute.
-// Main: after waiting, open "1", read "1" and response to socket.
-
-// Post request:
-// => open file -1, read from socket and write to "-1", close "-1"
-// => reading done: close(-1), fork,
-// Child: set env "POST", dup2 STD_OUT to "1",read from "-1", send it to cgi by the pipe, after reading, remove, "-1", wait until child done, then exit. if is exited by sig -> kill then exit.
-// Main: after waiting, read "1" and response to socket.
-
-
-// After 

@@ -40,7 +40,8 @@ int	cgi_post_write_to_file(Connection &cnect, Reader &reader)
 
 int	read_func_cgi_post1(Connection &cnect, Reader &reader)
 {
-	if (!(check_fds(reader.fdReadingFrom) & POLLIN))
+	int check_fd = check_fds(reader.fdReadingFrom);
+	if (check_fd <= 0 || !(check_fd & POLLIN))
 		return 1;
 	if (reader.writer.writeString.length() != 0)
 		return (1);
@@ -68,9 +69,8 @@ int	cgi_open_post(Connection &cnect, Reader &reader)
 	if (!access(reader.URI.c_str(), F_OK))
 		return (reader.readCGI = 0, reader.errNbr = 404, -1);
 
-//find a file to write into
 	cgi_file = path + std::to_string(cnect.socket_fd);
-	std::cout << "cgi_file = " <<  cgi_file << std::endl;
+
 	fd = open(cgi_file.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0666);
 	if (fd == -1)
 		return (reader.errNbr = 500, reader.readCGI = 0, perror("open"), -1);

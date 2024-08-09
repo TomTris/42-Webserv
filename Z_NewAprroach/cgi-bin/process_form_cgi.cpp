@@ -12,9 +12,9 @@ std::string to_str(long long number)
 {
 	std::ostringstream oss;
 
-    oss << number;
+	oss << number;
 
-    std::string str = oss.str();
+	std::string str = oss.str();
 	return str;
 }
 
@@ -188,11 +188,6 @@ void add_to_base(std::map<std::string, std::string>& data, std::string& name)
 	}
 }
 
-// HTTP_COOKIES= " cgi_age_name=0; warehourse=1"
-// HTTP_COOKIES= " cgi_age_name=1; warehourse=2"
-// HTTP_COOKIES= " cgi_age_name=2; warehourse=3"
-// HTTP_COOKIES= " cgi_age_name=3; warehourse=4"
-// HTTP_COOKIES= " cgi_age_name=4; warehourse=5"
 std::map<std::string, std::string> parse_form_data(std::string& name)
 {
 	std::map<std::string, std::string> data;
@@ -227,7 +222,6 @@ std::map<std::string, std::string> parse_form_data(std::string& name)
 	
 	size_t pos = 0;
 	std::string token;
-	// std::cout << query << std::endl;
 	while ((pos = form_data.find('&')) != std::string::npos) {
 		token = form_data.substr(0, pos);
 		size_t eq_pos = token.find('=');
@@ -253,7 +247,6 @@ std::map<std::string, std::string> parse_form_data(std::string& name)
 
 void done(std::map<std::string, std::string>& data)
 {
-	// todo store the bulshit and say
 	std::cout << "Set-Cookie: " + data["NAME"] + "=" + data["VALUE"] + "\r\n";
 	std::cout << "Content-Type: text/html\r\n\r\n";
 	std::cout << "<!DOCTYPE html>\r\n";
@@ -263,29 +256,18 @@ void done(std::map<std::string, std::string>& data)
 	std::cout << "<h1>Form Data Received</h1>\r\n";
 	std::cout << "<p>Name: " << data["name"] << "</p>\r\n";
 	std::cout << "<p>Age: " << data["age"] << "</p>\r\n";
-	// std::cout << getenv("HTTP_COOKIE") << "\r\n";
 	std::cout << "</body>\r\n";
 	std::cout << "</html>\r\n";
 	exit(0);
 }
 
-int main() {
-
-	char *cookie = getenv("HTTP_COOKIE");
-	std::ofstream inf("123");
-	inf << cookie << std::endl;
-	inf.close();
-
+int main()
+{
 	std::map<std::string, std::string> data;
 	std::string name = "obritt_cgi";
 	data = parse_form_data(name);
-	// std::cerr << data["name"] << ", " << data["age"] << std::endl;
 	done(data);
 	return 0;
 }
 
 
-//method = GET -> input= QUERY_STRING
-//METHOD = POST -> input comes from input.
-// you can use a.cpp to chagne value to check. This file is a cpp cgi file
-// u can look at it and try to make another in python or any other language

@@ -3,11 +3,9 @@
 std::string	getHeader()
 {
 	std::string http = "HTTP/1.1 " + std::to_string(200) + " ";
-	return (http += "OK", http);
+	return (http += "OK\r\n", http);
 }
 
-//Content-Length == -1 => not set
-//else => set
 int	extract_contentLength_cgi(std::string &header)
 {
 	std::string	str = "Content-Length:";
@@ -27,7 +25,6 @@ int	cgi_handle_file_header(Reader &reader)
 {
 	if (reader.have_read_2.find("\r\n\r\n") == std::string::npos)
 		return (0);
-	std::cout << reader.have_read_2 << std::endl;
 	std::string header = reader.have_read_2.substr(0, reader.have_read_2.find("\r\n\r\n") + 4);
 	reader.have_read_2.erase(0, reader.have_read_2.find("\r\n\r\n") + 4);
 	std::string str = "Status: ";
@@ -37,8 +34,8 @@ int	cgi_handle_file_header(Reader &reader)
 		int	start = header.find(str);
 		start += str.length();
 		int	end = header.find("\r\n", start);
-		reader.writer.writeString = "HTTP/1.1 " + header.substr(start, end - start);
-		header.erase(0, end);
+		reader.writer.writeString = "HTTP/1.1 " + header.substr(start, end - start + 2);
+		header.erase(0, end + 2);
 	}
 	else
 		reader.writer.writeString = getHeader();
@@ -103,7 +100,8 @@ int	cgi_handle_body(Reader &reader)
 
 int	read_func_cgi_get(Reader &reader)
 {
-	if (!(check_fds(reader.fdReadingFrom) & POLLIN))
+	int check_fd = check_fds(reader.fdReadingFrom);
+	if (check_fd <= 0 || !(check_fds(reader.fdReadingFrom) & POLLIN))
 		return 1;
 	if (reader.writer.writeString.length() != 0)
 		return (1);

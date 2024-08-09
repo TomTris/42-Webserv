@@ -7,6 +7,7 @@ void	prepare(void)
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
+	signal(SIGINT, exit);
 
 	if (BUFFERSIZE > 10000)
 		throw std::runtime_error( "Too big BUFFERSIZE" );

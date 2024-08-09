@@ -63,49 +63,49 @@
 #include "others/Connection.hpp"
 struct location
 {
-    std::string URI;
-    std::vector<std::string> allowed;
-    std::string root;
-    bool autoindex;
-    std::vector<std::string> indexes;
-    std::vector<std::string> cgi_path;
-    std::vector<std::string> cgi_ex;
-    int doesntExist;
-    std::string returning;
+	std::string URI;
+	std::vector<std::string> allowed;
+	std::string root;
+	bool autoindex;
+	std::vector<std::string> indexes;
+	std::vector<std::string> cgi_path;
+	std::vector<std::string> cgi_ex;
+	int doesntExist;
+	std::string returning;
 };
 
 struct server_t
 {
-    int host;
-    int port;
-    std::string servername;
-    std::map<int, std::string> errorpages;
-    int client_max_body_size;
-    std::vector<location> locations;
+	int host;
+	int port;
+	std::string servername;
+	std::map<int, std::string> errorpages;
+	int client_max_body_size;
+	std::vector<location> locations;
 };
 
 class Server
 {
-    private:
+	private:
 
-    public:
-        ~Server();
-        Server(server_t& s);
-        std::vector<std::vector<location> >             locations;
-        std::vector<int>                                to_add_fds;
-        std::vector<Connection>                         connections;
-        std::vector<std::string>                        server_names;
-        struct sockaddr_in                              address;
-        std::vector<std::map<int, std::string> >         errorPages;
-        int                                             err;
-        int                                             serverFd;
-        std::vector<int>                                body_size_max;
-        int                                             port;
-        int                                             host;
-        std::string get_error_page(int numb, std::string host);
-        std::string return_default(int numb);
-        int get_body_size_max(std::string host);
-        int get_index(std::string& host);
+	public:
+		~Server();
+		Server(server_t& s);
+		std::vector<std::vector<location> >			 locations;
+		std::vector<int>								to_add_fds;
+		std::vector<Connection>						 connections;
+		std::vector<std::string>						server_names;
+		struct sockaddr_in							  address;
+		std::vector<std::map<int, std::string> >		 errorPages;
+		int											 err;
+		int											 serverFd;
+		std::vector<int>								body_size_max;
+		int											 port;
+		int											 host;
+		std::string get_error_page(int numb, std::string host);
+		std::string return_default(int numb);
+		int get_body_size_max(std::string host);
+		int get_index(std::string& host);
 };
 
 extern std::vector<struct pollfd>  fds;
@@ -137,8 +137,8 @@ void	add_to_poll(int fd_add, int option);
 void	change_option_poll(int fd, int option);
 
 int 	connection_accept(Server &server);
-int     check_fds(int fd);
-void    revents_to_0(int fd);
+int	 check_fds(int fd);
+void	revents_to_0(int fd);
 
 //--------------server_level-----------//
 void	server_level(std::vector<Server> &servers);

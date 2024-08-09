@@ -18,7 +18,7 @@ class Reader {
 	public:
 		Reader();
 		Writer								writer;
-		int                 				errNbr;
+		int				 				errNbr;
 		int									openFile;
 		int									readingDone; // reading part done
 
@@ -56,15 +56,15 @@ class Reader {
 
 class Connection {
 	public:
-        ~Connection();
+		~Connection();
 		Connection(int fd);
-        int									socket_fd;
+		int									socket_fd;
 		int									IsAfterResponseClose;
-        int									readingHeaderDone;
-        std::string							have_read;
+		int									readingHeaderDone;
+		std::string							have_read;
 		Reader								reader;
 		time_t								time_out;
-        void reset();
+		void reset();
 };
 
 #endif

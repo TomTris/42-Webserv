@@ -109,8 +109,8 @@ int	directory_open(Server & server, Connection &cnect, Reader &reader)
 
 	reader.dir = opendir(reader.URI.c_str());
 	if (reader.dir == NULL) {
-        return (reader.errNbr = 401, openFuncErr(server, cnect, reader));
-    }
+		return (reader.errNbr = 401, openFuncErr(server, cnect, reader));
+	}
 
 	reader.writer.writeString = get_header(200, ".html");
 	content = "<!DOCTYPE html>\n"
@@ -121,7 +121,7 @@ int	directory_open(Server & server, Connection &cnect, Reader &reader)
 		"<body>\n"
 			"<h1>Directory Listing</h1>\n"
 			"<ol>\n";
-    while ((entry = readdir(reader.dir)))
+	while ((entry = readdir(reader.dir)))
 	{
 		a = "";
 		b= "";
@@ -137,7 +137,7 @@ int	directory_open(Server & server, Connection &cnect, Reader &reader)
 			b += "/";
 		b += "</a></li>\n";
 		content += b;
-    }
+	}
 	closedir(reader.dir);
 	content +=			"<ol>\n"
 					"</body>\n"
@@ -208,11 +208,11 @@ int	openFunc(Server & server, Connection &cnect, Reader &reader)
 
 int	read_func(Connection &cnect, Reader &reader)
 {
-	if (!(check_fds(reader.fdReadingFrom) & POLLIN))
+	int check_fd = check_fds(reader.fdReadingFrom);
+	if (check_fd <= 0 || !(check_fd & POLLIN))
 		return 1;
 	if (reader.writer.writeString.length() != 0)
 		return (1);
-	
 	int		check;
 	char	buffer[BUFFERSIZE];
 	
@@ -222,7 +222,6 @@ int	read_func(Connection &cnect, Reader &reader)
 		return (reader.cnect_close = 1, std::cerr << "check in reader = -1 normal read_func" << std::endl, 1);
 	if (check == 0)
 		return (reader.readingDone = 1, cnect.IsAfterResponseClose = 1, 1);
-	// std::cout << buffer << std::endl;
 	reader.have_read_2.append(buffer, check);
 	return (1);
 }

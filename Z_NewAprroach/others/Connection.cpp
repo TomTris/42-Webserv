@@ -4,12 +4,12 @@
 
 Connection::Connection(int fd) : socket_fd(fd), reader()
 {
-	// std::cerr << "new Connect, socket, fd = " << socket_fd << ", " << fd << std::endl;
 	IsAfterResponseClose = 0;
 	readingHeaderDone = 0;
 	have_read = "";
 	time_out = time(NULL);
 	
+	reader.errNbr = 200;
 	reader.openFile = 0;
 	reader.readingDone = 0;
 
@@ -40,6 +40,7 @@ Connection::Connection(int fd) : socket_fd(fd), reader()
 	reader.CGI_method = "";
 	reader.content_type = "";
 	reader.cgi_ex = "";
+	reader.contentLengthCGI = 0;
 	reader.cgi_header_done = 0;
 	reader.eof = 0;
 
@@ -90,6 +91,7 @@ void Connection::reset()
 	reader.CGI_method = "";
 	reader.content_type = "";
 	reader.cgi_ex = "";
+	reader.contentLengthCGI = 0;
 	reader.cgi_header_done = 0;
 	reader.eof = 0;
 

@@ -49,12 +49,10 @@ int	reading_done_precheck(Connection &cnect, Reader &reader)
 	cnect.reader.readingDone = 0;
 	cnect.reader.time_out = time(0);
 
-	std::cout << "{"<<reader.URI<<"}" << std::endl;
 	if (reader.URI.find("?") != std::string::npos)
 	{
 		reader.query_string = reader.URI.substr(reader.URI.find("?") + 1);
 		reader.URI = reader.URI.substr(0, reader.URI.find("?"));
-		std::cerr << "cnect.reader.URI = " << cnect.reader.URI << "\n query = " << cnect.reader.query_string << std::endl;
 	}
 	if (reader.method != "GET" && reader.method != "POST" && reader.method != "DELETE")
 		return (reader.errNbr = 405, 1);
@@ -63,8 +61,7 @@ int	reading_done_precheck(Connection &cnect, Reader &reader)
 	while (*reader.URI.begin() == '/')
 		reader.URI.erase(reader.URI.begin());
 	reader.URI.append("/");
-	
-	reader.query_string = "";
+
 	return (0);
 }
 
@@ -131,8 +128,6 @@ int	request_line(Connection &cnect)
 	return (1);
 }
 
-//WARING WARNING WARNING:
-//need to handle, so that 1 space enter also isn't allowed, must separate requestline and header part.
 int	request_header(Server &server, Connection &cnect)
 {
 	if (cnect.reader.request_line_done == 0 && cnect.have_read.find("\r\n") != std::string::npos)
@@ -186,7 +181,6 @@ void	connection_level(std::vector<Server> &servers)
 				|| (cnect->IsAfterResponseClose == 1 && cnect->reader.writer.writingDone == 1)
 				|| revents & POLLHUP)
 			{
-				// std::cout << "Maybe revents = POLLHUP" << std::endl;
 				del_connect(servers[i], *cnect, j);
 			}
 			else if (cnect->reader.writer.writingDone == 1 )
@@ -215,25 +209,3 @@ void	connection_level(std::vector<Server> &servers)
 		}
 	}
 }
-
-// #define RESPONSE "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n"
-// void	connection_level(std::vector<Server> &servers)
-// {
-// 	unsigned int	j;
-
-// 	for (unsigned int i = 0; i < servers.size(); i++)
-// 	{
-// 		j = 0;
-// 		while (j < servers[i].connections.size())
-// 		{
-// 			if (check_fds(servers[i].connections[j].socket_fd) == POLLOUT)
-// 			{
-// 				write(servers[i].connections[j].socket_fd, RESPONSE, strlen(RESPONSE));
-// 				close(servers[i].connections[j].socket_fd);
-// 				remove_from_poll(servers[i].connections[j].socket_fd);
-// 			}
-// 			else
-// 				j++;
-// 		}
-// 	}
-// }

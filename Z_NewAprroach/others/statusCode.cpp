@@ -173,9 +173,6 @@ std::string handle_301(std::string str)
 }
 std::string	get_header(int nbr, std::string str)
 {
-	// std::cout << "ERROR NBR = "  << nbr << std::endl;
-	// if(nbr != 200)
-	// 	sleep(1);
 	switch(nbr)
 	{
 		case 200:
