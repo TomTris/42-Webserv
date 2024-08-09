@@ -141,7 +141,8 @@ std::string get_path_to_file(location& loc, std::string path)
                 temp = "/" + temp;
             }
             output = rooted + temp;
-            
+            while (output[0] == '/' and output.size() != 0)
+                output = output.substr(1);
             if (access(output.c_str(), F_OK) == 0)
             {
                 seen = 1;

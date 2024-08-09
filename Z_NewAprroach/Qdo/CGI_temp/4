@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Set-Cookie: obritt_cgi_py=1
 Content-Type: text/html
 
@@ -7,9 +6,7 @@ Content-Type: text/html
 <head><meta charset="UTF-8"><title>Form Response</title></head>
 <body>
 <h1>Form Data Received</h1>
-<p>Name: asd</p>
-<p>Age: 123</p>
+<p>Name: a</p>
+<p>Age: a</p>
 </body>
 </html>
-=======
->>>>>>> 6dee016364777e412ea0d2a54a29f74220cc8fcf
