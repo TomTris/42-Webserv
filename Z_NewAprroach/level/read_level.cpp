@@ -222,6 +222,7 @@ int	read_func(Connection &cnect, Reader &reader)
 		return (reader.cnect_close = 1, std::cerr << "check in reader = -1 normal read_func" << std::endl, 1);
 	if (check == 0)
 		return (reader.readingDone = 1, cnect.IsAfterResponseClose = 1, 1);
+	// std::cout << buffer << std::endl;
 	reader.have_read_2.append(buffer, check);
 	return (1);
 }

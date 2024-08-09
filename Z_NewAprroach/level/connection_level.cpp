@@ -23,7 +23,7 @@ int	get_data_from_parsing(Server &server, Connection &cnect, Reader &reader)
 		return (reader.errNbr = 405, 1);
 	
 	reader.URI = a[2];
-	std::cout << a[2] << std::endl;
+	// std::cout << a[2] << std::endl;
 	if (*reader.URI.begin() != '/')
 		reader.URI = '/' + reader.URI;
 	reader.CGI_path = reader.URI;

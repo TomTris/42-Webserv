@@ -203,15 +203,15 @@ std::string	get_header(int nbr, std::string str)
 		case 411:
 			return handle_411();
 		case 413:
-			return handle_411();
+			return handle_413();
 		case 414:
 			return handle_414();
 		case 500:
 			return handle_500();
 		case 502:
-			return handle_500();
+			return handle_502();
 		case 504:
-			return handle_500();
+			return handle_504();
 		case 508:
 			return handle_508();
 	}	

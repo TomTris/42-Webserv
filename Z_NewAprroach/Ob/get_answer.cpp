@@ -236,6 +236,7 @@ std::vector<std::string> get_data(std::string host, std::string method, std::str
     }
     output.push_back("1");
     std::vector<location> locations = serv.locations[getIndexLocation(host, serv)];
+    // std::cout << "\n\n\n\n\n" << getIndexLocation(host, serv) << "\n\n\n\n";
     location loc;
     try
     {

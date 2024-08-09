@@ -142,7 +142,7 @@ int	child_create(Connection &cnect, Reader &reader)
 		return (reader.readCGI = 0, reader.errNbr = 404, -1);
 
 //find a file to write into
-	std::cout << "reader.CGI_path = " << reader.CGI_path << std::endl;
+	// std::cout << "reader.CGI_path = " << reader.CGI_path << std::endl;
 	reader.pid = fork();
 	if (reader.pid == -1)
 		return (reader.errNbr = 500, reader.readCGI = 0, perror("fork"), -1);

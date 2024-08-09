@@ -32,7 +32,7 @@ int	main(int ac, char **av)
 		prepare();
 		load_config_n_socket_create(ac, av, servers);
 		add_servers_to_pool(servers);
-		std::cout << "ok " << std::endl;
+		std::cout << "Ready " << std::endl;
 		while(1)
 		{
 			poll(fds.data(), fds.size(), 0);
