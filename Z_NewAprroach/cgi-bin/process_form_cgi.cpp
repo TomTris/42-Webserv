@@ -18,6 +18,14 @@ std::string to_str(long long number)
 	return str;
 }
 
+long long to_int(std::string str)
+{
+	std::istringstream iss(str);
+	long long out;
+	iss >> out;
+	return out;
+}
+
 // Function to URL-decode a string
 std::string url_decode(const std::string &str) {
 	std::string result;
@@ -99,35 +107,80 @@ int check_coockie(std::map<std::string, std::string>& data, std::string& name)
 	return (0);
 }
 
+std::string get_coockie_value(std::string& name)
+{
+	std::string c_name = name + "=";
+	char *cookie = getenv("HTTP_COOKIE");
+	if (cookie)
+	{
+		std::string s_cookie = delete_spaces(cookie);
+		if (s_cookie.find(c_name) != std::string::npos && (s_cookie.find(c_name) == 0 || (s_cookie[s_cookie.find(c_name) - 1] == ';')))
+		{	
+			
+			size_t start = s_cookie.find(c_name) + c_name.size();
+			size_t len = s_cookie.find(';', start);
+
+			std::string value = s_cookie.substr(start, len);
+			if (value.back() != ';')
+				value.push_back(';');
+			return value;
+		}
+	}
+	return "";
+}
 
 void add_to_base(std::map<std::string, std::string>& data, std::string& name)
 {
 	data["NAME"] = name;
-	name += ".ber";
+	std::string fname = name + ".ber";
 	try 
 	{
 		long long number = 0;
-		std::ifstream infile(name);
+		std::string val = get_coockie_value(name);
+		std::string out = "";
+		std::ifstream infile(fname);
+		std::string prev = "";
+		long long index = -1;
 		if (infile.is_open()) {
 			std::string line = "";
 			while (std::getline(infile, line))
 			{
 				if (line.empty()) 
 					break;
-				number += 1;
+				if (line.find(val) == 0 && index == -1 && val != "")
+				{
+					line = val + data["name"] + ";" + data["age"];
+					index = number;
+				}
+				out += (line + "\n");
+				prev = line.substr(0, line.find(';'));
 			}
 		}
-		
-		number++;
-		data["VALUE"] = to_str(number);
+		if (prev == "")
+			prev = "0";
+		number = to_int(prev);
 		infile.close();
-		
-		std::ofstream outfile(name, std::ios::app);
-		if (!outfile.is_open()) {
-			return ;
+		if (index == -1)
+		{
+			number++;
+			data["VALUE"] = to_str(number);
+			std::ofstream outfile(fname, std::ios::app);
+			if (!outfile.is_open()) {
+				return ;
+			}
+			outfile << (to_str(number) + ";" + data["name"] + ";"+ data["age"] + "\n");
+			outfile.close();
 		}
-		outfile << (to_str(number) + ";" + data["name"] + ";"+ data["age"] + "\n");
-		outfile.close();
+		else
+		{
+			data["VALUE"] = to_str(index + 1);
+			std::ofstream outfile(fname);
+			if (!outfile.is_open()) {
+				return ;
+			}
+			outfile << out;
+			outfile.close();
+		}
 	}
 	catch(const std::exception& e)
 	{
@@ -151,8 +204,7 @@ std::map<std::string, std::string> parse_form_data(std::string& name)
 	if (method == NULL)
 		return data;
 	std::string s_method = method;
-	if (check_coockie(data, name))
-		return data;
+
 
 	if (s_method == "POST")
 	{
@@ -166,6 +218,8 @@ std::map<std::string, std::string> parse_form_data(std::string& name)
 	}
 	else if (s_method == "GET" && query)
 	{
+		if (check_coockie(data, name))
+			return data;
 		form_data = query;
 	}
 	else
@@ -216,6 +270,11 @@ void done(std::map<std::string, std::string>& data)
 }
 
 int main() {
+
+	char *cookie = getenv("HTTP_COOKIE");
+	std::ofstream inf("123");
+	inf << cookie << std::endl;
+	inf.close();
 
 	std::map<std::string, std::string> data;
 	std::string name = "obritt_cgi";
