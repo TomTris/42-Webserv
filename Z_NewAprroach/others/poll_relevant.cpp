@@ -49,14 +49,14 @@ void revents_to_0(int fd)
 {
 	if (fd == -1)
 		return ;
-	// for (unsigned int i = 0; i < fds.size(); i++)
-	// {
-	// 	if (fds[i].fd == fd)
-	// 	{
-	// 		fds[i].revents = 0;
-	// 		return ;
-	// 	}
-	// }
+	for (unsigned int i = 0; i < fds.size(); i++)
+	{
+		if (fds[i].fd == fd)
+		{
+			fds[i].revents = 0;
+			return ;
+		}
+	}
 }
 
 int check_fds(int fd)
