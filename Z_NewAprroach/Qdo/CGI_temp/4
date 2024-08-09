@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Set-Cookie: obritt_cgi_py=1
 Content-Type: text/html
 
@@ -10,3 +11,5 @@ Content-Type: text/html
 <p>Age: 123</p>
 </body>
 </html>
+=======
+>>>>>>> 6dee016364777e412ea0d2a54a29f74220cc8fcf

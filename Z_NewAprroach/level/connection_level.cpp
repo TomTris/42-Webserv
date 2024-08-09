@@ -2,8 +2,6 @@
 
 void	del_connect(Server &server, Connection &cnect, int j)
 {
-	std::cerr << "DELETED " <<  cnect.socket_fd << std::endl;
-
 	cnect.reset();
 	close(cnect.socket_fd);
 	remove_from_poll(cnect.socket_fd);
@@ -25,6 +23,7 @@ int	get_data_from_parsing(Server &server, Connection &cnect, Reader &reader)
 		return (reader.errNbr = 405, 1);
 	
 	reader.URI = a[2];
+	std::cout << a[2] << std::endl;
 	if (*reader.URI.begin() != '/')
 		reader.URI = '/' + reader.URI;
 	reader.CGI_path = reader.URI;
@@ -154,12 +153,11 @@ int reading_header(Server &server, Connection &connect)
 	if (check_fds(connect.socket_fd) & POLLIN)
 	{
 		check = read(connect.socket_fd, buffer, BUFFERSIZE);
-		if (check == -1)
-			return (printf("reader in connection = -1\n"),1);
-		if (check == 0)
-			return (printf("returns 2\n") ,2);
+		revents_to_0(connect.socket_fd);
+		if (check == -1 || check == 0)
+			return (std::cerr << "cnect level, check = " << check << std::endl, 2);
 		connect.have_read.append(buffer, check);
-		std::cout << buffer << std::endl;
+		// std::cout << buffer << std::endl;
 	}
 	return (request_header(server, connect));
 }

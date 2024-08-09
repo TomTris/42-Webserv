@@ -120,9 +120,9 @@ int	child_process(Connection &cnect, Reader &reader)
 		a[0] = a0;
 		a[1] = NULL;
 	}
-	if (reader.CGI_path.find(".py") != std::string::npos)
+	else
 	{
-		std::strcpy(a0, "/usr/bin/python3");
+		std::strcpy(a0, reader.cgi_ex.c_str());
 		std::strcpy(a1, reader.CGI_path.c_str());
 		a[0] = a0;
 		a[1] = a1;

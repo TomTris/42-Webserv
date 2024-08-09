@@ -217,8 +217,9 @@ int	read_func(Connection &cnect, Reader &reader)
 	char	buffer[BUFFERSIZE];
 	
 	check = read(reader.fdReadingFrom, buffer, sizeof(buffer) - 1);
+	revents_to_0(reader.fdReadingFrom);
 	if (check == -1)
-		return (printf("check in reader = -1 normal read_func \n"), 1);
+		return (reader.cnect_close = 1, std::cerr << "check in reader = -1 normal read_func" << std::endl, 1);
 	if (check == 0)
 		return (reader.readingDone = 1, cnect.IsAfterResponseClose = 1, 1);
 	reader.have_read_2.append(buffer, check);

@@ -12,7 +12,6 @@ int	connection_accept(Server &server)
 	
 	Connection a(new_socket);
 	server.connections.push_back(a);
-	std::cout << "ACCEEPPTT " << new_socket <<  std::endl;
 	add_to_poll(new_socket, POLLIN);
 	return 1;
 }
