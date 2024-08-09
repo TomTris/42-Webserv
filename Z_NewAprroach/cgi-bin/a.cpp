@@ -6,7 +6,7 @@ int main()
 	std::string aQUERY_STRING = "QUERY_STRING=name=qdo+tri&age=10";
 	std::string aCONTENT_TYPE = "CONTENT_TYPE=";
 	std::string aCONTENT_LENGTH = "CONTENT_LENGTH=0";
-	std::string aHTTP_COOKIE = "HTTP_COOKIE=./cgi-bin/process_form_cgi.out=8; cgi-bin/process_form_cgi.out=13; obritt_cgi=20";
+	std::string aHTTP_COOKIE = "HTTP_COOKIE=./cgi-bin/process_form_cgi.out=8; cgi-bin/process_form_cgi.out=13; obritt_cgi=5";
 	std::string aSCRIPT_NAME = "SCRIPT_NAME=./process_form_cgi.out";
 	std::string aREMOTE_ADD = "REMOTE_ADDR=127.0.0.1";
 

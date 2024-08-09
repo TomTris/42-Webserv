@@ -63,7 +63,7 @@ std::string	extract_cookies(std::string &header)
 	if (end == static_cast<ssize_t>(std::string::npos))
 		return ("");
 	std::string ret;
-	ret = header.substr(start, end);
+	ret = header.substr(start, end - start);
 	return (ret);
 }
 
@@ -76,5 +76,6 @@ int	header_extract(Connection &cnect, std::string &header_o)
 	cnect.reader.contentLengthCGI = cnect.reader.contentLength;
 	cnect.reader.host = extract_host(header_o);
 	cnect.reader.cookies = extract_cookies(header_o);
+	std::cout << "Extract cookies = {" << cnect.reader.cookies << "}" << std::endl;
 	return (1);
 }

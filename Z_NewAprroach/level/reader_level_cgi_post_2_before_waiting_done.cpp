@@ -31,6 +31,8 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 	env[6] = env6;
 	env[7] = NULL;
 
+	// reader.CGI_path = "." + reader.CGI_path;
+	// char buf[200];
 	while (1)
 	{
 		while (*reader.CGI_path.begin() == '/')
@@ -52,13 +54,11 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 		else
 			break ;
 	}
-	//python3 or sh or bla bla
-	reader.CGI_path = "./" + reader.CGI_path;
+	// //python3 or sh or bla bla
 
 	char *a[4];
 	char a0[200];
 	char a1[200];
-	// char a2[200];
 	if (reader.CGI_path.find(".out") != std::string::npos)
 	{
 		std::strcpy(a0, reader.CGI_path.c_str());
@@ -73,7 +73,8 @@ int	child_child_process(Reader &reader, int fdr, int fdw, int *fdp)
 		a[1] = a1;
 		a[2] = NULL;
 	}
-	std::cerr << "a[0] = " << a[0] << std::endl;
+	std::cerr << "aHTTP_COOKIE = {" << aHTTP_COOKIE << "}" << std::endl;
+	std::cerr << "reader.cookies = {" << reader.cookies << "}" << std::endl;
 	execve(a[0], a, env);
 	perror("perror execve");
 	close(fdw);
