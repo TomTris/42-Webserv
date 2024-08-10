@@ -33,10 +33,10 @@ CGI_SRC = \
 
 CGI_OBJS = $(CGI_SRC:.cpp=.out)
 
-$(NAME) : all
+$(NAME): $(OBJS)
+	$(CXX) $(FLAGS) $(OBJS) -o $(NAME)
 
-all: $(OBJS) $(CGI_OBJS)
-	c++ $(FLAGS) $(OBJS) -o $(NAME)
+all: $(NAME) $(CGI_OBJS)
 
 %.out: %.cpp
 	$(CXX) $(FLAGS) -o $@ $<
