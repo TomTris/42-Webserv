@@ -1,4 +1,4 @@
-This project is about creating a webserver following HTTP/1.1.
+This project is about creating a webserver following HTTP/1.1, even for CGI, in pure C++
 
 For the server itself, it can handle "GET", "POST" and "DELETE" request.
 For "GET" request, you can open a browser and click in a file/directory to open it.
