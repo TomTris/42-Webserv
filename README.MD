@@ -1,3 +1,4 @@
+en.subject.pdf - original description of the Project.
 This project is about creating a webserver following HTTP/1.1, even for CGI, in pure C++
 
 For the server itself, it can handle "GET", "POST" and "DELETE" request.
